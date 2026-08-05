@@ -121,70 +121,6 @@ Layouts are intentionally optimized for each screen size rather than simply scal
 
 ---
 
-## 🚀 Getting Started
-
-Clone the repository
-
-```bash
-git clone <repository-url>
-```
-
-Move into the project
-
-```bash
-cd crochet-store
-```
-
-Install dependencies
-
-```bash
-npm install
-```
-
-Create an environment file
-
-```bash
-cp .env.example .env
-```
-
-Fill in your environment variables.
-
-Start the development server
-
-```bash
-npm run dev
-```
-
----
-
-## 🔐 Environment Variables
-
-```env
-VITE_SUPABASE_URL=
-
-VITE_SUPABASE_ANON_KEY=
-
-VITE_CLOUDINARY_CLOUD_NAME=
-
-VITE_RAZORPAY_KEY_ID=
-```
-
----
-
-## 📦 Build
-
-```bash
-npm run build
-```
-
-Preview production build
-
-```bash
-npm run preview
-```
-
----
-
 ## 📈 Roadmap
 
 ### MVP
@@ -211,14 +147,6 @@ npm run preview
 - Shipping Integration
 - WhatsApp Notifications
 - AI Search
-
----
-
-## 🤝 Contributing
-
-Contributions, suggestions, and improvements are welcome.
-
-Feel free to fork the repository and submit a pull request.
 
 ---
 
