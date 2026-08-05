@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+@theme {
+  /* Color palette */
+  --color-bg-primary: #FFF9F2;
+  --color-bg-section: #F6EFE7;
+  --color-bg-card: #FFFFFF;
+  --color-brand: #B56A45;
+  --color-brand-accent: #D68C6A;
+  --color-green-accent: #91A57A;
+  --color-text-primary: #46352A;
+  --color-text-secondary: #786A61;
+  --color-border: #E7DDD5;
+
+  /* Typography */
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-button: 'Poppins', sans-serif;
+
+  /* Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.25rem;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-card: 0 2px 12px 0 rgba(70, 53, 42, 0.07);
+  --shadow-card-hover: 0 8px 32px 0 rgba(70, 53, 42, 0.13);
+  --shadow-modal: 0 16px 64px 0 rgba(70, 53, 42, 0.18);
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  line-height: 1.2;
+  color: var(--color-text-primary);
+}
+
+button, .btn {
+  font-family: var(--font-button);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-section);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-accent);
+}
+
+/* Selection */
+::selection {
+  background: var(--color-brand-accent);
+  color: white;
+}
