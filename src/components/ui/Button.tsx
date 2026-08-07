@@ -13,17 +13,17 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<Variant, string> = {
-  primary:   'bg-[#B56A45] text-white hover:bg-[#9e5a38] shadow-sm',
-  secondary: 'bg-[#F6EFE7] text-[#46352A] hover:bg-[#E7DDD5]',
-  outline:   'border border-[#B56A45] text-[#B56A45] hover:bg-[#FFF9F2]',
+  primary:   'bg-[#B56A45] text-white hover:bg-[#9e5a38] shadow-[0_8px_18px_rgba(181,106,69,0.22)]',
+  secondary: 'bg-[#F6EFE7] text-[#46352A] hover:bg-[#E7DDD5] border border-[#E7DDD5]',
+  outline:   'border border-[#B56A45] bg-white text-[#B56A45] hover:bg-[#FFF6F1]',
   ghost:     'text-[#46352A] hover:bg-[#F6EFE7]',
   danger:    'bg-red-500 text-white hover:bg-red-600',
 }
 
 const sizeStyles: Record<Size, string> = {
-  sm: 'h-8 px-3 text-sm rounded-md',
-  md: 'h-10 px-5 text-sm rounded-lg',
-  lg: 'h-12 px-7 text-base rounded-xl',
+  sm: 'h-9 px-3.5 text-xs rounded-lg',
+  md: 'h-11 px-5 text-sm rounded-xl',
+  lg: 'h-12 px-6 text-sm rounded-xl',
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -35,7 +35,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         whileTap={{ scale: 0.97 }}
         disabled={disabled || loading}
         className={cn(
-          'inline-flex items-center justify-center gap-2 font-[Poppins] font-medium transition-colors duration-200 cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed',
+          'inline-flex items-center justify-center gap-2 font-[Poppins] font-semibold tracking-[0.01em] transition-all duration-200 cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none',
           variantStyles[variant],
           sizeStyles[size],
           fullWidth && 'w-full',

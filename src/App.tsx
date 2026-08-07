@@ -11,6 +11,7 @@ import { MyOrdersPage } from '@/pages/MyOrdersPage'
 import { ProfilePage } from '@/pages/ProfilePage'
 import { AboutPage } from '@/pages/AboutPage'
 import { ContactPage } from '@/pages/ContactPage'
+import { CustomOrderPage } from '@/pages/CustomOrderPage'
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/custom-order" element={<CustomOrderPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

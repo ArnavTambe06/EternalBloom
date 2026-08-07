@@ -16,7 +16,7 @@ export function Card({ className, children, hover = false, onClick }: CardProps)
         transition={{ type: 'spring', stiffness: 300, damping: 24 }}
         onClick={onClick}
         className={cn(
-          'bg-white rounded-2xl shadow-[0_2px_12px_0_rgba(70,53,42,0.07)] overflow-hidden cursor-pointer',
+          'bg-white rounded-2xl border border-[#E7DDD5] shadow-[0_2px_12px_0_rgba(70,53,42,0.07)] overflow-hidden cursor-pointer',
           className,
         )}
       >
@@ -28,7 +28,7 @@ export function Card({ className, children, hover = false, onClick }: CardProps)
   return (
     <div
       className={cn(
-        'bg-white rounded-2xl shadow-[0_2px_12px_0_rgba(70,53,42,0.07)] overflow-hidden',
+        'bg-white rounded-2xl border border-[#E7DDD5] shadow-[0_2px_12px_0_rgba(70,53,42,0.07)] overflow-hidden',
         className,
       )}
     >
