@@ -69,7 +69,7 @@ export function Navbar() {
       <div
         style={{
           background: 'var(--primary-gradient)',
-          height: 38,
+          height: 48,
           overflow: 'hidden',
           display: 'flex',
           alignItems: 'center',
@@ -115,7 +115,7 @@ export function Navbar() {
             maxWidth: 'var(--container)',
             margin: '0 auto',
             padding: '0 var(--margin-desktop)',
-            height: 70,
+            height: 88,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -134,8 +134,8 @@ export function Navbar() {
           >
             <div
               style={{
-                width: 40,
-                height: 40,
+                width: 48,
+                height: 48,
                 borderRadius: '50%',
                 background: 'var(--primary-gradient)',
                 display: 'flex',
@@ -144,7 +144,7 @@ export function Navbar() {
                 color: 'white',
                 fontFamily: 'var(--font-display)',
                 fontWeight: 700,
-                fontSize: 15,
+                fontSize: 16,
                 boxShadow: '0 4px 16px rgba(255,133,208,0.4)',
                 flexShrink: 0,
               }}
@@ -196,7 +196,7 @@ export function Navbar() {
                 key={link.href}
                 to={link.href}
                 style={{
-                  padding: '8px 16px',
+                  padding: '10px 18px',
                   fontFamily: 'var(--font-body)',
                   fontSize: 14,
                   fontWeight: 500,
@@ -218,7 +218,7 @@ export function Navbar() {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 2,
+              gap: 6,
               flexShrink: 0,
             }}
           >

@@ -17,6 +17,13 @@ import { ProfilePage } from '@/pages/ProfilePage'
 import { AboutPage } from '@/pages/AboutPage'
 import { ContactPage } from '@/pages/ContactPage'
 
+import { AdminLayout } from '@/pages/admin/AdminLayout'
+import { AdminDashboard } from '@/pages/admin/AdminDashboard'
+import { AdminProducts } from '@/pages/admin/AdminProducts'
+import { AdminCategories } from '@/pages/admin/AdminCategories'
+import { AdminOrders } from '@/pages/admin/AdminOrders'
+import { AdminCustomOrders } from '@/pages/admin/AdminCustomOrders'
+
 function AppRoutes() {
   useAuthInit() // initialize auth listener
 
@@ -47,6 +54,19 @@ function AppRoutes() {
         <Route path="/profile" element={
           <ProtectedRoute><ProfilePage /></ProtectedRoute>
         } />
+
+        {/* Admin — admin only */}
+        <Route path="/admin" element={
+          <ProtectedRoute adminOnly>
+        <AdminLayout />
+      </ProtectedRoute>
+    }>
+      <Route index element={<AdminDashboard />} />
+      <Route path="products" element={<AdminProducts />} />
+      <Route path="categories" element={<AdminCategories />} />
+      <Route path="orders" element={<AdminOrders />} />
+      <Route path="custom-orders" element={<AdminCustomOrders />} />
+      </Route>
       </Route>
     </Routes>
   )

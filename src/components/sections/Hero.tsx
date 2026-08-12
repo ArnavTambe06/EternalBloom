@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
-import potsimage from '@/assets/pots.jpeg'
+import potsimage from '@/assets/pots1.png'
 
 const panels = [
   {
@@ -44,8 +44,7 @@ export function Hero() {
         style={{
           position: 'relative',
           width: '100%',
-          height: 'clamp(480px, 55vw, 600px)',
-          minHeight: 500,
+          height: 'clamp(380px, 32vw, 450px)',
           overflow: 'hidden',
         }}
       >
@@ -64,14 +63,14 @@ export function Hero() {
             {/* Background Image */}
             <motion.div
               initial={{ scale: 1.03 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.8 }}
+              animate={{ scale: 1.03 }}
+              transition={{ duration: 0.7 }}
               style={{
                 position: 'absolute',
                 inset: 0,
                 backgroundImage: `url(${panel.image})`,
                 backgroundSize: 'cover',
-                backgroundPosition: 'center',
+                backgroundPosition: 'center center',
               }}
             />
 
@@ -81,7 +80,7 @@ export function Hero() {
                 position: 'absolute',
                 inset: 0,
                 background:
-                  'linear-gradient(to top, rgba(61,26,46,0.9) 0%, rgba(61,26,46,0.25) 50%, rgba(61,26,46,0.05) 100%)',
+                  'linear-gradient(to top, rgba(61,26,46,0.72) 0%, rgba(61,26,46,0.18) 48%, rgba(61,26,46,0.002) 100%)',
               }}
             />
 
@@ -132,33 +131,33 @@ export function Hero() {
               style={{
                 position: 'absolute',
                 left: '6vw',
-                bottom: 70,
-                maxWidth: 600,
+                bottom: 62,
+                maxWidth: 480,
               }}
             >
-              <h2
+              <h1
                 style={{
                   fontFamily: 'var(--font-display)',
-                  fontSize: 'clamp(40px, 5vw, 68px)',
+                  fontSize: 'clamp(32px, 3.4vw, 48px)',
                   fontWeight: 700,
                   color: 'white',
-                  lineHeight: 1.05,
+                  lineHeight: 1.02,
                   letterSpacing: '-0.02em',
-                  marginBottom: 16,
+                  marginBottom: 12,
                   whiteSpace: 'pre-line',
                 }}
               >
                 {panel.headline}
-              </h2>
+              </h1>
 
               <p
                 style={{
                   fontFamily: 'var(--font-body)',
-                  fontSize: 15,
-                  color: 'rgba(255,255,255,0.85)',
-                  lineHeight: 1.6,
-                  marginBottom: 25,
-                  maxWidth: 420,
+                  fontSize: 14,
+                  color: 'rgba(255,255,255,0.86)',
+                  lineHeight: 1.55,
+                  marginBottom: 22,
+                  maxWidth: 390,
                 }}
               >
                 {panel.sub}
