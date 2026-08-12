@@ -100,7 +100,7 @@ export function CartDrawer() {
                     onClick={closeCart}
                     style={{
                       marginTop: 8, padding: '12px 28px',
-                      backgroundColor: 'var(--primary)', color: 'white',
+                      background: 'var(--primary-gradient)', color: 'var(--on-surface)',
                       border: 'none', cursor: 'pointer',
                       fontFamily: 'var(--font-body)',
                       fontSize: 11, fontWeight: 600,
@@ -285,7 +285,7 @@ export function CartDrawer() {
                     whileTap={{ scale: 0.98 }}
                     style={{
                       width: '100%', padding: '15px',
-                      backgroundColor: 'var(--primary)', color: 'white',
+                      background: 'var(--primary-gradient)', color: 'var(--on-surface)',
                       border: 'none', cursor: 'pointer',
                       fontFamily: 'var(--font-body)',
                       fontSize: 12, fontWeight: 600,

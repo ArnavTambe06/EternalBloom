@@ -4,185 +4,312 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Search, ShoppingBag, User, Menu, X } from 'lucide-react'
 import { useCartStore } from '@/store/cartStore'
 import { BRAND } from '@/lib/constants'
+import { useAuth } from '@/hooks/useAuth'
 
 const navLinks = [
+  { label: 'Shop All', href: '/#products' },
   { label: 'Collections', href: '/#categories' },
-  { label: 'Shop', href: '/#products' },
   { label: 'Custom Order', href: '/custom-order' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ]
 
+const announcements = [
+  '🌸 Free shipping on orders above ₹999',
+  '✨ Handmade to order — each piece is unique',
+  '💝 Custom orders welcome — DM us on Instagram',
+]
+
+const hoverIn = (e: React.MouseEvent<HTMLElement>) => {
+  e.currentTarget.style.backgroundColor = 'var(--primary-pale)'
+  e.currentTarget.style.color = 'var(--primary)'
+}
+
+const hoverOut = (e: React.MouseEvent<HTMLElement>) => {
+  e.currentTarget.style.backgroundColor = 'transparent'
+  e.currentTarget.style.color = 'var(--on-surface-muted)'
+}
+
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [barVisible, setBarVisible] = useState(true)
+  const [annIdx, setAnnIdx] = useState(0)
+
   const { itemCount, toggleCart } = useCartStore()
+  const { isLoggedIn, user, profile } = useAuth()
+
   const count = itemCount()
   const location = useLocation()
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 8)
+    const fn = () => setScrolled(window.scrollY > 10)
+
     window.addEventListener('scroll', fn)
+
     return () => window.removeEventListener('scroll', fn)
   }, [])
 
-  useEffect(() => { setMenuOpen(false) }, [location])
+  useEffect(() => {
+    const t = setInterval(
+      () => setAnnIdx(i => (i + 1) % announcements.length),
+      3200
+    )
 
-  const activeLink = location.pathname
+    return () => clearInterval(t)
+  }, [])
+
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [location])
 
   return (
     <div style={{ position: 'sticky', top: 0, zIndex: 100 }}>
 
-      {/* Announcement */}
-      <AnimatePresence>
-        {barVisible && (
-          <motion.div
-            initial={{ height: 40 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            style={{
-              height: 40, overflow: 'hidden',
-              backgroundColor: 'var(--primary)',
-              display: 'flex', alignItems: 'center',
-              justifyContent: 'center',
-              position: 'relative',
-            }}
-          >
-            <p style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: 12, fontWeight: 500,
-              letterSpacing: '0.08em',
-              color: 'var(--primary-dim)',
-            }}>
-              Complimentary shipping on orders above ₹999
-            </p>
-            <button
-              onClick={() => setBarVisible(false)}
-              style={{
-                position: 'absolute', right: 20,
-                color: 'var(--primary-muted)',
-                display: 'flex', alignItems: 'center',
-              }}
-            >
-              <X size={14} />
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Main Nav */}
-      <nav style={{
-        backgroundColor: scrolled
-          ? 'rgba(252, 249, 248, 0.96)'
-          : 'var(--surface)',
-        backdropFilter: scrolled ? 'blur(16px)' : 'none',
-        borderBottom: '1px solid rgba(4,22,39,0.08)',
-        transition: 'all 0.3s ease',
-      }}>
-        <div style={{
-          maxWidth: 'var(--container)',
-          margin: '0 auto',
-          padding: '0 var(--margin-desktop)',
-          height: 72,
+      {/* Announcement bar */}
+      <div
+        style={{
+          background: 'var(--primary-gradient)',
+          height: 38,
+          overflow: 'hidden',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
+          justifyContent: 'center',
+        }}
+      >
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={annIdx}
+            initial={{ y: 14, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -14, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: 12,
+              fontWeight: 600,
+              color: 'var(--on-surface)',
+              letterSpacing: '0.03em',
+            }}
+          >
+            {announcements[annIdx]}
+          </motion.p>
+        </AnimatePresence>
+      </div>
 
-          {/* Brand */}
-          <Link to="/" style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 20, fontWeight: 700,
-            color: 'var(--primary)',
-            letterSpacing: '-0.02em',
-            flexShrink: 0,
-          }}>
-            {BRAND.name.toUpperCase()}
+      {/* Navbar */}
+      <nav
+        style={{
+          backgroundColor: scrolled
+            ? 'rgba(255,250,248,0.97)'
+            : 'var(--surface)',
+          backdropFilter: scrolled ? 'blur(16px)' : 'none',
+          borderBottom: '1px solid var(--border)',
+          boxShadow: scrolled
+            ? '0 2px 20px rgba(212,72,154,0.08)'
+            : 'none',
+          transition: 'all 0.3s',
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 'var(--container)',
+            margin: '0 auto',
+            padding: '0 var(--margin-desktop)',
+            height: 70,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+
+          {/* Logo */}
+          <Link
+            to="/"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              flexShrink: 0,
+            }}
+          >
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: '50%',
+                background: 'var(--primary-gradient)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontFamily: 'var(--font-display)',
+                fontWeight: 700,
+                fontSize: 15,
+                boxShadow: '0 4px 16px rgba(255,133,208,0.4)',
+                flexShrink: 0,
+              }}
+            >
+              EB
+            </div>
+
+            <div>
+              <p
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 18,
+                  fontWeight: 700,
+                  color: 'var(--on-surface)',
+                  letterSpacing: '-0.01em',
+                  lineHeight: 1.1,
+                }}
+              >
+                {BRAND.name}
+              </p>
+
+              <p
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 10,
+                  color: 'var(--on-surface-muted)',
+                  letterSpacing: '0.05em',
+                }}
+              >
+                {BRAND.tagline}
+              </p>
+            </div>
           </Link>
 
-          {/* Desktop nav */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 40,
-            position: 'absolute', left: '50%',
-            transform: 'translateX(-50%)',
-          }} className="hidden md:flex">
-            {navLinks.map((link) => {
-              const isActive = link.href === activeLink
-              return (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 13, fontWeight: 500,
-                    letterSpacing: '0.06em',
-                    color: isActive ? 'var(--primary)' : 'var(--on-surface-variant)',
-                    paddingBottom: 4,
-                    borderBottom: isActive ? '2px solid var(--primary)' : '2px solid transparent',
-                    transition: 'all 0.2s',
-                    whiteSpace: 'nowrap',
-                    textTransform: 'uppercase',
-                    fontSize: 11,
-                  }}
-                  onMouseEnter={e => {
-                    if (!isActive) (e.target as HTMLElement).style.color = 'var(--primary)'
-                  }}
-                  onMouseLeave={e => {
-                    if (!isActive) (e.target as HTMLElement).style.color = 'var(--on-surface-variant)'
-                  }}
-                >
-                  {link.label}
-                </Link>
-              )
-            })}
+          {/* Desktop links */}
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+            }}
+            className="hidden md:flex"
+          >
+            {navLinks.map(link => (
+              <Link
+                key={link.href}
+                to={link.href}
+                style={{
+                  padding: '8px 16px',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: 'var(--on-surface-muted)',
+                  borderRadius: 999,
+                  transition: 'all 0.2s',
+                  whiteSpace: 'nowrap',
+                }}
+                onMouseEnter={hoverIn}
+                onMouseLeave={hoverOut}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
 
           {/* Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-            {[
-              { icon: <Search size={18} />, label: 'Search', action: undefined },
-            ].map(a => (
-              <button
-                key={a.label}
-                style={{
-                  padding: 10, color: 'var(--primary)',
-                  display: 'flex', alignItems: 'center',
-                  borderRadius: 4,
-                  transition: 'opacity 0.2s',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.opacity = '0.6')}
-                onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-              >
-                {a.icon}
-              </button>
-            ))}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              flexShrink: 0,
+            }}
+          >
 
-            <Link to="/profile" style={{ display: 'flex' }}>
-              <button style={{
-                padding: 10, color: 'var(--primary)',
-                display: 'flex', alignItems: 'center', borderRadius: 4,
-                transition: 'opacity 0.2s',
+            {/* Search */}
+            <button
+              style={{
+                padding: 10,
+                color: 'var(--on-surface-muted)',
+                display: 'flex',
+                alignItems: 'center',
+                borderRadius: 999,
+                transition: 'all 0.2s',
               }}
-                onMouseEnter={e => (e.currentTarget.style.opacity = '0.6')}
-                onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-              >
-                <User size={18} />
-              </button>
-            </Link>
+              onMouseEnter={hoverIn}
+              onMouseLeave={hoverOut}
+            >
+              <Search size={19} />
+            </button>
 
+            {/* Profile / Auth */}
+            {isLoggedIn() ? (
+              <div style={{ position: 'relative' }}>
+                <Link to="/profile" style={{ display: 'flex' }}>
+                  <button
+                    style={{
+                      padding: 10,
+                      borderRadius: 999,
+                      display: 'flex',
+                      alignItems: 'center',
+                      transition: 'all 0.2s',
+                      background: 'var(--primary-gradient)',
+                      border: 'none',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 24,
+                        height: 24,
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontFamily: 'var(--font-body)',
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: 'var(--on-surface)',
+                      }}
+                    >
+                      {(profile?.full_name || user?.email || 'U')[0].toUpperCase()}
+                    </span>
+                  </button>
+                </Link>
+              </div>
+            ) : (
+              <Link to="/profile" style={{ display: 'flex' }}>
+                <button
+                  style={{
+                    padding: 10,
+                    color: 'var(--on-surface-muted)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    borderRadius: 999,
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={hoverIn}
+                  onMouseLeave={hoverOut}
+                >
+                  <User size={19} />
+                </button>
+              </Link>
+            )}
+
+            {/* Cart */}
             <button
               onClick={toggleCart}
               style={{
-                padding: 10, color: 'var(--primary)',
-                display: 'flex', alignItems: 'center',
-                position: 'relative', borderRadius: 4,
-                transition: 'opacity 0.2s',
+                padding: 10,
+                color: 'var(--on-surface-muted)',
+                display: 'flex',
+                alignItems: 'center',
+                position: 'relative',
+                borderRadius: 999,
+                transition: 'all 0.2s',
               }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = '0.6')}
-              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+              onMouseEnter={hoverIn}
+              onMouseLeave={hoverOut}
             >
-              <ShoppingBag size={18} />
+              <ShoppingBag size={19} />
+
               <AnimatePresence>
                 {count > 0 && (
                   <motion.span
@@ -190,12 +317,19 @@ export function Navbar() {
                     animate={{ scale: 1 }}
                     exit={{ scale: 0 }}
                     style={{
-                      position: 'absolute', top: 6, right: 6,
-                      width: 14, height: 14,
-                      backgroundColor: 'var(--secondary)',
-                      color: 'white', borderRadius: '50%',
-                      fontSize: 8, fontWeight: 700,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      position: 'absolute',
+                      top: 5,
+                      right: 5,
+                      width: 16,
+                      height: 16,
+                      background: 'var(--primary-gradient)',
+                      color: 'white',
+                      borderRadius: '50%',
+                      fontSize: 9,
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
                   >
                     {count > 9 ? '9+' : count}
@@ -204,16 +338,21 @@ export function Navbar() {
               </AnimatePresence>
             </button>
 
+            {/* Mobile menu button */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="md:hidden"
               style={{
-                padding: 10, color: 'var(--primary)',
-                display: 'flex', alignItems: 'center', borderRadius: 4,
+                padding: 10,
+                color: 'var(--on-surface-muted)',
+                display: 'flex',
+                alignItems: 'center',
+                borderRadius: 999,
               }}
             >
-              {menuOpen ? <X size={18} /> : <Menu size={18} />}
+              {menuOpen ? <X size={19} /> : <Menu size={19} />}
             </button>
+
           </div>
         </div>
       </nav>
@@ -222,60 +361,105 @@ export function Navbar() {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
+            exit={{ opacity: 0, y: -10 }}
             style={{
               backgroundColor: 'var(--surface)',
-              borderBottom: '1px solid rgba(4,22,39,0.08)',
+              borderBottom: '1px solid var(--border)',
+              boxShadow: '0 8px 32px rgba(212,72,154,0.1)',
             }}
             className="md:hidden"
           >
-            <div style={{ padding: '16px 20px 20px' }}>
+            <div style={{ padding: '12px 20px 20px' }}>
+
               {navLinks.map(link => (
                 <Link
                   key={link.href}
                   to={link.href}
                   style={{
                     display: 'block',
-                    padding: '12px 0',
+                    padding: '13px 0',
                     fontFamily: 'var(--font-body)',
-                    fontSize: 13, fontWeight: 500,
-                    letterSpacing: '0.08em',
-                    textTransform: 'uppercase',
-                    color: 'var(--on-surface-variant)',
-                    borderBottom: '1px solid rgba(4,22,39,0.05)',
+                    fontSize: 15,
+                    fontWeight: 500,
+                    color: 'var(--on-surface)',
+                    borderBottom: '1px solid var(--border)',
                   }}
                 >
                   {link.label}
                 </Link>
               ))}
-              <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-                <Link to="/login" style={{
-                  flex: 1, textAlign: 'center',
-                  padding: '11px',
-                  border: '1px solid var(--primary)',
-                  color: 'var(--primary)',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 12, fontWeight: 600,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                }}>Login</Link>
-                <Link to="/register" style={{
-                  flex: 1, textAlign: 'center',
-                  padding: '11px',
-                  backgroundColor: 'var(--primary)',
-                  color: 'white',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 12, fontWeight: 600,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                }}>Sign Up</Link>
+
+              {/* Mobile auth */}
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 10,
+                  marginTop: 16,
+                }}
+              >
+                {isLoggedIn() ? (
+                  <Link
+                    to="/profile"
+                    style={{
+                      flex: 1,
+                      textAlign: 'center',
+                      padding: '12px',
+                      background: 'var(--primary-gradient)',
+                      color: 'var(--on-surface)',
+                      fontFamily: 'var(--font-body)',
+                      fontSize: 13,
+                      fontWeight: 600,
+                      borderRadius: 999,
+                    }}
+                  >
+                    My Profile
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      style={{
+                        flex: 1,
+                        textAlign: 'center',
+                        padding: '12px',
+                        border: '1.5px solid var(--primary)',
+                        color: 'var(--primary)',
+                        fontFamily: 'var(--font-body)',
+                        fontSize: 13,
+                        fontWeight: 600,
+                        borderRadius: 999,
+                      }}
+                    >
+                      Login
+                    </Link>
+
+                    <Link
+                      to="/register"
+                      style={{
+                        flex: 1,
+                        textAlign: 'center',
+                        padding: '12px',
+                        background: 'var(--primary-gradient)',
+                        color: 'var(--on-surface)',
+                        fontFamily: 'var(--font-body)',
+                        fontSize: 13,
+                        fontWeight: 600,
+                        borderRadius: 999,
+                      }}
+                    >
+                      Sign Up
+                    </Link>
+                  </>
+                )}
               </div>
+
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
     </div>
   )
 }

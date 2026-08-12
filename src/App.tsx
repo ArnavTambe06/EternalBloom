@@ -1,37 +1,61 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { useAuthInit } from '@/hooks/useAuth'
 import { Layout } from '@/components/layout/Layout'
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
+
 import { HomePage } from '@/pages/HomePage'
 import { CategoryPage } from '@/pages/CategoryPage'
-import { CartPage } from '@/pages/CartPage'
-import { CheckoutPage } from '@/pages/CheckoutPage'
-import { OrderSuccessPage } from '@/pages/OrderSuccessPage'
+import { CustomOrderPage } from '@/pages/CustomOrderPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { RegisterPage } from '@/pages/RegisterPage'
+import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage'
+import { AuthCallbackPage } from '@/pages/AuthCallbackPage'
+import { CheckoutPage } from '@/pages/CheckoutPage'
+import { OrderSuccessPage } from '@/pages/OrderSuccessPage'
 import { MyOrdersPage } from '@/pages/MyOrdersPage'
 import { ProfilePage } from '@/pages/ProfilePage'
 import { AboutPage } from '@/pages/AboutPage'
 import { ContactPage } from '@/pages/ContactPage'
-import { CustomOrderPage } from '@/pages/CustomOrderPage'
+
+function AppRoutes() {
+  useAuthInit() // initialize auth listener
+
+  return (
+    <Routes>
+      <Route element={<Layout />}>
+        {/* Public */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/categories/:slug" element={<CategoryPage />} />
+        <Route path="/custom-order" element={<CustomOrderPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
+
+        {/* Protected — logged in only */}
+        <Route path="/checkout" element={
+          <ProtectedRoute><CheckoutPage /></ProtectedRoute>
+        } />
+        <Route path="/order-success/:orderId" element={
+          <ProtectedRoute><OrderSuccessPage /></ProtectedRoute>
+        } />
+        <Route path="/my-orders" element={
+          <ProtectedRoute><MyOrdersPage /></ProtectedRoute>
+        } />
+        <Route path="/profile" element={
+          <ProtectedRoute><ProfilePage /></ProtectedRoute>
+        } />
+      </Route>
+    </Routes>
+  )
+}
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/categories/:slug" element={<CategoryPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/my-orders" element={<MyOrdersPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/custom-order" element={<CustomOrderPage />} />
-        </Route>
-      </Routes>
+      <AppRoutes />
     </BrowserRouter>
   )
 }

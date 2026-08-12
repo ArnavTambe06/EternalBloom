@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ShoppingBag } from 'lucide-react'
+import { ShoppingBag, Eye } from 'lucide-react'
 import type { Product } from '@/types'
 import { useCartStore } from '@/store/cartStore'
 
@@ -10,6 +11,7 @@ interface Props {
 
 export function ProductCard({ product, onViewDetails }: Props) {
   const { addItem } = useCartStore()
+  const [hovered, setHovered] = useState(false)
   const discount = product.compare_price
     ? Math.round(((product.compare_price - product.price) / product.compare_price) * 100)
     : null
@@ -19,136 +21,168 @@ export function ProductCard({ product, onViewDetails }: Props) {
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-32px' }}
-      style={{ cursor: 'pointer' }}
-      className="ambient-hover"
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
+      whileHover={{ y: -4 }}
+      style={{
+        backgroundColor: 'var(--surface-white)',
+        borderRadius: 18,
+        overflow: 'hidden',
+        border: '1px solid var(--border)',
+        cursor: 'pointer',
+        boxShadow: '0 2px 12px rgba(196,82,106,0.06)',
+        transition: 'box-shadow 0.3s',
+      }}
     >
       {/* Image */}
       <div
         onClick={() => onViewDetails(product)}
         style={{
-          aspectRatio: '3/4',
-          backgroundColor: 'var(--surface-container)',
+          aspectRatio: '4/5',
+          backgroundColor: 'var(--surface-section)',
           overflow: 'hidden',
           position: 'relative',
-          marginBottom: 16,
         }}
-        className="luxury-border"
       >
+        {/* Primary image */}
         <motion.img
-          whileHover={{ scale: 1.06 }}
-          transition={{ duration: 0.55 }}
-          src={product.images?.[0]}
+          src={product.images?.[0] || ''}
           alt={product.name}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          loading="lazy"
-          onError={e => {
-            const el = e.target as HTMLImageElement
-            el.parentElement!.style.display = 'flex'
-            el.parentElement!.style.alignItems = 'center'
-            el.parentElement!.style.justifyContent = 'center'
-            el.style.display = 'none'
+          style={{
+            width: '100%', height: '100%', objectFit: 'cover',
+            position: 'absolute', inset: 0,
           }}
+          animate={{ opacity: hovered && product.images?.length > 1 ? 0 : 1 }}
+          transition={{ duration: 0.3 }}
+          loading="lazy"
         />
+        {/* Hover image (second image) */}
+        {product.images?.length > 1 && (
+          <motion.img
+            src={product.images[1]}
+            alt={product.name}
+            style={{
+              width: '100%', height: '100%', objectFit: 'cover',
+              position: 'absolute', inset: 0,
+            }}
+            animate={{ opacity: hovered ? 1 : 0 }}
+            transition={{ duration: 0.3 }}
+            loading="lazy"
+          />
+        )}
 
         {/* Badges */}
         <div style={{
-          position: 'absolute', top: 12, left: 12,
+          position: 'absolute', top: 10, left: 10,
           display: 'flex', flexDirection: 'column', gap: 4,
         }}>
           {discount && (
             <span style={{
-              backgroundColor: 'var(--primary-container)',
-              color: 'var(--primary-dim)',
+              background: 'var(--primary-gradient)',
+              color: 'var(--on-surface)',
               padding: '3px 10px',
+              borderRadius: 999,
               fontFamily: 'var(--font-body)',
-              fontSize: 10, fontWeight: 600,
-              letterSpacing: '0.08em',
+              fontSize: 10, fontWeight: 700,
             }}>
-              −{discount}%
+              {discount}% OFF
             </span>
           )}
           {!product.is_available && (
             <span style={{
-              backgroundColor: 'var(--surface-high)',
-              color: 'var(--outline)',
+              backgroundColor: 'rgba(44,26,32,0.7)',
+              color: 'white',
               padding: '3px 10px',
+              borderRadius: 999,
               fontFamily: 'var(--font-body)',
               fontSize: 10, fontWeight: 600,
-              letterSpacing: '0.08em',
             }}>
-              SOLD OUT
+              Sold Out
             </span>
           )}
         </div>
 
-        {/* Quick add — appears on hover */}
+        {/* Quick actions overlay */}
         <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          whileHover={{ opacity: 1, y: 0 }}
+          animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : 8 }}
+          transition={{ duration: 0.25 }}
           style={{
-            position: 'absolute', bottom: 0, left: 0, right: 0,
-            backgroundColor: 'rgba(4,22,39,0.88)',
-            padding: '12px 16px',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            opacity: 0,
+            position: 'absolute', bottom: 10,
+            left: 10, right: 10,
+            display: 'flex', gap: 8,
           }}
-          className="quick-add"
         >
-          <span style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: 11, fontWeight: 600,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            color: 'white',
-          }}>Quick View</span>
-          <button
-            onClick={e => {
-              e.stopPropagation()
-              addItem(product)
-            }}
-            disabled={!product.is_available}
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={e => { e.stopPropagation(); onViewDetails(product) }}
             style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              backgroundColor: 'white',
-              color: 'var(--primary)',
-              padding: '6px 14px',
+              flex: 1, padding: '9px',
+              backgroundColor: 'rgba(255,255,255,0.95)',
+              border: 'none', borderRadius: 10,
               fontFamily: 'var(--font-body)',
-              fontSize: 11, fontWeight: 600,
-              letterSpacing: '0.06em',
+              fontSize: 12, fontWeight: 600,
+              color: 'var(--on-surface)',
               cursor: 'pointer',
-              border: 'none',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+              backdropFilter: 'blur(8px)',
             }}
           >
-            <ShoppingBag size={12} /> Add
-          </button>
+            <Eye size={13} /> View
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={e => { e.stopPropagation(); addItem(product) }}
+            disabled={!product.is_available}
+            style={{
+              flex: 1, padding: '9px',
+              background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))',
+              border: 'none', borderRadius: 10,
+              color: 'white',
+              fontFamily: 'var(--font-body)',
+              fontSize: 12, fontWeight: 600,
+              cursor: product.is_available ? 'pointer' : 'not-allowed',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+              opacity: product.is_available ? 1 : 0.5,
+            }}
+          >
+            <ShoppingBag size={13} /> Add
+          </motion.button>
         </motion.div>
       </div>
 
       {/* Info */}
-      <div onClick={() => onViewDetails(product)}>
-        <p className="label-caps" style={{ marginBottom: 6, color: 'var(--secondary)' }}>
+      <div
+        onClick={() => onViewDetails(product)}
+        style={{ padding: '14px 16px 16px' }}
+      >
+        <p style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: 11, fontWeight: 600,
+          color: 'var(--primary)',
+          letterSpacing: '0.06em',
+          textTransform: 'uppercase',
+          marginBottom: 5,
+        }}>
           {product.category?.name}
         </p>
         <h3 style={{
           fontFamily: 'var(--font-display)',
-          fontSize: 16, fontWeight: 600,
-          color: 'var(--primary)',
-          marginBottom: 8,
-          lineHeight: 1.3,
-          letterSpacing: '-0.01em',
+          fontSize: 15, fontWeight: 600,
+          color: 'var(--on-surface)',
+          marginBottom: 8, lineHeight: 1.35,
         }}>
           {product.name}
         </h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{
             fontFamily: 'var(--font-body)',
-            fontSize: 15, fontWeight: 600,
+            fontSize: 16, fontWeight: 700,
             color: 'var(--primary)',
           }}>₹{product.price}</span>
           {product.compare_price && (
             <span style={{
               fontFamily: 'var(--font-body)',
-              fontSize: 13, color: 'var(--outline)',
+              fontSize: 13, color: 'var(--on-surface-faint)',
               textDecoration: 'line-through',
             }}>₹{product.compare_price}</span>
           )}

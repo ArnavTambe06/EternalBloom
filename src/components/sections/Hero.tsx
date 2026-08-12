@@ -1,211 +1,328 @@
-import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
-import { CATEGORIES } from '@/lib/constants'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
+import potsimage from '@/assets/pots.jpeg'
 
-const featuredCategories = [
-  { name: 'Keychains', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80' },
-  { name: 'Desk Buddies', image: 'https://images.unsplash.com/photo-1487530811015-780680fb1f4e?w=400&q=80' },
-  { name: 'Flower Cards', image: 'https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=400&q=80' },
+const panels = [
+  {
+    tag: 'New Collection',
+    headline: 'Flowers That\nNever Fade',
+    sub: 'Handcrafted keychains, desk buddies, bouquets & more — made with patience, packed with love.',
+    cta: 'Shop Collection',
+    href: '/#products',
+    image: potsimage,
+  },
+  {
+    tag: 'Made Just for You',
+    headline: 'Your Vision,\nOur Craft',
+    sub: "Describe your dream piece — colours, flowers, a feeling. We'll handcraft something entirely yours.",
+    cta: 'Custom Order',
+    href: '/custom-order',
+    image:
+      'https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=1600&q=85',
+  },
 ]
 
 export function Hero() {
+  const [active, setActive] = useState(0)
+
+  const panel = panels[active]
+
+  const nextPanel = () => {
+    setActive((prev) => (prev + 1) % panels.length)
+  }
+
+  const previousPanel = () => {
+    setActive((prev) => (prev - 1 + panels.length) % panels.length)
+  }
+
   return (
-    <section style={{
-      backgroundColor: 'var(--surface)',
-      paddingTop: 'var(--space-xl)',
-      paddingBottom: 'var(--space-xl)',
-      borderBottom: '1px solid rgba(4,22,39,0.06)',
-    }}>
-      <div className="container">
-
-        {/* Overline */}
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="label-caps"
-          style={{ marginBottom: 24 }}
-        >
-          Eternal Bloom — Handmade in India
-        </motion.p>
-
-        {/* Hero grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 64,
-          alignItems: 'end',
-        }} className="hero-grid">
-
-          {/* Left */}
-          <div>
-            <motion.h1
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.06 }}
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(48px, 6vw, 80px)',
-                fontWeight: 700,
-                color: 'var(--primary)',
-                lineHeight: 1.05,
-                letterSpacing: '-0.02em',
-                marginBottom: 32,
-              }}
-            >
-              Never-Dying
-              <br />
-              <em style={{
-                fontStyle: 'italic',
-                color: 'var(--secondary)',
-              }}>Creations</em>
-              <br />
-              for Life.
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.14 }}
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: 17,
-                color: 'var(--on-surface-variant)',
-                lineHeight: 1.65,
-                maxWidth: 400,
-                marginBottom: 48,
-              }}
-            >
-              Handcrafted crochet flowers, keychains, and decor pieces —
-              each made to order, each carrying a piece of our heart.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.22 }}
-              style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}
-            >
-              <Link to="/#products">
-                <motion.button
-                  whileHover={{ opacity: 0.88 }}
-                  whileTap={{ scale: 0.98 }}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 12,
-                    padding: '14px 32px',
-                    backgroundColor: 'var(--primary)',
-                    color: 'white',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 12, fontWeight: 600,
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    cursor: 'pointer',
-                    transition: 'opacity 0.2s',
-                  }}
-                >
-                  Shop Collection <ArrowRight size={14} />
-                </motion.button>
-              </Link>
-
-              <Link to="/custom-order" style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                fontFamily: 'var(--font-body)',
-                fontSize: 12, fontWeight: 600,
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                color: 'var(--secondary)',
-                paddingBottom: 2,
-                borderBottom: '1.5px solid var(--secondary)',
-              }}>
-                Custom Order
-              </Link>
-            </motion.div>
-
-            {/* Stats */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.35 }}
-              style={{
-                display: 'flex', gap: 48, marginTop: 64,
-                paddingTop: 32,
-                borderTop: '1px solid rgba(4,22,39,0.08)',
-              }}
-            >
-              {[
-                { value: '500+', label: 'Orders Made' },
-                { value: '10', label: 'Collections' },
-                { value: '100%', label: 'Handcrafted' },
-              ].map(s => (
-                <div key={s.label}>
-                  <p style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: 28, fontWeight: 700,
-                    color: 'var(--primary)',
-                    letterSpacing: '-0.02em',
-                  }}>{s.value}</p>
-                  <p className="label-caps" style={{ marginTop: 4 }}>{s.label}</p>
-                </div>
-              ))}
-            </motion.div>
-          </div>
-
-          {/* Right — editorial image grid */}
+    <section style={{ backgroundColor: 'var(--surface)' }}>
+      {/* Hero */}
+      <div
+        style={{
+          position: 'relative',
+          width: '100%',
+          height: 'clamp(480px, 55vw, 600px)',
+          minHeight: 500,
+          overflow: 'hidden',
+        }}
+      >
+        <AnimatePresence mode="wait">
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}
-            className="hidden md:grid"
+            key={active}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            style={{
+              position: 'absolute',
+              inset: 0,
+            }}
           >
-            {/* Tall left image */}
-            <div style={{
-              gridRow: 'span 2',
-              backgroundColor: 'var(--surface-container)',
-              overflow: 'hidden',
-              aspectRatio: '3/4',
-            }} className="luxury-border">
-              <motion.img
-                whileHover={{ scale: 1.04 }}
-                transition={{ duration: 0.5 }}
-                src="https://images.unsplash.com/photo-1487530811015-780680fb1f4e?w=500&q=80"
-                alt="Desk Buddy"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
+            {/* Background Image */}
+            <motion.div
+              initial={{ scale: 1.03 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.8 }}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                backgroundImage: `url(${panel.image})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }}
+            />
+
+            {/* Dark gradient */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background:
+                  'linear-gradient(to top, rgba(61,26,46,0.9) 0%, rgba(61,26,46,0.25) 50%, rgba(61,26,46,0.05) 100%)',
+              }}
+            />
+
+            {/* Top tint */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background:
+                  active === 0
+                    ? 'linear-gradient(to bottom, rgba(255,133,208,0.15), transparent 40%)'
+                    : 'linear-gradient(to bottom, rgba(255,198,162,0.15), transparent 40%)',
+              }}
+            />
+
+            {/* Tag */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 28,
+                left: 36,
+              }}
+            >
+              <span
+                style={{
+                  background: 'rgba(255,255,255,0.18)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  color: 'white',
+                  padding: '6px 17px',
+                  borderRadius: 999,
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                {panel.tag}
+              </span>
             </div>
 
-            {/* Two small right images */}
-            {[
-              'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&q=80',
-              'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=300&q=80',
-            ].map((src, i) => (
-              <div key={i} style={{
-                backgroundColor: 'var(--surface-container)',
-                overflow: 'hidden',
-                aspectRatio: '1/1',
-              }} className="luxury-border">
-                <motion.img
-                  whileHover={{ scale: 1.04 }}
-                  transition={{ duration: 0.5 }}
-                  src={src}
-                  alt=""
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              </div>
-            ))}
+            {/* Content */}
+            <motion.div
+              initial={{ opacity: 0, y: 25 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15, duration: 0.6 }}
+              style={{
+                position: 'absolute',
+                left: '6vw',
+                bottom: 70,
+                maxWidth: 600,
+              }}
+            >
+              <h2
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 'clamp(40px, 5vw, 68px)',
+                  fontWeight: 700,
+                  color: 'white',
+                  lineHeight: 1.05,
+                  letterSpacing: '-0.02em',
+                  marginBottom: 16,
+                  whiteSpace: 'pre-line',
+                }}
+              >
+                {panel.headline}
+              </h2>
 
-            {/* Label below */}
-            <div style={{
-              gridColumn: 'span 2',
-              display: 'flex', alignItems: 'center', gap: 8,
-              paddingTop: 8,
-            }}>
-              <span className="label-caps">Made to order</span>
-              <div style={{ flex: 1, height: 1, backgroundColor: 'rgba(4,22,39,0.1)' }} />
-              <span className="label-caps">Ships in 5–7 days</span>
+              <p
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 15,
+                  color: 'rgba(255,255,255,0.85)',
+                  lineHeight: 1.6,
+                  marginBottom: 25,
+                  maxWidth: 420,
+                }}
+              >
+                {panel.sub}
+              </p>
+
+              <Link
+                to={panel.href}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '12px 26px',
+                  background: 'var(--primary-gradient)',
+                  borderRadius: 999,
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: 'var(--on-surface)',
+                  textDecoration: 'none',
+                  boxShadow: '0 4px 20px rgba(255,133,208,0.4)',
+                }}
+              >
+                {panel.cta}
+                <ArrowRight size={15} />
+              </Link>
+            </motion.div>
+
+            {/* Bottom labels */}
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 24,
+                left: 36,
+                right: 36,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                color: 'rgba(255,255,255,0.85)',
+                fontFamily: 'var(--font-body)',
+                fontSize: 13,
+              }}
+            >
+              <span>
+                {active === 0
+                  ? 'Handcrafted With Love'
+                  : 'Made Just for You'}
+              </span>
+
+              <span>
+                {active === 0
+                  ? 'Explore Collection'
+                  : 'Custom Orders Welcome'}
+              </span>
             </div>
           </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Carousel Controls */}
+      <div
+        style={{
+          height: 54,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 22,
+          borderBottom: '1px solid var(--border)',
+          background: 'var(--surface)',
+        }}
+      >
+        {/* Previous */}
+        <button
+          onClick={previousPanel}
+          aria-label="Previous slide"
+          style={{
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            color: 'var(--on-surface-muted)',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <ArrowLeft size={17} />
+        </button>
+
+        {/* Counter */}
+        <span
+          style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: 12,
+            color: 'var(--on-surface-muted)',
+            minWidth: 32,
+            textAlign: 'center',
+          }}
+        >
+          {active + 1}/2
+        </span>
+
+        {/* Next */}
+        <button
+          onClick={nextPanel}
+          aria-label="Next slide"
+          style={{
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            color: 'var(--on-surface-muted)',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <ArrowRight size={17} />
+        </button>
+      </div>
+
+      {/* Trust Strip */}
+      <div
+        style={{
+          background:
+            'linear-gradient(135deg, rgba(255,133,208,0.08) 0%, rgba(255,200,162,0.08) 50%, rgba(255,230,128,0.08) 100%)',
+          borderBottom: '1px solid var(--border)',
+          padding: '18px 0',
+        }}
+      >
+        <div className="container">
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 48,
+              flexWrap: 'wrap',
+            }}
+          >
+            {[
+              { emoji: '🌸', text: 'Handmade to Order' },
+              { emoji: '🚚', text: 'Free Shipping ₹999+' },
+              { emoji: '✨', text: '100% Handcrafted' },
+              { emoji: '💝', text: 'Custom Orders Welcome' },
+            ].map((item) => (
+              <div
+                key={item.text}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                }}
+              >
+                <span style={{ fontSize: 16 }}>{item.emoji}</span>
+
+                <span
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: 'var(--on-surface-muted)',
+                  }}
+                >
+                  {item.text}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

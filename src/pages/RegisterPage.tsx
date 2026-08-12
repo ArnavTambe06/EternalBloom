@@ -1,57 +1,202 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react'
+import { signUpWithEmail, signInWithGoogle } from '@/services/auth'
+
+const inputStyle: React.CSSProperties = {
+  width: '100%', padding: '12px 0',
+  border: 'none',
+  borderBottom: '1.5px solid var(--border)',
+  backgroundColor: 'transparent',
+  fontFamily: 'var(--font-body)',
+  fontSize: 15, color: 'var(--on-surface)',
+  outline: 'none', boxSizing: 'border-box',
+  transition: 'border-color 0.2s',
+}
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontFamily: 'var(--font-body)',
+  fontSize: 11, fontWeight: 700,
+  letterSpacing: '0.1em', textTransform: 'uppercase',
+  color: 'var(--on-surface-muted)', marginBottom: 8,
+}
 
 export function RegisterPage() {
   const [show, setShow] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
   const [form, setForm] = useState({ name: '', email: '', password: '' })
+  const navigate = useNavigate()
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
+
+  const validate = () => {
+    if (!form.name.trim()) return 'Please enter your name.'
+    if (!form.email.trim()) return 'Please enter your email.'
+    if (form.password.length < 8) return 'Password must be at least 8 characters.'
+    return ''
+  }
+
+  const handleSubmit = async () => {
+    const err = validate()
+    if (err) { setError(err); return }
+    setLoading(true)
+    setError('')
+    try {
+      await signUpWithEmail(form.email, form.password, form.name)
+      setSuccess(true)
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGoogle = async () => {
+    try { await signInWithGoogle() }
+    catch (err: any) { setError(err.message) }
+  }
+
+  if (success) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: 'radial-gradient(ellipse at 70% 30%, rgba(255,200,162,0.2) 0%, transparent 60%), var(--surface)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: 24,
+      }}>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={{ opacity: 1, scale: 1 }}
+          style={{
+            backgroundColor: 'var(--surface-white)',
+            borderRadius: 24, padding: '48px 40px',
+            maxWidth: 420, width: '100%',
+            textAlign: 'center',
+            boxShadow: '0 8px 48px rgba(212,72,154,0.1)',
+            border: '1px solid var(--border)',
+          }}
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+            style={{
+              width: 64, height: 64, borderRadius: '50%',
+              background: 'var(--primary-gradient)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 20px',
+              boxShadow: '0 4px 20px rgba(255,133,208,0.4)',
+            }}
+          >
+            <CheckCircle size={28} color="var(--on-surface)" />
+          </motion.div>
+
+          <h2 style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 26, fontWeight: 700,
+            color: 'var(--on-surface)', marginBottom: 12,
+          }}>Check your email!</h2>
+          <p style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: 14, color: 'var(--on-surface-muted)',
+            lineHeight: 1.65, marginBottom: 28,
+          }}>
+            We've sent a confirmation link to{' '}
+            <strong style={{ color: 'var(--primary)' }}>{form.email}</strong>.
+            Click it to activate your account.
+          </p>
+          <Link to="/login">
+            <button style={{
+              padding: '13px 32px',
+              background: 'var(--primary-gradient)',
+              border: 'none', borderRadius: 12,
+              fontFamily: 'var(--font-body)',
+              fontSize: 14, fontWeight: 700,
+              color: 'var(--on-surface)', cursor: 'pointer',
+            }}>
+              Go to Login
+            </button>
+          </Link>
+        </motion.div>
+      </div>
+    )
+  }
 
   return (
     <div style={{
-      minHeight: '100vh', backgroundColor: '#FFF9F2',
+      minHeight: '100vh',
+      background: 'radial-gradient(ellipse at 70% 30%, rgba(255,200,162,0.2) 0%, transparent 60%), var(--surface)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: 24,
     }}>
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         style={{
-          backgroundColor: 'white', borderRadius: 24,
-          padding: '40px 36px', width: '100%', maxWidth: 420,
-          boxShadow: '0 8px 40px rgba(70,53,42,0.10)',
-          border: '1px solid #E7DDD5',
+          backgroundColor: 'var(--surface-white)',
+          borderRadius: 24, padding: '44px 40px',
+          width: '100%', maxWidth: 420,
+          boxShadow: '0 8px 48px rgba(212,72,154,0.1)',
+          border: '1px solid var(--border)',
         }}
       >
-        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <div style={{
-            width: 48, height: 48, borderRadius: '50%',
-            backgroundColor: '#B56A45',
+            width: 52, height: 52, borderRadius: '50%',
+            background: 'var(--primary-gradient)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 12px',
-            fontFamily: 'Playfair Display, serif',
-            color: 'white', fontWeight: 700, fontSize: 16,
+            margin: '0 auto 14px',
+            fontFamily: 'var(--font-display)',
+            color: 'var(--on-surface)', fontWeight: 700, fontSize: 17,
+            boxShadow: '0 4px 16px rgba(255,133,208,0.4)',
           }}>EB</div>
           <h1 style={{
-            fontFamily: 'Playfair Display, serif',
-            fontSize: 24, fontWeight: 700, color: '#46352A', marginBottom: 4,
+            fontFamily: 'var(--font-display)',
+            fontSize: 24, fontWeight: 700,
+            color: 'var(--on-surface)', marginBottom: 4,
           }}>Create account</h1>
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#786A61' }}>
-            Join Eternal Bloom and start shopping
-          </p>
+          <p style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: 14, color: 'var(--on-surface-muted)',
+          }}>Join Eternal Bloom today</p>
         </div>
 
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              padding: '12px 16px', marginBottom: 20,
+              backgroundColor: '#FFF0F0',
+              border: '1px solid #FFD0D0',
+              borderRadius: 10,
+            }}
+          >
+            <AlertCircle size={15} color="#D44" />
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: '#C33' }}>
+              {error}
+            </p>
+          </motion.div>
+        )}
+
         <motion.button
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.98 }}
+          onClick={handleGoogle}
           style={{
-            width: '100%', padding: '12px',
-            border: '1.5px solid #E7DDD5', borderRadius: 12,
-            backgroundColor: 'white', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-            fontFamily: 'Poppins, sans-serif', fontSize: 14, fontWeight: 500,
-            color: '#46352A', marginBottom: 20,
+            width: '100%', padding: '13px',
+            border: '1.5px solid var(--border)',
+            borderRadius: 12, backgroundColor: 'white',
+            cursor: 'pointer',
+            display: 'flex', alignItems: 'center',
+            justifyContent: 'center', gap: 10,
+            fontFamily: 'var(--font-body)',
+            fontSize: 14, fontWeight: 500,
+            color: 'var(--on-surface)', marginBottom: 24,
           }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24">
@@ -63,98 +208,133 @@ export function RegisterPage() {
           Continue with Google
         </motion.button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-          <div style={{ flex: 1, height: 1, backgroundColor: '#E7DDD5' }} />
-          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#786A61' }}>or</span>
-          <div style={{ flex: 1, height: 1, backgroundColor: '#E7DDD5' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+          <div style={{ flex: 1, height: 1, backgroundColor: 'var(--border)' }} />
+          <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--on-surface-faint)' }}>
+            or register with email
+          </span>
+          <div style={{ flex: 1, height: 1, backgroundColor: 'var(--border)' }} />
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 20 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24, marginBottom: 28 }}>
           {[
             { label: 'Full Name', key: 'name', type: 'text', placeholder: 'Priya Sharma' },
             { label: 'Email', key: 'email', type: 'email', placeholder: 'you@email.com' },
           ].map(f => (
             <div key={f.key}>
-              <label style={{
-                display: 'block', fontFamily: 'Poppins, sans-serif',
-                fontSize: 12, fontWeight: 600, color: '#46352A', marginBottom: 6,
-              }}>{f.label}</label>
+              <label style={labelStyle}>{f.label}</label>
               <input
                 type={f.type}
                 placeholder={f.placeholder}
                 value={(form as any)[f.key]}
                 onChange={e => set(f.key, e.target.value)}
-                style={{
-                  width: '100%', padding: '11px 14px',
-                  border: '1.5px solid #E7DDD5', borderRadius: 10,
-                  fontFamily: 'Inter, sans-serif', fontSize: 14,
-                  color: '#46352A', backgroundColor: '#FFF9F2',
-                  outline: 'none', boxSizing: 'border-box',
-                }}
+                style={inputStyle}
+                onFocus={e => e.target.style.borderBottomColor = 'var(--primary)'}
+                onBlur={e => e.target.style.borderBottomColor = 'var(--border)'}
               />
             </div>
           ))}
 
           <div>
-            <label style={{
-              display: 'block', fontFamily: 'Poppins, sans-serif',
-              fontSize: 12, fontWeight: 600, color: '#46352A', marginBottom: 6,
-            }}>Password</label>
+            <label style={labelStyle}>Password</label>
             <div style={{ position: 'relative' }}>
               <input
                 type={show ? 'text' : 'password'}
                 placeholder="Min. 8 characters"
                 value={form.password}
                 onChange={e => set('password', e.target.value)}
-                style={{
-                  width: '100%', padding: '11px 42px 11px 14px',
-                  border: '1.5px solid #E7DDD5', borderRadius: 10,
-                  fontFamily: 'Inter, sans-serif', fontSize: 14,
-                  color: '#46352A', backgroundColor: '#FFF9F2',
-                  outline: 'none', boxSizing: 'border-box',
-                }}
+                style={{ ...inputStyle, paddingRight: 36 }}
+                onFocus={e => e.target.style.borderBottomColor = 'var(--primary)'}
+                onBlur={e => e.target.style.borderBottomColor = 'var(--border)'}
               />
               <button
                 onClick={() => setShow(!show)}
                 style={{
-                  position: 'absolute', right: 12, top: '50%',
+                  position: 'absolute', right: 0, top: '50%',
                   transform: 'translateY(-50%)',
                   background: 'none', border: 'none',
-                  cursor: 'pointer', color: '#786A61',
+                  cursor: 'pointer', color: 'var(--on-surface-faint)',
                   display: 'flex', alignItems: 'center',
                 }}
               >
                 {show ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
+            {/* Password strength */}
+            {form.password.length > 0 && (
+              <div style={{ marginTop: 8 }}>
+                <div style={{
+                  height: 3, borderRadius: 99,
+                  backgroundColor: 'var(--border)',
+                  overflow: 'hidden',
+                }}>
+                  <div style={{
+                    height: '100%',
+                    width: form.password.length < 6 ? '30%'
+                      : form.password.length < 8 ? '60%' : '100%',
+                    background: form.password.length < 6 ? '#FFB3B3'
+                      : form.password.length < 8 ? 'var(--peach)' : 'var(--primary-gradient)',
+                    borderRadius: 99,
+                    transition: 'all 0.3s',
+                  }} />
+                </div>
+                <p style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 11, color: 'var(--on-surface-muted)',
+                  marginTop: 4,
+                }}>
+                  {form.password.length < 6 ? 'Too short'
+                    : form.password.length < 8 ? 'Almost there'
+                    : '✓ Strong password'}
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
         <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.97 }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleSubmit}
+          disabled={loading}
           style={{
-            width: '100%', padding: '13px',
-            backgroundColor: '#B56A45', color: 'white',
+            width: '100%', padding: '14px',
+            background: 'var(--primary-gradient)',
             border: 'none', borderRadius: 12,
-            fontFamily: 'Poppins, sans-serif',
-            fontSize: 15, fontWeight: 600, cursor: 'pointer',
-            boxShadow: '0 4px 16px rgba(181,106,69,0.3)',
-            marginBottom: 16,
+            fontFamily: 'var(--font-body)',
+            fontSize: 15, fontWeight: 700,
+            color: 'var(--on-surface)',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            opacity: loading ? 0.7 : 1,
+            marginBottom: 20,
+            boxShadow: '0 4px 20px rgba(255,133,208,0.35)',
+            display: 'flex', alignItems: 'center',
+            justifyContent: 'center', gap: 8,
           }}
         >
-          Create Account
+          {loading && (
+            <div style={{
+              width: 16, height: 16, borderRadius: '50%',
+              border: '2px solid rgba(61,26,46,0.3)',
+              borderTopColor: 'var(--on-surface)',
+              animation: 'spin 0.7s linear infinite',
+            }} />
+          )}
+          {loading ? 'Creating account...' : 'Create Account'}
         </motion.button>
 
         <p style={{
-          textAlign: 'center', fontFamily: 'Inter, sans-serif',
-          fontSize: 13, color: '#786A61',
+          textAlign: 'center',
+          fontFamily: 'var(--font-body)',
+          fontSize: 14, color: 'var(--on-surface-muted)',
         }}>
           Already have an account?{' '}
-          <Link to="/login" style={{ color: '#B56A45', fontWeight: 600, textDecoration: 'none' }}>
+          <Link to="/login" style={{ color: 'var(--primary)', fontWeight: 700 }}>
             Sign in
           </Link>
         </p>
+
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </motion.div>
     </div>
   )

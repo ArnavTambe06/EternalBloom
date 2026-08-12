@@ -1,58 +1,145 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, AlertCircle } from 'lucide-react'
+import { signInWithEmail, signInWithGoogle } from '@/services/auth'
+
+const inputStyle: React.CSSProperties = {
+  width: '100%', padding: '12px 0',
+  border: 'none',
+  borderBottom: '1.5px solid var(--border)',
+  backgroundColor: 'transparent',
+  fontFamily: 'var(--font-body)',
+  fontSize: 15, color: 'var(--on-surface)',
+  outline: 'none', boxSizing: 'border-box',
+  transition: 'border-color 0.2s',
+}
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontFamily: 'var(--font-body)',
+  fontSize: 11, fontWeight: 700,
+  letterSpacing: '0.1em', textTransform: 'uppercase',
+  color: 'var(--on-surface-muted)', marginBottom: 8,
+}
 
 export function LoginPage() {
   const [show, setShow] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [form, setForm] = useState({ email: '', password: '' })
+  const navigate = useNavigate()
+  const location = useLocation()
+  const from = (location.state as any)?.from?.pathname || '/'
+
+  const handleSubmit = async () => {
+    if (!form.email || !form.password) {
+      setError('Please fill in all fields.')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      await signInWithEmail(form.email, form.password)
+      navigate(from, { replace: true })
+    } catch (err: any) {
+      setError(err.message || 'Invalid email or password.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGoogle = async () => {
+    try {
+      await signInWithGoogle()
+    } catch (err: any) {
+      setError(err.message)
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleSubmit()
+  }
 
   return (
     <div style={{
-      minHeight: '100vh', backgroundColor: '#FFF9F2',
+      minHeight: '100vh',
+      background: 'radial-gradient(ellipse at 30% 20%, rgba(255,133,208,0.15) 0%, transparent 60%), var(--surface)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: 24,
     }}>
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
         style={{
-          backgroundColor: 'white', borderRadius: 24,
-          padding: '40px 36px', width: '100%', maxWidth: 420,
-          boxShadow: '0 8px 40px rgba(70,53,42,0.10)',
-          border: '1px solid #E7DDD5',
+          backgroundColor: 'var(--surface-white)',
+          borderRadius: 24,
+          padding: '44px 40px',
+          width: '100%', maxWidth: 420,
+          boxShadow: '0 8px 48px rgba(212,72,154,0.1)',
+          border: '1px solid var(--border)',
         }}
       >
         {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <div style={{
-            width: 48, height: 48, borderRadius: '50%',
-            backgroundColor: '#B56A45',
+            width: 52, height: 52, borderRadius: '50%',
+            background: 'var(--primary-gradient)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 12px',
-            fontFamily: 'Playfair Display, serif',
-            color: 'white', fontWeight: 700, fontSize: 16,
+            margin: '0 auto 14px',
+            fontFamily: 'var(--font-display)',
+            color: 'var(--on-surface)', fontWeight: 700, fontSize: 17,
+            boxShadow: '0 4px 16px rgba(255,133,208,0.4)',
           }}>EB</div>
           <h1 style={{
-            fontFamily: 'Playfair Display, serif',
-            fontSize: 24, fontWeight: 700, color: '#46352A', marginBottom: 4,
+            fontFamily: 'var(--font-display)',
+            fontSize: 24, fontWeight: 700,
+            color: 'var(--on-surface)', marginBottom: 4,
           }}>Welcome back</h1>
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#786A61' }}>
-            Sign in to your Eternal Bloom account
-          </p>
+          <p style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: 14, color: 'var(--on-surface-muted)',
+          }}>Sign in to your Eternal Bloom account</p>
         </div>
+
+        {/* Error */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              padding: '12px 16px', marginBottom: 20,
+              backgroundColor: '#FFF0F0',
+              border: '1px solid #FFD0D0',
+              borderRadius: 10,
+            }}
+          >
+            <AlertCircle size={15} color="#D44" />
+            <p style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: 13, color: '#C33',
+            }}>{error}</p>
+          </motion.div>
+        )}
 
         {/* Google */}
         <motion.button
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.98 }}
+          onClick={handleGoogle}
           style={{
-            width: '100%', padding: '12px',
-            border: '1.5px solid #E7DDD5', borderRadius: 12,
+            width: '100%', padding: '13px',
+            border: '1.5px solid var(--border)',
+            borderRadius: 12,
             backgroundColor: 'white', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-            fontFamily: 'Poppins, sans-serif', fontSize: 14, fontWeight: 500,
-            color: '#46352A', marginBottom: 20,
+            display: 'flex', alignItems: 'center',
+            justifyContent: 'center', gap: 10,
+            fontFamily: 'var(--font-body)',
+            fontSize: 14, fontWeight: 500,
+            color: 'var(--on-surface)', marginBottom: 24,
+            transition: 'border-color 0.2s',
           }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24">
@@ -64,102 +151,113 @@ export function LoginPage() {
           Continue with Google
         </motion.button>
 
+        {/* Divider */}
         <div style={{
-          display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20,
+          display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24,
         }}>
-          <div style={{ flex: 1, height: 1, backgroundColor: '#E7DDD5' }} />
-          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#786A61' }}>or</span>
-          <div style={{ flex: 1, height: 1, backgroundColor: '#E7DDD5' }} />
+          <div style={{ flex: 1, height: 1, backgroundColor: 'var(--border)' }} />
+          <span style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: 12, color: 'var(--on-surface-faint)',
+          }}>or continue with email</span>
+          <div style={{ flex: 1, height: 1, backgroundColor: 'var(--border)' }} />
         </div>
 
         {/* Fields */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 20 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24, marginBottom: 28 }}>
           <div>
-            <label style={{
-              display: 'block', fontFamily: 'Poppins, sans-serif',
-              fontSize: 12, fontWeight: 600, color: '#46352A', marginBottom: 6,
-            }}>Email</label>
+            <label style={labelStyle}>Email</label>
             <input
               type="email"
               placeholder="you@email.com"
               value={form.email}
               onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-              style={{
-                width: '100%', padding: '11px 14px',
-                border: '1.5px solid #E7DDD5', borderRadius: 10,
-                fontFamily: 'Inter, sans-serif', fontSize: 14,
-                color: '#46352A', backgroundColor: '#FFF9F2',
-                outline: 'none', boxSizing: 'border-box',
-              }}
+              onKeyDown={handleKeyDown}
+              style={inputStyle}
+              onFocus={e => e.target.style.borderBottomColor = 'var(--primary)'}
+              onBlur={e => e.target.style.borderBottomColor = 'var(--border)'}
             />
           </div>
 
           <div>
-            <label style={{
-              display: 'block', fontFamily: 'Poppins, sans-serif',
-              fontSize: 12, fontWeight: 600, color: '#46352A', marginBottom: 6,
-            }}>Password</label>
+            <label style={labelStyle}>Password</label>
             <div style={{ position: 'relative' }}>
               <input
                 type={show ? 'text' : 'password'}
                 placeholder="••••••••"
                 value={form.password}
                 onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
-                style={{
-                  width: '100%', padding: '11px 42px 11px 14px',
-                  border: '1.5px solid #E7DDD5', borderRadius: 10,
-                  fontFamily: 'Inter, sans-serif', fontSize: 14,
-                  color: '#46352A', backgroundColor: '#FFF9F2',
-                  outline: 'none', boxSizing: 'border-box',
-                }}
+                onKeyDown={handleKeyDown}
+                style={{ ...inputStyle, paddingRight: 36 }}
+                onFocus={e => e.target.style.borderBottomColor = 'var(--primary)'}
+                onBlur={e => e.target.style.borderBottomColor = 'var(--border)'}
               />
               <button
                 onClick={() => setShow(!show)}
                 style={{
-                  position: 'absolute', right: 12, top: '50%',
+                  position: 'absolute', right: 0, top: '50%',
                   transform: 'translateY(-50%)',
                   background: 'none', border: 'none',
-                  cursor: 'pointer', color: '#786A61',
+                  cursor: 'pointer', color: 'var(--on-surface-faint)',
                   display: 'flex', alignItems: 'center',
                 }}
               >
                 {show ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
-            <div style={{ textAlign: 'right', marginTop: 6 }}>
-              <a href="#" style={{
-                fontFamily: 'Inter, sans-serif', fontSize: 12,
-                color: '#B56A45', textDecoration: 'none',
-              }}>Forgot password?</a>
+            <div style={{ textAlign: 'right', marginTop: 8 }}>
+              <Link to="/forgot-password" style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: 12, color: 'var(--primary)',
+                fontWeight: 500,
+              }}>Forgot password?</Link>
             </div>
           </div>
         </div>
 
+        {/* Submit */}
         <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.97 }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleSubmit}
+          disabled={loading}
           style={{
-            width: '100%', padding: '13px',
-            backgroundColor: '#B56A45', color: 'white',
+            width: '100%', padding: '14px',
+            background: 'var(--primary-gradient)',
             border: 'none', borderRadius: 12,
-            fontFamily: 'Poppins, sans-serif',
-            fontSize: 15, fontWeight: 600, cursor: 'pointer',
-            boxShadow: '0 4px 16px rgba(181,106,69,0.3)',
-            marginBottom: 16,
+            fontFamily: 'var(--font-body)',
+            fontSize: 15, fontWeight: 700,
+            color: 'var(--on-surface)',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            opacity: loading ? 0.7 : 1,
+            marginBottom: 20,
+            boxShadow: '0 4px 20px rgba(255,133,208,0.35)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
           }}
         >
-          Sign In
+          {loading && (
+            <div style={{
+              width: 16, height: 16, borderRadius: '50%',
+              border: '2px solid rgba(61,26,46,0.3)',
+              borderTopColor: 'var(--on-surface)',
+              animation: 'spin 0.7s linear infinite',
+            }} />
+          )}
+          {loading ? 'Signing in...' : 'Sign In'}
         </motion.button>
 
         <p style={{
-          textAlign: 'center', fontFamily: 'Inter, sans-serif',
-          fontSize: 13, color: '#786A61',
+          textAlign: 'center',
+          fontFamily: 'var(--font-body)',
+          fontSize: 14, color: 'var(--on-surface-muted)',
         }}>
           Don't have an account?{' '}
-          <Link to="/register" style={{ color: '#B56A45', fontWeight: 600, textDecoration: 'none' }}>
-            Sign up
-          </Link>
+          <Link to="/register" style={{
+            color: 'var(--primary)', fontWeight: 700,
+          }}>Sign up</Link>
         </p>
+
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </motion.div>
     </div>
   )

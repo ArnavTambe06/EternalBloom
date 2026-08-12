@@ -65,7 +65,7 @@ export function Footer() {
             padding: '13px 32px',
             backgroundColor: 'transparent',
             border: '1px solid rgba(183,200,222,0.3)',
-            color: 'var(--primary-dim)',
+            color: 'var(--on-surface)',
             fontFamily: 'var(--font-body)',
             fontSize: 11, fontWeight: 600,
             letterSpacing: '0.1em', textTransform: 'uppercase',
@@ -107,7 +107,7 @@ export function Footer() {
             <a
               href={BRAND.instagram}
               target="_blank"
-              rel="https://www.instagram.com/its.eternalbloom?igsh=MXpxdHR6ZmtmMWxw"
+              rel="noopener noreferrer"
               style={iconBtnStyle}
               onMouseEnter={hoverIn}
               onMouseLeave={hoverOut}
