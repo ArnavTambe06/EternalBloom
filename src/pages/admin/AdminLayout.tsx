@@ -2,18 +2,19 @@ import { useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  LayoutDashboard, Package, Tag, ShoppingBag,
-  Sparkles, Menu, X, LogOut, ChevronRight,
+  LayoutDashboard, Package, Tag,
+  ShoppingBag, Sparkles, ChevronLeft,
+  ChevronRight, LogOut, Menu,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { signOut } from '@/services/auth'
 
 const navItems = [
-  { label: 'Dashboard', href: '/admin', icon: <LayoutDashboard size={18} /> },
-  { label: 'Products', href: '/admin/products', icon: <Package size={18} /> },
-  { label: 'Categories', href: '/admin/categories', icon: <Tag size={18} /> },
-  { label: 'Orders', href: '/admin/orders', icon: <ShoppingBag size={18} /> },
-  { label: 'Custom Orders', href: '/admin/custom-orders', icon: <Sparkles size={18} /> },
+  { label: 'Dashboard',     href: '/admin',               icon: LayoutDashboard },
+  { label: 'Products',      href: '/admin/products',      icon: Package },
+  { label: 'Categories',    href: '/admin/categories',    icon: Tag },
+  { label: 'Orders',        href: '/admin/orders',        icon: ShoppingBag },
+  { label: 'Custom Orders', href: '/admin/custom-orders', icon: Sparkles },
 ]
 
 export function AdminLayout() {
@@ -22,162 +23,201 @@ export function AdminLayout() {
   const navigate = useNavigate()
   const { profile, user } = useAuth()
 
+  const displayName =
+    profile?.full_name ||
+    user?.user_metadata?.full_name ||
+    user?.email?.split('@')[0] ||
+    'Admin'
+
+  const initial = displayName[0]?.toUpperCase() || 'A'
+
   const handleSignOut = async () => {
     await signOut()
     navigate('/')
   }
 
-  const displayName = profile?.full_name || user?.email?.split('@')[0] || 'Admin'
-
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#F8F4FF' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#FBF7F5' }}>
 
-      {/* Sidebar */}
-      <motion.div
-        animate={{ width: collapsed ? 72 : 240 }}
-        transition={{ duration: 0.25 }}
+      {/* ── Sidebar ── */}
+      <motion.aside
+        animate={{ width: collapsed ? 64 : 230 }}
+        transition={{ duration: 0.22, ease: 'easeInOut' }}
         style={{
-          backgroundColor: 'var(--on-surface)',
-          display: 'flex', flexDirection: 'column',
-          position: 'fixed', top: 0, left: 0, bottom: 0,
-          zIndex: 50, overflow: 'hidden',
+          backgroundColor: '#1C0F0A',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'fixed',
+          top: 0, left: 0, bottom: 0,
+          zIndex: 50,
+          overflow: 'hidden',
+          flexShrink: 0,
         }}
       >
-        {/* Logo */}
+        {/* Logo row */}
         <div style={{
-          padding: '20px 16px',
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
-          display: 'flex', alignItems: 'center', gap: 12,
-          minHeight: 68,
+          height: 64,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          padding: collapsed ? '0 14px' : '0 18px',
+          borderBottom: '1px solid rgba(255,133,208,0.12)',
+          flexShrink: 0,
         }}>
           <div style={{
-            width: 36, height: 36, borderRadius: '50%',
-            background: 'var(--primary-gradient)',
+            width: 34, height: 34, borderRadius: '50%',
+            background: 'linear-gradient(135deg,#FF85D0,#FFA6E0,#FFC8A2,#FFE680)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontFamily: 'var(--font-display)',
-            color: 'var(--on-surface)', fontWeight: 700, fontSize: 13,
+            fontFamily: 'Playfair Display, serif',
+            fontWeight: 700, fontSize: 13, color: '#1C0F0A',
             flexShrink: 0,
+            boxShadow: '0 0 0 2px rgba(255,133,208,0.25)',
           }}>EB</div>
+
           <AnimatePresence>
             {!collapsed && (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: 'auto' }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.18 }}
+                style={{ overflow: 'hidden', whiteSpace: 'nowrap' }}
               >
                 <p style={{
-                  fontFamily: 'var(--font-display)',
+                  fontFamily: 'Playfair Display, serif',
                   fontSize: 14, fontWeight: 700,
-                  color: 'white', whiteSpace: 'nowrap',
+                  color: 'rgba(255,240,230,0.95)',
                 }}>Eternal Bloom</p>
                 <p style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 10, color: 'rgba(255,255,255,0.4)',
-                  whiteSpace: 'nowrap',
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 10, color: 'rgba(255,180,150,0.45)',
+                  letterSpacing: '0.08em', textTransform: 'uppercase',
                 }}>Admin Panel</p>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* Nav */}
-        <div style={{ flex: 1, padding: '12px 8px', overflowY: 'auto' }}>
-          {navItems.map(item => {
-            const active = location.pathname === item.href ||
-              (item.href !== '/admin' && location.pathname.startsWith(item.href))
+        {/* Nav items */}
+        <nav style={{
+          flex: 1, padding: '12px 8px',
+          overflowY: 'auto', overflowX: 'hidden',
+        }}>
+          {navItems.map(({ label, href, icon: Icon }) => {
+            const active =
+              href === '/admin'
+                ? location.pathname === '/admin'
+                : location.pathname.startsWith(href)
+
             return (
-              <Link key={item.href} to={item.href}>
+              <Link key={href} to={href} style={{ display: 'block', marginBottom: 2 }}>
                 <motion.div
-                  whileHover={{ backgroundColor: 'rgba(255,255,255,0.08)' }}
+                  whileHover={{ backgroundColor: 'rgba(255,133,208,0.1)' }}
                   style={{
-                    display: 'flex', alignItems: 'center',
-                    gap: 12, padding: '10px 12px',
-                    borderRadius: 10, marginBottom: 2,
-                    backgroundColor: active ? 'rgba(255,133,208,0.15)' : 'transparent',
-                    cursor: 'pointer', transition: 'background 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    padding: collapsed ? '10px 15px' : '10px 12px',
+                    borderRadius: 10,
+                    backgroundColor: active
+                      ? 'rgba(255,133,208,0.15)'
+                      : 'transparent',
+                    transition: 'background 0.2s',
+                    cursor: 'pointer',
+                    justifyContent: collapsed ? 'center' : 'flex-start',
                   }}
                 >
-                  <span style={{
-                    color: active ? 'var(--pink)' : 'rgba(255,255,255,0.5)',
-                    flexShrink: 0,
-                  }}>{item.icon}</span>
+                  <Icon
+                    size={18}
+                    strokeWidth={active ? 2 : 1.6}
+                    color={active ? '#FF85D0' : 'rgba(255,190,160,0.45)'}
+                    style={{ flexShrink: 0 }}
+                  />
                   <AnimatePresence>
                     {!collapsed && (
                       <motion.span
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
                         style={{
-                          fontFamily: 'var(--font-body)',
-                          fontSize: 14, fontWeight: active ? 600 : 400,
-                          color: active ? 'white' : 'rgba(255,255,255,0.5)',
+                          fontFamily: 'DM Sans, sans-serif',
+                          fontSize: 14,
+                          fontWeight: active ? 600 : 400,
+                          color: active
+                            ? 'rgba(255,240,230,0.95)'
+                            : 'rgba(255,190,160,0.45)',
                           whiteSpace: 'nowrap',
                         }}
-                      >{item.label}</motion.span>
+                      >
+                        {label}
+                      </motion.span>
                     )}
                   </AnimatePresence>
                 </motion.div>
               </Link>
             )
           })}
-        </div>
+        </nav>
 
-        {/* User + collapse */}
+        {/* Bottom — user + collapse */}
         <div style={{
-          padding: '12px 8px',
-          borderTop: '1px solid rgba(255,255,255,0.08)',
+          borderTop: '1px solid rgba(255,133,208,0.1)',
+          padding: '10px 8px',
+          flexShrink: 0,
         }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 10,
-            padding: '10px 12px', marginBottom: 4,
-          }}>
+          {/* User row */}
+          {!collapsed && (
             <div style={{
-              width: 32, height: 32, borderRadius: '50%',
-              background: 'var(--primary-gradient)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'var(--font-body)', fontSize: 12,
-              fontWeight: 700, color: 'var(--on-surface)',
-              flexShrink: 0,
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '10px 12px', marginBottom: 2,
             }}>
-              {displayName[0]?.toUpperCase()}
+              <div style={{
+                width: 30, height: 30, borderRadius: '50%',
+                background: 'linear-gradient(135deg,#FF85D0,#FFC8A2)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: 'DM Sans, sans-serif',
+                fontSize: 12, fontWeight: 700, color: '#1C0F0A',
+                flexShrink: 0,
+              }}>{initial}</div>
+              <div style={{ minWidth: 0 }}>
+                <p style={{
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 12, fontWeight: 600,
+                  color: 'rgba(255,240,230,0.9)',
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                }}>{displayName}</p>
+                <p style={{
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 10, color: 'rgba(255,180,150,0.4)',
+                }}>Administrator</p>
+              </div>
             </div>
-            <AnimatePresence>
-              {!collapsed && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  style={{ minWidth: 0 }}
-                >
-                  <p style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 13, fontWeight: 600,
-                    color: 'white', whiteSpace: 'nowrap',
-                    overflow: 'hidden', textOverflow: 'ellipsis',
-                  }}>{displayName}</p>
-                  <p style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 10, color: 'rgba(255,255,255,0.4)',
-                  }}>Administrator</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          )}
 
+          {/* Sign out */}
           <button
             onClick={handleSignOut}
             style={{
-              width: '100%', padding: '10px 12px',
-              display: 'flex', alignItems: 'center', gap: 12,
+              width: '100%', padding: collapsed ? '10px 15px' : '9px 12px',
+              display: 'flex', alignItems: 'center',
+              justifyContent: collapsed ? 'center' : 'flex-start',
+              gap: 8,
               background: 'none', border: 'none',
               borderRadius: 10, cursor: 'pointer',
-              color: 'rgba(255,100,100,0.7)',
+              color: 'rgba(255,100,100,0.6)',
               transition: 'all 0.2s',
             }}
-            onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255,50,50,0.1)'}
-            onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+            onMouseEnter={e => {
+              e.currentTarget.style.backgroundColor = 'rgba(255,80,80,0.08)'
+              e.currentTarget.style.color = 'rgba(255,120,120,0.9)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.color = 'rgba(255,100,100,0.6)'
+            }}
           >
-            <LogOut size={16} style={{ flexShrink: 0 }} />
+            <LogOut size={16} strokeWidth={1.6} style={{ flexShrink: 0 }} />
             <AnimatePresence>
               {!collapsed && (
                 <motion.span
@@ -185,7 +225,7 @@ export function AdminLayout() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   style={{
-                    fontFamily: 'var(--font-body)',
+                    fontFamily: 'DM Sans, sans-serif',
                     fontSize: 13, whiteSpace: 'nowrap',
                   }}
                 >Sign Out</motion.span>
@@ -193,40 +233,100 @@ export function AdminLayout() {
             </AnimatePresence>
           </button>
 
+          {/* Collapse toggle */}
           <button
             onClick={() => setCollapsed(!collapsed)}
             style={{
-              width: '100%', padding: '10px 12px',
-              display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'flex-start',
-              gap: 12, background: 'none', border: 'none',
+              width: '100%', padding: collapsed ? '10px 15px' : '9px 12px',
+              display: 'flex', alignItems: 'center',
+              justifyContent: collapsed ? 'center' : 'flex-start',
+              gap: 8,
+              background: 'none', border: 'none',
               borderRadius: 10, cursor: 'pointer',
-              color: 'rgba(255,255,255,0.3)',
+              color: 'rgba(255,180,150,0.3)',
+              transition: 'color 0.2s',
             }}
+            onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,180,150,0.6)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,180,150,0.3)'}
           >
-            {collapsed ? <ChevronRight size={16} /> : <Menu size={16} />}
-            <AnimatePresence>
-              {!collapsed && (
-                <motion.span
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  style={{ fontFamily: 'var(--font-body)', fontSize: 13, whiteSpace: 'nowrap' }}
-                >Collapse</motion.span>
-              )}
-            </AnimatePresence>
+            {collapsed
+              ? <ChevronRight size={16} strokeWidth={1.6} />
+              : <><ChevronLeft size={16} strokeWidth={1.6} />
+                <span style={{
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 13, whiteSpace: 'nowrap',
+                }}>Collapse</span>
+              </>
+            }
           </button>
         </div>
-      </motion.div>
+      </motion.aside>
 
-      {/* Main content */}
-      <div style={{
-        flex: 1,
-        marginLeft: collapsed ? 72 : 240,
-        transition: 'margin-left 0.25s',
-        minHeight: '100vh',
-      }}>
-        <Outlet />
-      </div>
+      {/* ── Main content ── */}
+      <motion.div
+        animate={{ marginLeft: collapsed ? 64 : 230 }}
+        transition={{ duration: 0.22, ease: 'easeInOut' }}
+        style={{ flex: 1, minHeight: '100vh', minWidth: 0 }}
+      >
+        {/* Top bar */}
+        <div style={{
+          height: 64, backgroundColor: '#FFFFFF',
+          borderBottom: '1px solid rgba(255,133,208,0.15)',
+          display: 'flex', alignItems: 'center',
+          padding: '0 32px',
+          justifyContent: 'space-between',
+          position: 'sticky', top: 0, zIndex: 40,
+          boxShadow: '0 1px 12px rgba(255,133,208,0.08)',
+        }}>
+          <div>
+            <p style={{
+              fontFamily: 'Playfair Display, serif',
+              fontSize: 18, fontWeight: 700, color: '#1C0F0A',
+            }}>
+              {navItems.find(n =>
+                n.href === '/admin'
+                  ? location.pathname === '/admin'
+                  : location.pathname.startsWith(n.href)
+              )?.label || 'Dashboard'}
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Link to="/" target="_blank" style={{
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: 12, fontWeight: 500,
+              color: 'rgba(28,15,10,0.4)',
+              border: '1px solid rgba(255,133,208,0.25)',
+              padding: '6px 14px', borderRadius: 999,
+              transition: 'all 0.2s',
+            }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'rgba(255,133,208,0.6)'
+                e.currentTarget.style.color = '#E8609A'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'rgba(255,133,208,0.25)'
+                e.currentTarget.style.color = 'rgba(28,15,10,0.4)'
+              }}
+            >
+              View Store
+            </Link>
+
+            <div style={{
+              width: 34, height: 34, borderRadius: '50%',
+              background: 'linear-gradient(135deg,#FF85D0,#FFC8A2)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: 12, fontWeight: 700, color: '#1C0F0A',
+            }}>{initial}</div>
+          </div>
+        </div>
+
+        {/* Page content */}
+        <div style={{ padding: '32px' }}>
+          <Outlet />
+        </div>
+      </motion.div>
     </div>
   )
 }

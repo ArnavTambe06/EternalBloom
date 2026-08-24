@@ -1,834 +1,1045 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, Send, CheckCircle, X, ImagePlus, ArrowRight, Sparkles } from 'lucide-react'
+import {
+  Send, CheckCircle, X, ArrowRight,
+  Sparkles, ExternalLink, Upload,
+  Link as LinkIcon, Plus,
+} from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { CATEGORIES } from '@/lib/constants'
+import { submitCustomOrder } from '@/services/customOrders'
+import { uploadMultipleImages } from '@/services/cloudinary'
+import { useAuth } from '@/hooks/useAuth'
 
-const steps = ['Tell us your vision', 'Choose a style', 'Submit']
+const PINTEREST_URL = 'https://www.pinterest.com/eternalbloom_in/'
 
 const budgetOptions = [
-  { label: 'Under ₹500', sub: 'Great for keychains & cards' },
-  { label: '₹500 – ₹1,000', sub: 'Desk buddies, hair accessories' },
+  { label: 'Under ₹500',       sub: 'Keychains, cards' },
+  { label: '₹500 – ₹1,000',   sub: 'Desk buddies, accessories' },
   { label: '₹1,000 – ₹2,000', sub: 'Bouquets, lamps, sets' },
-  { label: '₹2,000+', sub: 'Fully custom, large pieces' },
-  { label: 'Surprise me', sub: 'We\'ll suggest the best fit' },
+  { label: '₹2,000+',          sub: 'Fully custom, large pieces' },
+  { label: 'Surprise me',      sub: 'We\'ll suggest the best fit' },
 ]
 
-const occasionOptions = [
-  'Birthday Gift', 'Anniversary', 'Wedding', 'Baby Shower',
-  'Just Because', 'Home Decor', 'Friendship Gift', 'Self-love',
+const occasions = [
+  'Birthday', 'Anniversary', 'Wedding', 'Baby Shower',
+  'Just Because', 'Home Decor', 'Friendship', 'Self-love',
 ]
 
-const inspirationImages = [
-  {
-    src: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80',
-    label: 'Keychains',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1487530811015-780680fb1f4e?w=600&q=80',
-    label: 'Desk Buddies',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=600&q=80',
-    label: 'Flower Cards',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80',
-    label: 'Hair Clips',
-  },
-]
+const steps = ['Your details', 'Style & images', 'Review & send']
+
+/* ── Shared input style ── */
+const field: React.CSSProperties = {
+  width: '100%',
+  padding: '13px 16px',
+  border: '1.5px solid rgba(255,133,208,0.22)',
+  borderRadius: 12,
+  fontFamily: 'DM Sans, sans-serif',
+  fontSize: 15, color: '#1C0F0A',
+  backgroundColor: 'rgba(255,255,255,0.9)',
+  outline: 'none',
+  boxSizing: 'border-box',
+  transition: 'border-color 0.2s, box-shadow 0.2s',
+}
+
+const focusField = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  e.target.style.borderColor = '#FF85D0'
+  e.target.style.boxShadow = '0 0 0 3px rgba(255,133,208,0.12)'
+}
+const blurField = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  e.target.style.borderColor = 'rgba(255,133,208,0.22)'
+  e.target.style.boxShadow = 'none'
+}
+
+const lbl: React.CSSProperties = {
+  display: 'block',
+  fontFamily: 'DM Sans, sans-serif',
+  fontSize: 11, fontWeight: 700,
+  letterSpacing: '0.12em', textTransform: 'uppercase',
+  color: '#9C7B6E', marginBottom: 8,
+}
 
 export function CustomOrderPage() {
+  const { user } = useAuth()
   const [step, setStep] = useState(0)
   const [submitted, setSubmitted] = useState(false)
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+
+  const [localFiles, setLocalFiles] = useState<File[]>([])
+  const [cloudUrls, setCloudUrls] = useState<string[]>([])
+  const [uploading, setUploading] = useState(false)
+  const [pastedUrl, setPastedUrl] = useState('')
+  const [pastedUrls, setPastedUrls] = useState<string[]>([])
+  const [urlError, setUrlError] = useState('')
+  const fileRef = useRef<HTMLInputElement>(null)
 
   const [form, setForm] = useState({
-    name: '', email: '', phone: '',
-    category: '', description: '',
-    budget: '', occasion: '',
+    name: user?.user_metadata?.full_name || '',
+    email: user?.email || '',
+    phone: '',
+    category: '',
+    description: '',
+    budget: '',
+    occasion: '',
   })
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
 
-  const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setUploadedFiles(prev => [...prev, ...Array.from(e.target.files!)])
-    }
+  const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return
+    const files = Array.from(e.target.files)
+    setLocalFiles(p => [...p, ...files])
+    setUploading(true)
+    try {
+      const urls = await uploadMultipleImages(files, 'eternal-bloom/custom-orders')
+      setCloudUrls(p => [...p, ...urls])
+    } catch { /* local preview still shown */ }
+    setUploading(false)
+    if (fileRef.current) fileRef.current.value = ''
   }
 
-  const removeFile = (i: number) =>
-    setUploadedFiles(files => files.filter((_, idx) => idx !== i))
+  const addPastedUrl = () => {
+    const url = pastedUrl.trim()
+    if (!url) return
+    if (!url.startsWith('http')) { setUrlError('Enter a valid URL starting with https://'); return }
+    setPastedUrls(p => [...p, url])
+    setCloudUrls(p => [...p, url])
+    setPastedUrl('')
+    setUrlError('')
+  }
 
+  const removeFile = (i: number) => {
+    setLocalFiles(f => f.filter((_, idx) => idx !== i))
+    setCloudUrls(u => u.filter((_, idx) => idx !== i))
+  }
+
+  const removePastedUrl = (i: number) => {
+    setPastedUrls(p => p.filter((_, idx) => idx !== i))
+    const offset = localFiles.length
+    setCloudUrls(u => u.filter((_, idx) => idx !== offset + i))
+  }
+
+  const allImages = [...localFiles.map((f, i) => ({ type: 'file' as const, file: f, idx: i })),
+    ...pastedUrls.map((url, i) => ({ type: 'url' as const, url, idx: i }))]
+
+  const handleSubmit = async () => {
+    setSubmitting(true); setSubmitError('')
+    try {
+      await submitCustomOrder({
+        userId: user?.id,
+        name: form.name, email: form.email,
+        phone: form.phone || undefined,
+        category: form.category || undefined,
+        description: form.description,
+        budget: form.budget || undefined,
+        occasion: form.occasion || undefined,
+        referenceImages: cloudUrls,
+      })
+      setSubmitted(true)
+    } catch (err: any) {
+      setSubmitError(err?.message || 'Something went wrong. Please try again.')
+    } finally { setSubmitting(false) }
+  }
+
+  const reset = () => {
+    setSubmitted(false); setStep(0)
+    setForm({ name: '', email: '', phone: '', category: '', description: '', budget: '', occasion: '' })
+    setLocalFiles([]); setCloudUrls([]); setPastedUrls([]); setPastedUrl(''); setSubmitError('')
+  }
+
+  /* ── Success ── */
   if (submitted) {
     return (
       <div style={{
-        minHeight: '100vh',
-        backgroundColor: 'var(--surface)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: 24,
+        minHeight: '80vh', display: 'flex',
+        alignItems: 'center', justifyContent: 'center',
+        padding: 24, position: 'relative', zIndex: 1,
       }}>
         <motion.div
-          initial={{ opacity: 0, scale: 0.92 }}
+          initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ type: 'spring', stiffness: 200, damping: 22 }}
           style={{
-            maxWidth: 480, width: '100%',
-            textAlign: 'center',
+            maxWidth: 480, width: '100%', textAlign: 'center',
+            background: 'rgba(255,255,255,0.85)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255,133,208,0.2)',
+            borderRadius: 32, padding: '64px 52px',
+            boxShadow: '0 24px 64px rgba(255,133,208,0.15)',
           }}
         >
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: 'spring', stiffness: 240 }}
+            transition={{ delay: 0.15, type: 'spring', stiffness: 240 }}
             style={{
-              width: 72, height: 72,
-              backgroundColor: 'var(--secondary-container)',
+              width: 80, height: 80,
+              background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+              borderRadius: '50%', margin: '0 auto 24px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 24px',
+              boxShadow: '0 12px 32px rgba(255,133,208,0.4)',
             }}
           >
-            <CheckCircle size={32} color="var(--secondary)" />
+            <CheckCircle size={36} color="#1C0F0A" strokeWidth={2} />
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <p className="label-caps" style={{ color: 'var(--secondary)', marginBottom: 12 }}>
-              Request Received
-            </p>
-            <h2 style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 36, fontWeight: 700,
-              color: 'var(--primary)',
-              letterSpacing: '-0.02em', marginBottom: 16,
-            }}>
-              We'll be in touch.
-            </h2>
-            <p style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: 15, color: 'var(--on-surface-variant)',
-              lineHeight: 1.7, marginBottom: 40,
-            }}>
-              Thank you, <strong style={{ color: 'var(--primary)' }}>{form.name}</strong>.
-              We've received your request and will get back to you at{' '}
-              <strong style={{ color: 'var(--primary)' }}>{form.email}</strong> within 24 hours
-              with a personalised quote.
-            </p>
+          <p style={{
+            fontFamily: 'DM Sans, sans-serif', fontSize: 11,
+            fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase',
+            color: '#9C7B6E', marginBottom: 12,
+          }}>Request Received</p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <button
-                onClick={() => {
-                  setSubmitted(false)
-                  setStep(0)
-                  setForm({ name: '', email: '', phone: '', category: '', description: '', budget: '', occasion: '' })
-                  setUploadedFiles([])
-                }}
-                style={{
-                  padding: '14px 32px',
-                  backgroundColor: 'var(--primary)', color: 'white',
-                  border: 'none', cursor: 'pointer',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 12, fontWeight: 600,
-                  letterSpacing: '0.1em', textTransform: 'uppercase',
-                }}
-              >
-                Submit Another Request
-              </button>
-            </div>
-          </motion.div>
+          <h2 style={{
+            fontFamily: 'Playfair Display, serif',
+            fontSize: 32, fontWeight: 700, color: '#1C0F0A',
+            letterSpacing: '-0.02em', marginBottom: 16,
+          }}>We'll be in touch!</h2>
+
+          <p style={{
+            fontFamily: 'DM Sans, sans-serif',
+            fontSize: 15, color: '#5C4033', lineHeight: 1.7, marginBottom: 36,
+          }}>
+            Thank you, <strong style={{ color: '#1C0F0A' }}>{form.name}</strong>.
+            We'll get back to you at{' '}
+            <strong style={{ color: '#E8609A' }}>{form.email}</strong> within
+            24 hours with a personalised quote.
+          </p>
+
+          <button onClick={reset} style={{
+            padding: '13px 32px', borderRadius: 999,
+            background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+            border: 'none', cursor: 'pointer',
+            fontFamily: 'DM Sans, sans-serif',
+            fontSize: 14, fontWeight: 700, color: '#1C0F0A',
+            boxShadow: '0 4px 16px rgba(255,133,208,0.3)',
+          }}>Submit Another</button>
         </motion.div>
       </div>
     )
   }
 
+  /* ── Main ── */
   return (
-    <div style={{ backgroundColor: 'var(--surface)', minHeight: '100vh' }}>
+    <div style={{ position: 'relative', zIndex: 1 }}>
 
-      {/* Hero — full width editorial */}
-      <div style={{
-        backgroundColor: 'var(--primary)',
-        padding: '80px var(--margin-desktop) 72px',
-        position: 'relative', overflow: 'hidden',
-      }}>
-        {/* Background image grid (decorative) */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
-          opacity: 0.08,
-        }}>
-          {inspirationImages.map((img, i) => (
-            <img
-              key={i}
-              src={img.src}
-              alt=""
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          ))}
-        </div>
-
-        <div style={{ maxWidth: 'var(--container)', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
+      {/* ── Hero ── */}
+      <div style={{ padding: '80px 0 56px', textAlign: 'center' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 48px' }}>
+          <motion.span
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="label-caps"
-            style={{ color: 'var(--secondary-dim)', marginBottom: 20 }}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              padding: '6px 18px', borderRadius: 999,
+              background: 'rgba(255,255,255,0.75)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255,133,208,0.25)',
+              fontFamily: 'DM Sans, sans-serif', fontSize: 12,
+              fontWeight: 600, color: '#E8609A',
+              marginBottom: 20, letterSpacing: '0.04em',
+            }}
           >
-            Made Just for You
-          </motion.p>
+            <Sparkles size={13} /> Made just for you
+          </motion.span>
+
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08 }}
             style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(40px, 6vw, 72px)',
-              fontWeight: 700, color: 'white',
-              letterSpacing: '-0.02em',
-              lineHeight: 1.05, marginBottom: 24,
-              maxWidth: 640,
+              fontFamily: 'Playfair Display, serif',
+              fontSize: 'clamp(42px,6vw,80px)',
+              fontWeight: 700, color: '#1C0F0A',
+              letterSpacing: '-0.03em', lineHeight: 1.05, marginBottom: 18,
             }}
           >
-            Your Vision,
-            <br />
-            <em style={{ color: 'var(--secondary-dim)', fontStyle: 'italic' }}>
-              Our Craft.
-            </em>
+            Your Vision,{' '}
+            <em style={{
+              fontStyle: 'italic',
+              background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>Our Craft.</em>
           </motion.h1>
+
           <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ delay: 0.14 }}
             style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: 17, color: 'var(--primary-dim)',
-              lineHeight: 1.65, maxWidth: 500,
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: 17, color: '#5C4033', lineHeight: 1.65,
+              maxWidth: 460, margin: '0 auto',
             }}
           >
-            Describe what you have in mind — a colour, a feeling, a person you love.
-            We'll handcraft something that's entirely, permanently yours.
+            Describe what you have in mind and we'll handcraft something
+            that's entirely, permanently yours.
           </motion.p>
         </div>
       </div>
 
-      {/* Inspiration strip */}
-      <div style={{
-        backgroundColor: 'var(--surface-low)',
-        borderBottom: '1px solid rgba(4,22,39,0.08)',
-        overflow: 'hidden',
-      }}>
-        <div style={{
-          display: 'flex',
-          maxWidth: 'var(--container)', margin: '0 auto',
-        }}>
-          {inspirationImages.map((img, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + i * 0.08 }}
-              style={{
-                flex: 1, position: 'relative',
-                aspectRatio: '4/3', overflow: 'hidden',
-              }}
-            >
-              <motion.img
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.5 }}
-                src={img.src}
-                alt={img.label}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-              <div style={{
-                position: 'absolute', bottom: 0, left: 0, right: 0,
-                padding: '20px 16px 14px',
-                background: 'linear-gradient(to top, rgba(4,22,39,0.7) 0%, transparent 100%)',
-              }}>
-                <p className="label-caps" style={{ color: 'rgba(255,255,255,0.8)' }}>
-                  {img.label}
-                </p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-
-      {/* Form area */}
-      <div style={{
-        maxWidth: 800, margin: '0 auto',
-        padding: '72px var(--margin-mobile)',
-      }}>
-
-        {/* Step indicator */}
-        <div style={{
-          display: 'flex', alignItems: 'center',
-          gap: 0, marginBottom: 56,
-        }}>
+      {/* ── Step indicator ── */}
+      <div style={{ maxWidth: 740, margin: '0 auto', padding: '0 24px 40px' }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
           {steps.map((s, i) => (
-            <div key={s} style={{ display: 'flex', alignItems: 'center', flex: i < steps.length - 1 ? 1 : 'none' }}>
+            <div key={s} style={{
+              display: 'flex', alignItems: 'center',
+              flex: i < steps.length - 1 ? 1 : 'none',
+            }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                 <div style={{
-                  width: 28, height: 28,
-                  backgroundColor: i <= step ? 'var(--primary)' : 'var(--surface-high)',
-                  color: i <= step ? 'white' : 'var(--outline)',
+                  width: 32, height: 32,
+                  background: i <= step
+                    ? 'linear-gradient(135deg,#FF85D0,#FFC8A2)'
+                    : 'rgba(255,255,255,0.7)',
+                  border: i <= step ? 'none' : '1.5px solid rgba(255,133,208,0.3)',
+                  borderRadius: '50%',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 12, fontWeight: 700,
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 13, fontWeight: 700,
+                  color: i <= step ? '#1C0F0A' : '#9C7B6E',
                   transition: 'all 0.3s',
+                  boxShadow: i <= step ? '0 4px 14px rgba(255,133,208,0.35)' : 'none',
                 }}>
                   {i < step ? '✓' : i + 1}
                 </div>
                 <span style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 12, fontWeight: 600,
-                  letterSpacing: '0.06em',
-                  color: i <= step ? 'var(--primary)' : 'var(--outline)',
-                  textTransform: 'uppercase',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.3s',
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 11, fontWeight: 700,
+                  letterSpacing: '0.1em', textTransform: 'uppercase',
+                  color: i <= step ? '#1C0F0A' : '#9C7B6E',
+                  whiteSpace: 'nowrap', transition: 'color 0.3s',
                 }}>{s}</span>
               </div>
               {i < steps.length - 1 && (
                 <div style={{
-                  flex: 1, height: 1, margin: '0 16px',
-                  backgroundColor: i < step ? 'var(--primary)' : 'rgba(4,22,39,0.12)',
+                  flex: 1, height: 1.5, margin: '0 16px',
+                  background: i < step
+                    ? 'linear-gradient(90deg,#FF85D0,#FFC8A2)'
+                    : 'rgba(255,133,208,0.2)',
                   transition: 'all 0.3s',
                 }} />
               )}
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Step content */}
+      {/* ── Form ── */}
+      <div style={{ maxWidth: 740, margin: '0 auto', padding: '0 24px 96px' }}>
         <AnimatePresence mode="wait">
 
-          {/* Step 0 — Details */}
+          {/* STEP 0 — Details */}
           {step === 0 && (
             <motion.div
-              key="step0"
-              initial={{ opacity: 0, x: 24 }}
+              key="s0"
+              initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -24 }}
-              transition={{ duration: 0.3 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.22 }}
+              style={{
+                background: 'rgba(255,255,255,0.82)',
+                border: '1px solid rgba(255,133,208,0.18)',
+                borderRadius: 24,
+                overflow: 'hidden',
+                boxShadow: '0 8px 40px rgba(255,133,208,0.1)',
+              }}
             >
-              <h2 style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 28, fontWeight: 600,
-                color: 'var(--primary)',
-                letterSpacing: '-0.02em', marginBottom: 8,
-              }}>Tell us about yourself</h2>
-              <p style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: 14, color: 'var(--on-surface-variant)',
-                marginBottom: 36,
-              }}>
-                We'll use this to reach out with your quote and updates.
-              </p>
+              {/* Card header stripe */}
+              <div style={{
+                height: 4,
+                background: 'linear-gradient(90deg,#FF85D0,#FFC8A2,#FFE680)',
+              }} />
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                  {[
-                    { label: 'Full Name *', key: 'name', type: 'text', placeholder: 'Priya Sharma' },
-                    { label: 'Email *', key: 'email', type: 'email', placeholder: 'priya@email.com' },
-                  ].map(f => (
-                    <div key={f.key}>
-                      <label style={{
-                        display: 'block',
-                        fontFamily: 'var(--font-body)',
-                        fontSize: 11, fontWeight: 600,
-                        letterSpacing: '0.08em', textTransform: 'uppercase',
-                        color: 'var(--on-surface-variant)', marginBottom: 8,
-                      }}>{f.label}</label>
+              <div style={{ padding: '36px 40px' }}>
+                <h2 style={{
+                  fontFamily: 'Playfair Display, serif',
+                  fontSize: 24, fontWeight: 600, color: '#1C0F0A',
+                  letterSpacing: '-0.02em', marginBottom: 6,
+                }}>Tell us about yourself</h2>
+                <p style={{
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 14, color: '#9C7B6E', marginBottom: 32,
+                }}>We'll reach out to you with a personalised quote.</p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    {[
+                      { label: 'Full Name *', key: 'name', type: 'text', ph: 'Priya Sharma' },
+                      { label: 'Email *', key: 'email', type: 'email', ph: 'priya@email.com' },
+                    ].map(f => (
+                      <div key={f.key}>
+                        <label style={lbl}>{f.label}</label>
+                        <input
+                          type={f.type} placeholder={f.ph}
+                          value={(form as any)[f.key]}
+                          onChange={e => set(f.key, e.target.value)}
+                          style={field}
+                          onFocus={focusField} onBlur={blurField}
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div>
+                      <label style={lbl}>Phone</label>
                       <input
-                        type={f.type}
-                        placeholder={f.placeholder}
-                        value={(form as any)[f.key]}
-                        onChange={e => set(f.key, e.target.value)}
-                        style={{
-                          width: '100%', padding: '12px 0',
-                          border: 'none',
-                          borderBottom: '1.5px solid rgba(4,22,39,0.2)',
-                          backgroundColor: 'transparent',
-                          fontFamily: 'var(--font-body)',
-                          fontSize: 15, color: 'var(--primary)',
-                          outline: 'none',
-                          transition: 'border-color 0.2s',
-                          boxSizing: 'border-box',
-                        }}
-                        onFocus={e => e.target.style.borderBottomColor = 'var(--primary)'}
-                        onBlur={e => e.target.style.borderBottomColor = 'rgba(4,22,39,0.2)'}
+                        type="tel" placeholder="+91 98765 43210"
+                        value={form.phone}
+                        onChange={e => set('phone', e.target.value)}
+                        style={field} onFocus={focusField} onBlur={blurField}
                       />
                     </div>
-                  ))}
+                    <div>
+                      <label style={lbl}>Category</label>
+                      <select
+                        value={form.category}
+                        onChange={e => set('category', e.target.value)}
+                        style={{ ...field, cursor: 'pointer', color: form.category ? '#1C0F0A' : '#9C7B6E' }}
+                        onFocus={focusField} onBlur={blurField}
+                      >
+                        <option value="">Select a category</option>
+                        {CATEGORIES.map(c => (
+                          <option key={c.slug} value={c.slug}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={lbl}>Describe your vision *</label>
+                    <textarea
+                      rows={5}
+                      placeholder="Tell us what you have in mind — colours, flowers, who it's for, any special meaning behind it..."
+                      value={form.description}
+                      onChange={e => set('description', e.target.value)}
+                      style={{ ...field, resize: 'none', lineHeight: 1.65 }}
+                      onFocus={focusField} onBlur={blurField}
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label style={{
-                    display: 'block',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 11, fontWeight: 600,
-                    letterSpacing: '0.08em', textTransform: 'uppercase',
-                    color: 'var(--on-surface-variant)', marginBottom: 8,
-                  }}>Phone</label>
-                  <input
-                    type="tel"
-                    placeholder="+91 98765 43210"
-                    value={form.phone}
-                    onChange={e => set('phone', e.target.value)}
-                    style={{
-                      width: '100%', padding: '12px 0',
-                      border: 'none',
-                      borderBottom: '1.5px solid rgba(4,22,39,0.2)',
-                      backgroundColor: 'transparent',
-                      fontFamily: 'var(--font-body)',
-                      fontSize: 15, color: 'var(--primary)',
-                      outline: 'none', boxSizing: 'border-box',
+                <div style={{ marginTop: 32 }}>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => {
+                      if (!form.name.trim() || !form.email.trim() || !form.description.trim()) {
+                        alert('Please fill Name, Email and Vision.')
+                        return
+                      }
+                      setStep(1)
                     }}
-                    onFocus={e => e.target.style.borderBottomColor = 'var(--primary)'}
-                    onBlur={e => e.target.style.borderBottomColor = 'rgba(4,22,39,0.2)'}
-                  />
-                </div>
-
-                <div>
-                  <label style={{
-                    display: 'block',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 11, fontWeight: 600,
-                    letterSpacing: '0.08em', textTransform: 'uppercase',
-                    color: 'var(--on-surface-variant)', marginBottom: 8,
-                  }}>Category</label>
-                  <select
-                    value={form.category}
-                    onChange={e => set('category', e.target.value)}
                     style={{
-                      width: '100%', padding: '12px 0',
-                      border: 'none',
-                      borderBottom: '1.5px solid rgba(4,22,39,0.2)',
-                      backgroundColor: 'transparent',
-                      fontFamily: 'var(--font-body)',
-                      fontSize: 15,
-                      color: form.category ? 'var(--primary)' : 'var(--outline)',
-                      outline: 'none', cursor: 'pointer',
-                      appearance: 'none',
+                      display: 'inline-flex', alignItems: 'center', gap: 10,
+                      padding: '14px 32px', borderRadius: 999,
+                      background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+                      border: 'none', cursor: 'pointer',
+                      fontFamily: 'DM Sans, sans-serif',
+                      fontSize: 13, fontWeight: 700, color: '#1C0F0A',
+                      letterSpacing: '0.06em', textTransform: 'uppercase',
+                      boxShadow: '0 4px 18px rgba(255,133,208,0.3)',
                     }}
-                  >
-                    <option value="">Select a category</option>
-                    {CATEGORIES.map(c => (
-                      <option key={c.slug} value={c.slug}>{c.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{
-                    display: 'block',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 11, fontWeight: 600,
-                    letterSpacing: '0.08em', textTransform: 'uppercase',
-                    color: 'var(--on-surface-variant)', marginBottom: 8,
-                  }}>Describe your vision *</label>
-                  <textarea
-                    rows={5}
-                    placeholder="Tell us what you have in mind — colours, flowers, who it's for, any special meaning behind it..."
-                    value={form.description}
-                    onChange={e => set('description', e.target.value)}
-                    style={{
-                      width: '100%', padding: '12px 0',
-                      border: 'none',
-                      borderBottom: '1.5px solid rgba(4,22,39,0.2)',
-                      backgroundColor: 'transparent',
-                      fontFamily: 'var(--font-body)',
-                      fontSize: 15, color: 'var(--primary)',
-                      outline: 'none', resize: 'none',
-                      lineHeight: 1.65, boxSizing: 'border-box',
-                    }}
-                    onFocus={e => e.target.style.borderBottomColor = 'var(--primary)'}
-                    onBlur={e => e.target.style.borderBottomColor = 'rgba(4,22,39,0.2)'}
-                  />
+                  >Continue <ArrowRight size={15} /></motion.button>
                 </div>
               </div>
-
-              <motion.button
-                whileHover={{ opacity: 0.88 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setStep(1)}
-                disabled={!form.name || !form.email || !form.description}
-                style={{
-                  marginTop: 40,
-                  display: 'inline-flex', alignItems: 'center', gap: 12,
-                  padding: '14px 36px',
-                  backgroundColor: 'var(--primary)', color: 'white',
-                  border: 'none', cursor: 'pointer',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 12, fontWeight: 600,
-                  letterSpacing: '0.1em', textTransform: 'uppercase',
-                  opacity: (!form.name || !form.email || !form.description) ? 0.4 : 1,
-                  transition: 'opacity 0.2s',
-                }}
-              >
-                Continue <ArrowRight size={14} />
-              </motion.button>
             </motion.div>
           )}
 
-          {/* Step 1 — Style */}
+          {/* STEP 1 — Style & images */}
           {step === 1 && (
             <motion.div
-              key="step1"
-              initial={{ opacity: 0, x: 24 }}
+              key="s1"
+              initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -24 }}
-              transition={{ duration: 0.3 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.22 }}
+              style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
             >
-              <h2 style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 28, fontWeight: 600,
-                color: 'var(--primary)',
-                letterSpacing: '-0.02em', marginBottom: 8,
-              }}>Shape your request</h2>
-              <p style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: 14, color: 'var(--on-surface-variant)',
-                marginBottom: 40,
+              {/* Budget card */}
+              <div style={{
+                background: 'rgba(255,255,255,0.82)',
+                border: '1px solid rgba(255,133,208,0.18)',
+                borderRadius: 24, overflow: 'hidden',
+                boxShadow: '0 8px 40px rgba(255,133,208,0.08)',
               }}>
-                Help us understand the feel and budget so we can craft the perfect piece.
-              </p>
-
-              {/* Budget */}
-              <div style={{ marginBottom: 40 }}>
-                <label style={{
-                  display: 'block',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 11, fontWeight: 600,
-                  letterSpacing: '0.08em', textTransform: 'uppercase',
-                  color: 'var(--on-surface-variant)', marginBottom: 16,
-                }}>Budget Range</label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {budgetOptions.map(b => (
-                    <motion.button
-                      key={b.label}
-                      whileHover={{ x: 4 }}
-                      onClick={() => set('budget', b.label)}
-                      style={{
-                        display: 'flex', alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '14px 20px',
-                        backgroundColor: form.budget === b.label
-                          ? 'var(--primary)' : 'var(--surface-white)',
-                        border: `1px solid ${form.budget === b.label
-                          ? 'var(--primary)' : 'rgba(4,22,39,0.1)'}`,
-                        cursor: 'pointer', textAlign: 'left',
-                        transition: 'all 0.2s',
-                      }}
-                    >
-                      <div>
-                        <p style={{
-                          fontFamily: 'var(--font-body)',
-                          fontSize: 14, fontWeight: 600,
-                          color: form.budget === b.label ? 'white' : 'var(--primary)',
-                          marginBottom: 2,
-                        }}>{b.label}</p>
-                        <p style={{
-                          fontFamily: 'var(--font-body)',
-                          fontSize: 12,
-                          color: form.budget === b.label
-                            ? 'rgba(255,255,255,0.7)' : 'var(--on-surface-variant)',
-                        }}>{b.sub}</p>
-                      </div>
-                      {form.budget === b.label && (
-                        <CheckCircle size={16} color="white" />
-                      )}
-                    </motion.button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Occasion */}
-              <div style={{ marginBottom: 40 }}>
-                <label style={{
-                  display: 'block',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 11, fontWeight: 600,
-                  letterSpacing: '0.08em', textTransform: 'uppercase',
-                  color: 'var(--on-surface-variant)', marginBottom: 16,
-                }}>Occasion (optional)</label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {occasionOptions.map(o => (
-                    <button
-                      key={o}
-                      onClick={() => set('occasion', form.occasion === o ? '' : o)}
-                      style={{
-                        padding: '8px 16px',
-                        backgroundColor: form.occasion === o
-                          ? 'var(--secondary-container)' : 'transparent',
-                        border: `1px solid ${form.occasion === o
-                          ? 'var(--secondary)' : 'rgba(4,22,39,0.15)'}`,
-                        color: form.occasion === o
-                          ? 'var(--secondary)' : 'var(--on-surface-variant)',
-                        fontFamily: 'var(--font-body)',
-                        fontSize: 12, fontWeight: 500,
-                        cursor: 'pointer', transition: 'all 0.2s',
-                      }}
-                    >
-                      {o}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Reference images */}
-              <div style={{ marginBottom: 40 }}>
-                <label style={{
-                  display: 'block',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 11, fontWeight: 600,
-                  letterSpacing: '0.08em', textTransform: 'uppercase',
-                  color: 'var(--on-surface-variant)', marginBottom: 16,
-                }}>Reference Images (optional)</label>
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleFiles}
-                  style={{ display: 'none' }}
-                />
-
-                {/* Upload zone */}
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  style={{
-                    border: '1.5px dashed rgba(4,22,39,0.2)',
-                    padding: '32px 24px',
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    backgroundColor: 'var(--surface-low)',
-                    transition: 'all 0.2s',
-                    marginBottom: uploadedFiles.length > 0 ? 16 : 0,
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = 'var(--primary)'
-                    e.currentTarget.style.backgroundColor = 'var(--surface-container)'
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = 'rgba(4,22,39,0.2)'
-                    e.currentTarget.style.backgroundColor = 'var(--surface-low)'
-                  }}
-                >
-                  <ImagePlus size={24} color="var(--outline)" style={{ margin: '0 auto 10px' }} />
-                  <p style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 13, color: 'var(--on-surface-variant)',
-                    marginBottom: 4,
-                  }}>
-                    Drop images or{' '}
-                    <span style={{ color: 'var(--primary)', fontWeight: 600 }}>browse</span>
-                  </p>
-                  <p style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 11, color: 'var(--outline)',
-                  }}>PNG, JPG up to 5MB each</p>
-                </div>
-
-                {/* Uploaded previews */}
-                {uploadedFiles.length > 0 && (
-                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                    {uploadedFiles.map((file, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
+                <div style={{ height: 4, background: 'linear-gradient(90deg,#FF85D0,#FFC8A2,#FFE680)' }} />
+                <div style={{ padding: '32px 40px' }}>
+                  <h3 style={{
+                    fontFamily: 'Playfair Display, serif',
+                    fontSize: 20, fontWeight: 600, color: '#1C0F0A',
+                    marginBottom: 20,
+                  }}>Budget Range</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    {budgetOptions.map(b => (
+                      <motion.button
+                        key={b.label}
+                        whileHover={{ y: -2 }}
+                        onClick={() => set('budget', b.label)}
                         style={{
-                          position: 'relative',
-                          width: 72, height: 72,
-                          backgroundColor: 'var(--surface-container)',
-                          overflow: 'hidden',
+                          padding: '14px 18px',
+                          background: form.budget === b.label
+                            ? 'linear-gradient(135deg,rgba(255,133,208,0.15),rgba(255,200,162,0.15))'
+                            : 'rgba(255,255,255,0.6)',
+                          border: `1.5px solid ${form.budget === b.label
+                            ? '#FF85D0' : 'rgba(255,133,208,0.18)'}`,
+                          borderRadius: 14,
+                          cursor: 'pointer', textAlign: 'left',
+                          transition: 'all 0.2s',
+                          boxShadow: form.budget === b.label
+                            ? '0 4px 16px rgba(255,133,208,0.2)' : 'none',
                         }}
                       >
-                        <img
-                          src={URL.createObjectURL(file)}
-                          alt=""
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
-                        <button
-                          onClick={() => removeFile(i)}
-                          style={{
-                            position: 'absolute', top: 2, right: 2,
-                            width: 18, height: 18,
-                            backgroundColor: 'var(--primary)',
-                            color: 'white', border: 'none',
-                            cursor: 'pointer',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          }}
-                        >
-                          <X size={10} />
-                        </button>
-                      </motion.div>
+                        <p style={{
+                          fontFamily: 'DM Sans, sans-serif',
+                          fontSize: 14, fontWeight: 700,
+                          color: form.budget === b.label ? '#E8609A' : '#1C0F0A',
+                          marginBottom: 3,
+                        }}>{b.label}</p>
+                        <p style={{
+                          fontFamily: 'DM Sans, sans-serif',
+                          fontSize: 12, color: '#9C7B6E',
+                        }}>{b.sub}</p>
+                      </motion.button>
                     ))}
                   </div>
-                )}
+                </div>
               </div>
 
-              <div style={{ display: 'flex', gap: 12 }}>
+              {/* Occasion card */}
+              <div style={{
+                background: 'rgba(255,255,255,0.82)',
+                border: '1px solid rgba(255,133,208,0.18)',
+                borderRadius: 24, overflow: 'hidden',
+                boxShadow: '0 4px 20px rgba(255,133,208,0.06)',
+              }}>
+                <div style={{ padding: '28px 40px' }}>
+                  <h3 style={{
+                    fontFamily: 'Playfair Display, serif',
+                    fontSize: 18, fontWeight: 600, color: '#1C0F0A', marginBottom: 16,
+                  }}>Occasion <span style={{ fontSize: 13, fontWeight: 400, color: '#9C7B6E' }}>optional</span></h3>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {occasions.map(o => (
+                      <button
+                        key={o}
+                        onClick={() => set('occasion', form.occasion === o ? '' : o)}
+                        style={{
+                          padding: '8px 18px', borderRadius: 999,
+                          background: form.occasion === o
+                            ? 'linear-gradient(135deg,#FF85D0,#FFC8A2)'
+                            : 'transparent',
+                          border: `1.5px solid ${form.occasion === o
+                            ? 'transparent' : 'rgba(255,133,208,0.25)'}`,
+                          fontFamily: 'DM Sans, sans-serif',
+                          fontSize: 13, fontWeight: form.occasion === o ? 700 : 400,
+                          color: form.occasion === o ? '#1C0F0A' : '#5C4033',
+                          cursor: 'pointer', transition: 'all 0.2s',
+                        }}
+                      >{o}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Pinterest + images card — LUXURY ── */}
+              <div style={{
+                background: 'rgba(255,255,255,0.82)',
+                border: '1px solid rgba(255,133,208,0.18)',
+                borderRadius: 24, overflow: 'hidden',
+                boxShadow: '0 4px 20px rgba(255,133,208,0.06)',
+              }}>
+                <div style={{ padding: '32px 40px' }}>
+                  <h3 style={{
+                    fontFamily: 'Playfair Display, serif',
+                    fontSize: 20, fontWeight: 600, color: '#1C0F0A',
+                    marginBottom: 6,
+                  }}>Reference Images</h3>
+                  <p style={{
+                    fontFamily: 'DM Sans, sans-serif',
+                    fontSize: 14, color: '#9C7B6E', marginBottom: 28,
+                  }}>Optional but helpful — share anything that inspires your vision.</p>
+
+                  {/* ── Pinterest section ── */}
+                  <div style={{
+                    borderRadius: 18,
+                    overflow: 'hidden',
+                    border: '1px solid rgba(230,0,35,0.15)',
+                    marginBottom: 20,
+                  }}>
+                    {/* Pinterest header */}
+                    <div style={{
+                      background: 'linear-gradient(135deg,rgba(230,0,35,0.06),rgba(230,0,35,0.02))',
+                      padding: '20px 24px',
+                      display: 'flex', alignItems: 'center',
+                      justifyContent: 'space-between', flexWrap: 'wrap', gap: 16,
+                      borderBottom: '1px solid rgba(230,0,35,0.1)',
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                        <div style={{
+                          width: 40, height: 40, borderRadius: '50%',
+                          backgroundColor: '#E60023',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          flexShrink: 0,
+                          boxShadow: '0 4px 12px rgba(230,0,35,0.3)',
+                        }}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                            <path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p style={{
+                            fontFamily: 'DM Sans, sans-serif',
+                            fontSize: 14, fontWeight: 700, color: '#1C0F0A',
+                          }}>Browse our Pinterest board for inspiration</p>
+                          <p style={{
+                            fontFamily: 'DM Sans, sans-serif',
+                            fontSize: 12, color: '#9C7B6E',
+                          }}>Right-click any image → Copy image address → paste below</p>
+                        </div>
+                      </div>
+                      <motion.a
+                        href={PINTEREST_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        whileHover={{ scale: 1.04 }}
+                        whileTap={{ scale: 0.96 }}
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 8,
+                          padding: '10px 22px', borderRadius: 999,
+                          backgroundColor: '#E60023', color: 'white',
+                          fontFamily: 'DM Sans, sans-serif',
+                          fontSize: 13, fontWeight: 600,
+                          textDecoration: 'none',
+                          boxShadow: '0 4px 14px rgba(230,0,35,0.3)',
+                          flexShrink: 0,
+                        }}
+                      >
+                        Open Board <ExternalLink size={12} />
+                      </motion.a>
+                    </div>
+
+                    {/* URL paste input */}
+                    <div style={{ padding: '18px 24px' }}>
+                      <p style={{
+                        fontFamily: 'DM Sans, sans-serif',
+                        fontSize: 11, fontWeight: 700,
+                        letterSpacing: '0.1em', textTransform: 'uppercase',
+                        color: '#9C7B6E', marginBottom: 10,
+                        display: 'flex', alignItems: 'center', gap: 6,
+                      }}>
+                        <LinkIcon size={12} /> Paste image URL from Pinterest
+                      </p>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <input
+                          type="url"
+                          placeholder="Right-click any image on our board → Copy image address → paste here"
+                          value={pastedUrl}
+                          onChange={e => { setPastedUrl(e.target.value); setUrlError('') }}
+                          onKeyDown={e => e.key === 'Enter' && addPastedUrl()}
+                          style={{
+                            ...field, flex: 1, fontSize: 13,
+                            padding: '11px 14px',
+                          }}
+                          onFocus={focusField} onBlur={blurField}
+                        />
+                        <motion.button
+                          whileHover={{ scale: 1.04 }}
+                          whileTap={{ scale: 0.96 }}
+                          onClick={addPastedUrl}
+                          style={{
+                            padding: '11px 20px', borderRadius: 10,
+                            background: 'linear-gradient(135deg,#FF85D0,#FFC8A2)',
+                            border: 'none', cursor: 'pointer',
+                            fontFamily: 'DM Sans, sans-serif',
+                            fontSize: 13, fontWeight: 700, color: '#1C0F0A',
+                            whiteSpace: 'nowrap', flexShrink: 0,
+                            boxShadow: '0 3px 10px rgba(255,133,208,0.3)',
+                            display: 'flex', alignItems: 'center', gap: 5,
+                          }}
+                        >
+                          <Plus size={14} /> Add
+                        </motion.button>
+                      </div>
+                      {urlError && (
+                        <p style={{
+                          fontFamily: 'DM Sans, sans-serif',
+                          fontSize: 12, color: '#C33', marginTop: 6,
+                        }}>{urlError}</p>
+                      )}
+
+                      {/* URL previews */}
+                      {pastedUrls.length > 0 && (
+                        <div style={{
+                          display: 'flex', gap: 10,
+                          flexWrap: 'wrap', marginTop: 14,
+                        }}>
+                          {pastedUrls.map((url, i) => (
+                            <motion.div
+                              key={i}
+                              initial={{ opacity: 0, scale: 0.8 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              style={{ position: 'relative', width: 76, height: 76 }}
+                            >
+                              <img
+                                src={url} alt=""
+                                style={{
+                                  width: '100%', height: '100%',
+                                  objectFit: 'cover', borderRadius: 12,
+                                  border: '2px solid rgba(255,133,208,0.4)',
+                                }}
+                                onError={e => {
+                                  const el = e.target as HTMLImageElement
+                                  el.style.display = 'none'
+                                  if (el.parentElement) {
+                                    el.parentElement.style.background = '#FEF0F3'
+                                    el.parentElement.style.display = 'flex'
+                                    el.parentElement.style.alignItems = 'center'
+                                    el.parentElement.style.justifyContent = 'center'
+                                    el.parentElement.innerHTML += '<span style="font-size:11px;color:#9C7B6E;padding:4px">No preview</span>'
+                                  }
+                                }}
+                              />
+                              <button
+                                onClick={() => removePastedUrl(i)}
+                                style={{
+                                  position: 'absolute', top: -6, right: -6,
+                                  width: 20, height: 20, borderRadius: '50%',
+                                  backgroundColor: '#1C0F0A', color: 'white',
+                                  border: 'none', cursor: 'pointer',
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                }}
+                              ><X size={10} /></button>
+                            </motion.div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* OR divider */}
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16,
+                  }}>
+                    <div style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,133,208,0.2)' }} />
+                    <span style={{
+                      fontFamily: 'DM Sans, sans-serif',
+                      fontSize: 12, color: '#9C7B6E', fontWeight: 500,
+                    }}>or upload from your device</span>
+                    <div style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,133,208,0.2)' }} />
+                  </div>
+
+                  {/* File upload */}
+                  <input
+                    ref={fileRef} type="file" multiple accept="image/*"
+                    onChange={handleFiles} style={{ display: 'none' }}
+                  />
+                  <div
+                    onClick={() => fileRef.current?.click()}
+                    style={{
+                      border: '2px dashed rgba(255,133,208,0.3)',
+                      borderRadius: 16, padding: '28px 24px',
+                      textAlign: 'center', cursor: 'pointer',
+                      background: 'rgba(255,255,255,0.5)',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.borderColor = '#FF85D0'
+                      e.currentTarget.style.background = 'rgba(255,133,208,0.05)'
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.borderColor = 'rgba(255,133,208,0.3)'
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.5)'
+                    }}
+                  >
+                    <Upload size={22} color="#9C7B6E" style={{ margin: '0 auto 8px' }} />
+                    <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#5C4033' }}>
+                      {uploading ? 'Uploading...' : (
+                        <>Drop files or <span style={{ color: '#E8609A', fontWeight: 600 }}>click to browse</span></>
+                      )}
+                    </p>
+                    <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: '#9C7B6E', marginTop: 4 }}>
+                      PNG, JPG up to 5MB
+                    </p>
+                  </div>
+
+                  {/* File previews */}
+                  {localFiles.length > 0 && (
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 16 }}>
+                      {localFiles.map((file, i) => (
+                        <motion.div
+                          key={`${file.name}-${i}`}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          style={{ position: 'relative', width: 76, height: 76 }}
+                        >
+                          <img
+                            src={URL.createObjectURL(file)} alt=""
+                            style={{
+                              width: '100%', height: '100%',
+                              objectFit: 'cover', borderRadius: 12,
+                              border: '2px solid rgba(255,133,208,0.35)',
+                            }}
+                          />
+                          {!cloudUrls[i] && (
+                            <div style={{
+                              position: 'absolute', inset: 0, borderRadius: 12,
+                              backgroundColor: 'rgba(255,255,255,0.55)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}>
+                              <div style={{
+                                width: 18, height: 18, borderRadius: '50%',
+                                border: '2px solid rgba(255,133,208,0.3)',
+                                borderTopColor: '#FF85D0',
+                                animation: 'spin 0.7s linear infinite',
+                              }} />
+                            </div>
+                          )}
+                          {cloudUrls[i] && (
+                            <div style={{
+                              position: 'absolute', bottom: 4, right: 4,
+                              width: 18, height: 18, borderRadius: '50%',
+                              background: 'linear-gradient(135deg,#FF85D0,#FFC8A2)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}>
+                              <span style={{ fontSize: 10, color: '#1C0F0A' }}>✓</span>
+                            </div>
+                          )}
+                          <button
+                            onClick={() => removeFile(i)}
+                            style={{
+                              position: 'absolute', top: -6, right: -6,
+                              width: 20, height: 20, borderRadius: '50%',
+                              backgroundColor: '#1C0F0A', color: 'white',
+                              border: 'none', cursor: 'pointer',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}
+                          ><X size={10} /></button>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
                 <button
                   onClick={() => setStep(0)}
                   style={{
-                    padding: '14px 28px',
-                    backgroundColor: 'transparent',
-                    border: '1px solid rgba(4,22,39,0.2)',
-                    color: 'var(--on-surface-variant)',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 12, fontWeight: 600,
-                    letterSpacing: '0.08em', textTransform: 'uppercase',
-                    cursor: 'pointer',
+                    padding: '13px 24px', borderRadius: 999,
+                    border: '1.5px solid rgba(255,133,208,0.25)',
+                    background: 'transparent',
+                    fontFamily: 'DM Sans, sans-serif',
+                    fontSize: 13, fontWeight: 500, color: '#5C4033', cursor: 'pointer',
                   }}
-                >
-                  Back
-                </button>
+                >Back</button>
                 <motion.button
-                  whileHover={{ opacity: 0.88 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
                   onClick={() => setStep(2)}
+                  disabled={uploading}
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: 10,
-                    padding: '14px 36px',
-                    backgroundColor: 'var(--primary)', color: 'white',
-                    border: 'none', cursor: 'pointer',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 12, fontWeight: 600,
-                    letterSpacing: '0.1em', textTransform: 'uppercase',
+                    padding: '13px 28px', borderRadius: 999,
+                    background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+                    border: 'none', cursor: uploading ? 'not-allowed' : 'pointer',
+                    fontFamily: 'DM Sans, sans-serif',
+                    fontSize: 13, fontWeight: 700, color: '#1C0F0A',
+                    letterSpacing: '0.06em', textTransform: 'uppercase',
+                    opacity: uploading ? 0.6 : 1,
+                    boxShadow: '0 4px 18px rgba(255,133,208,0.3)',
                   }}
                 >
-                  Review Request <ArrowRight size={14} />
+                  {uploading ? 'Uploading...' : <>Review <ArrowRight size={14} /></>}
                 </motion.button>
               </div>
             </motion.div>
           )}
 
-          {/* Step 2 — Review & Submit */}
+          {/* STEP 2 — Review */}
           {step === 2 && (
             <motion.div
-              key="step2"
-              initial={{ opacity: 0, x: 24 }}
+              key="s2"
+              initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -24 }}
-              transition={{ duration: 0.3 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.22 }}
+              style={{
+                background: 'rgba(255,255,255,0.82)',
+                border: '1px solid rgba(255,133,208,0.18)',
+                borderRadius: 24, overflow: 'hidden',
+                boxShadow: '0 8px 40px rgba(255,133,208,0.1)',
+              }}
             >
-              <h2 style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 28, fontWeight: 600,
-                color: 'var(--primary)',
-                letterSpacing: '-0.02em', marginBottom: 8,
-              }}>Review your request</h2>
-              <p style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: 14, color: 'var(--on-surface-variant)',
-                marginBottom: 36,
-              }}>
-                Everything look good? We'll reach out within 24 hours.
-              </p>
-
-              {/* Summary card */}
-              <div style={{
-                backgroundColor: 'var(--surface-white)',
-                border: '1px solid rgba(4,22,39,0.08)',
-                padding: '28px 32px',
-                marginBottom: 32,
-              }}>
-                {[
-                  { label: 'Name', value: form.name },
-                  { label: 'Email', value: form.email },
-                  { label: 'Phone', value: form.phone || '—' },
-                  { label: 'Category', value: form.category || '—' },
-                  { label: 'Budget', value: form.budget || '—' },
-                  { label: 'Occasion', value: form.occasion || '—' },
-                  { label: 'Images', value: uploadedFiles.length > 0 ? `${uploadedFiles.length} file(s)` : 'None' },
-                ].map(row => (
-                  <div key={row.label} style={{
-                    display: 'flex', gap: 24,
-                    padding: '12px 0',
-                    borderBottom: '1px solid rgba(4,22,39,0.06)',
-                  }}>
-                    <span className="label-caps" style={{ minWidth: 80, paddingTop: 2 }}>
-                      {row.label}
-                    </span>
-                    <span style={{
-                      fontFamily: 'var(--font-body)',
-                      fontSize: 14, color: 'var(--primary)',
-                    }}>{row.value}</span>
-                  </div>
-                ))}
-
-                {/* Vision */}
-                <div style={{ padding: '12px 0' }}>
-                  <span className="label-caps" style={{ display: 'block', marginBottom: 8 }}>
-                    Vision
-                  </span>
-                  <p style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 14, color: 'var(--on-surface-variant)',
-                    lineHeight: 1.65,
-                  }}>{form.description}</p>
-                </div>
-              </div>
-
-              {/* Trust note */}
-              <div style={{
-                display: 'flex', alignItems: 'flex-start', gap: 14,
-                padding: '16px 20px',
-                backgroundColor: 'var(--secondary-container)',
-                marginBottom: 32,
-              }}>
-                <Sparkles size={16} color="var(--secondary)" style={{ flexShrink: 0, marginTop: 2 }} />
+              <div style={{ height: 4, background: 'linear-gradient(90deg,#FF85D0,#FFC8A2,#FFE680)' }} />
+              <div style={{ padding: '36px 40px' }}>
+                <h2 style={{
+                  fontFamily: 'Playfair Display, serif',
+                  fontSize: 24, fontWeight: 600, color: '#1C0F0A',
+                  letterSpacing: '-0.02em', marginBottom: 6,
+                }}>Review & send</h2>
                 <p style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 13, color: 'var(--secondary)',
-                  lineHeight: 1.6,
-                }}>
-                  No payment required now. We'll send a personalised quote after
-                  reviewing your request — you approve before anything is made.
-                </p>
-              </div>
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 14, color: '#9C7B6E', marginBottom: 28,
+                }}>Everything look right? We'll reply within 24 hours.</p>
 
-              <div style={{ display: 'flex', gap: 12 }}>
-                <button
-                  onClick={() => setStep(1)}
-                  style={{
-                    padding: '14px 28px',
-                    backgroundColor: 'transparent',
-                    border: '1px solid rgba(4,22,39,0.2)',
-                    color: 'var(--on-surface-variant)',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 12, fontWeight: 600,
-                    letterSpacing: '0.08em', textTransform: 'uppercase',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Back
-                </button>
-                <motion.button
-                  whileHover={{ opacity: 0.88 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => setSubmitted(true)}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 10,
-                    padding: '14px 36px',
-                    backgroundColor: 'var(--primary)', color: 'white',
-                    border: 'none', cursor: 'pointer',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 12, fontWeight: 600,
-                    letterSpacing: '0.1em', textTransform: 'uppercase',
-                  }}
-                >
-                  <Send size={14} /> Send Request
-                </motion.button>
+                {/* Summary */}
+                <div style={{
+                  border: '1px solid rgba(255,133,208,0.15)',
+                  borderRadius: 16, overflow: 'hidden', marginBottom: 24,
+                }}>
+                  {[
+                    { label: 'Name', value: form.name },
+                    { label: 'Email', value: form.email },
+                    { label: 'Phone', value: form.phone || '—' },
+                    { label: 'Category', value: CATEGORIES.find(c => c.slug === form.category)?.name || '—' },
+                    { label: 'Budget', value: form.budget || '—' },
+                    { label: 'Occasion', value: form.occasion || '—' },
+                    {
+                      label: 'Images',
+                      value: (localFiles.length + pastedUrls.length) > 0
+                        ? `${localFiles.length + pastedUrls.length} reference image(s) attached`
+                        : 'None',
+                    },
+                  ].map((row, i) => (
+                    <div key={row.label} style={{
+                      display: 'flex', gap: 20, padding: '12px 20px',
+                      backgroundColor: i % 2 === 0 ? 'rgba(255,255,255,0.7)' : 'rgba(255,133,208,0.03)',
+                      borderBottom: '1px solid rgba(255,133,208,0.08)',
+                    }}>
+                      <span style={{
+                        fontFamily: 'DM Sans, sans-serif',
+                        fontSize: 11, fontWeight: 700,
+                        letterSpacing: '0.1em', textTransform: 'uppercase',
+                        color: '#9C7B6E', minWidth: 80, paddingTop: 2, flexShrink: 0,
+                      }}>{row.label}</span>
+                      <span style={{
+                        fontFamily: 'DM Sans, sans-serif',
+                        fontSize: 14, color: '#1C0F0A',
+                      }}>{row.value}</span>
+                    </div>
+                  ))}
+
+                  <div style={{ padding: '16px 20px', backgroundColor: 'rgba(255,255,255,0.7)' }}>
+                    <span style={{
+                      display: 'block', fontFamily: 'DM Sans, sans-serif',
+                      fontSize: 11, fontWeight: 700,
+                      letterSpacing: '0.1em', textTransform: 'uppercase',
+                      color: '#9C7B6E', marginBottom: 8,
+                    }}>Vision</span>
+                    <p style={{
+                      fontFamily: 'DM Sans, sans-serif',
+                      fontSize: 14, color: '#5C4033', lineHeight: 1.65,
+                    }}>{form.description}</p>
+                  </div>
+
+                  {allImages.length > 0 && (
+                    <div style={{ padding: '16px 20px', backgroundColor: 'rgba(255,133,208,0.03)' }}>
+                      <span style={{
+                        display: 'block', fontFamily: 'DM Sans, sans-serif',
+                        fontSize: 11, fontWeight: 700,
+                        letterSpacing: '0.1em', textTransform: 'uppercase',
+                        color: '#9C7B6E', marginBottom: 10,
+                      }}>Reference Images</span>
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        {allImages.map((img, i) => (
+                          <img
+                            key={i}
+                            src={img.type === 'file'
+                              ? URL.createObjectURL(img.file)
+                              : img.url
+                            }
+                            alt=""
+                            style={{
+                              width: 56, height: 56,
+                              objectFit: 'cover', borderRadius: 10,
+                              border: '1px solid rgba(255,133,208,0.3)',
+                            }}
+                            onError={e => (e.target as HTMLImageElement).style.display = 'none'}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Trust note */}
+                <div style={{
+                  display: 'flex', alignItems: 'flex-start', gap: 12,
+                  padding: '14px 18px',
+                  background: 'linear-gradient(135deg,rgba(255,133,208,0.07),rgba(255,200,162,0.07))',
+                  border: '1px solid rgba(255,133,208,0.18)',
+                  borderRadius: 12, marginBottom: 24,
+                }}>
+                  <Sparkles size={15} color="#E8609A" style={{ flexShrink: 0, marginTop: 2 }} />
+                  <p style={{
+                    fontFamily: 'DM Sans, sans-serif',
+                    fontSize: 13, color: '#5C4033', lineHeight: 1.6,
+                  }}>
+                    <strong style={{ color: '#E8609A' }}>No payment required now.</strong>{' '}
+                    We'll send a personalised quote — you approve before anything is made.
+                    Cash on delivery only.
+                  </p>
+                </div>
+
+                {submitError && (
+                  <div style={{
+                    padding: '12px 16px', marginBottom: 20,
+                    backgroundColor: '#FFF0F0', border: '1px solid #FFD0D0',
+                    borderRadius: 10,
+                    fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#C33',
+                  }}>{submitError}</div>
+                )}
+
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button
+                    onClick={() => setStep(1)}
+                    style={{
+                      padding: '13px 24px', borderRadius: 999,
+                      border: '1.5px solid rgba(255,133,208,0.25)',
+                      background: 'transparent',
+                      fontFamily: 'DM Sans, sans-serif',
+                      fontSize: 13, fontWeight: 500, color: '#5C4033', cursor: 'pointer',
+                    }}
+                  >Back</button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={handleSubmit}
+                    disabled={submitting}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 10,
+                      padding: '13px 28px', borderRadius: 999,
+                      background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+                      border: 'none', cursor: submitting ? 'not-allowed' : 'pointer',
+                      fontFamily: 'DM Sans, sans-serif',
+                      fontSize: 13, fontWeight: 700, color: '#1C0F0A',
+                      letterSpacing: '0.06em', textTransform: 'uppercase',
+                      opacity: submitting ? 0.7 : 1,
+                      boxShadow: '0 4px 18px rgba(255,133,208,0.35)',
+                    }}
+                  >
+                    {submitting ? (
+                      <>
+                        <div style={{
+                          width: 14, height: 14, borderRadius: '50%',
+                          border: '2px solid rgba(28,15,10,0.3)',
+                          borderTopColor: '#1C0F0A',
+                          animation: 'spin 0.7s linear infinite',
+                        }} />
+                        Sending...
+                      </>
+                    ) : <><Send size={14} /> Send My Request</>}
+                  </motion.button>
+                </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }

@@ -46,13 +46,15 @@ export function OrderSuccessPage() {
           fontSize: 28, fontWeight: 700, color: '#46352A', marginBottom: 10,
         }}>Order Placed!</h1>
 
-        <p style={{
-          fontFamily: 'Inter, sans-serif', fontSize: 14,
-          color: '#786A61', lineHeight: 1.6, marginBottom: 24,
-        }}>
-          Thank you for your order. We're already getting started on crafting
-          your pieces with love. You'll receive a confirmation email shortly.
-        </p>
+       <p style={{
+  fontFamily: 'var(--font-body)', fontSize: 14,
+  color: 'var(--on-surface-muted)', lineHeight: 1.6, marginBottom: 24,
+}}>
+  Your order has been placed successfully! 🌸<br /><br />
+  Since this is a <strong>Cash on Delivery</strong> order, no payment is needed now.
+  We'll start crafting your piece and you'll receive a confirmation call before delivery.
+  Estimated dispatch: <strong>3–5 business days</strong>.
+</p>
 
         <div style={{
           backgroundColor: '#F6EFE7', borderRadius: 14,

@@ -1,296 +1,410 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit2, Trash2, X, GripVertical } from 'lucide-react'
+import { Plus, Edit2, Trash2, X, GripVertical, ImageIcon } from 'lucide-react'
 import { supabase } from '@/services/supabase'
 import type { Category } from '@/types'
 
-const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '10px 14px',
-  border: '1.5px solid var(--border)',
-  borderRadius: 10, backgroundColor: 'var(--surface)',
-  fontFamily: 'var(--font-body)', fontSize: 14,
-  color: 'var(--on-surface)', outline: 'none',
-  boxSizing: 'border-box',
+const F: React.CSSProperties = {
+  width: '100%', padding: '11px 14px',
+  border: '1.5px solid rgba(255,133,208,0.25)',
+  borderRadius: 10,
+  fontFamily: 'DM Sans, sans-serif', fontSize: 14,
+  color: '#1C0F0A', backgroundColor: '#FFF8F5',
+  outline: 'none', boxSizing: 'border-box',
+  transition: 'border-color 0.2s, box-shadow 0.2s',
+}
+const focusF = (e: React.FocusEvent<any>) => {
+  e.target.style.borderColor = '#FF85D0'
+  e.target.style.boxShadow = '0 0 0 3px rgba(255,133,208,0.12)'
+}
+const blurF = (e: React.FocusEvent<any>) => {
+  e.target.style.borderColor = 'rgba(255,133,208,0.25)'
+  e.target.style.boxShadow = 'none'
+}
+const LBL: React.CSSProperties = {
+  display: 'block', fontFamily: 'DM Sans, sans-serif',
+  fontSize: 11, fontWeight: 700, letterSpacing: '0.1em',
+  textTransform: 'uppercase', color: '#9C7B6E', marginBottom: 8,
 }
 
 const emptyForm = { name: '', slug: '', description: '', image_url: '' }
+type Mode = 'closed' | 'create' | 'edit'
 
 export function AdminCategories() {
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
-  const [showForm, setShowForm] = useState(false)
+  const [mode, setMode] = useState<Mode>('closed')
   const [editing, setEditing] = useState<Category | null>(null)
   const [form, setForm] = useState({ ...emptyForm })
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState<string | null>(null)
 
   useEffect(() => { load() }, [])
 
   async function load() {
     const { data } = await supabase
-      .from('categories')
-      .select('*')
-      .order('sort_order', { ascending: true })
+      .from('categories').select('*').order('sort_order', { ascending: true })
     setCategories(data || [])
     setLoading(false)
   }
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
+  const closeForm = () => { setMode('closed'); setEditing(null) }
 
   const openCreate = () => {
-    setEditing(null)
-    setForm({ ...emptyForm })
-    setShowForm(true)
+    setEditing(null); setForm({ ...emptyForm }); setMode('create')
   }
-
   const openEdit = (c: Category) => {
     setEditing(c)
-    setForm({
-      name: c.name, slug: c.slug,
-      description: c.description || '',
-      image_url: c.image_url || '',
-    })
-    setShowForm(true)
+    setForm({ name: c.name, slug: c.slug, description: c.description || '', image_url: c.image_url || '' })
+    setMode('edit')
   }
 
   const handleSave = async () => {
     if (!form.name) return
     setSaving(true)
-
     const payload = {
       name: form.name,
       slug: form.slug || form.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
       description: form.description,
       image_url: form.image_url,
     }
-
     if (editing) {
       const { error } = await supabase.from('categories').update(payload).eq('id', editing.id)
       if (!error) setCategories(prev => prev.map(c => c.id === editing.id ? { ...c, ...payload } : c))
     } else {
-      const { data, error } = await supabase.from('categories').insert({ ...payload, sort_order: categories.length }).select().single()
+      const { data, error } = await supabase
+        .from('categories').insert({ ...payload, sort_order: categories.length }).select().single()
       if (!error && data) setCategories(prev => [...prev, data as Category])
     }
-
     setSaving(false)
-    setShowForm(false)
+    closeForm()
   }
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this category? Products in it will be uncategorized.')) return
+    setDeleting(id)
     await supabase.from('categories').delete().eq('id', id)
     setCategories(prev => prev.filter(c => c.id !== id))
+    setDeleting(null)
   }
 
   return (
-    <div style={{ padding: '32px 36px' }}>
-
+    <div>
+      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
         <div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 700, color: 'var(--on-surface)' }}>
+          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 26, fontWeight: 700, color: '#1C0F0A' }}>
             Categories
           </h1>
-          <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--on-surface-muted)', marginTop: 4 }}>
+          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9C7B6E', marginTop: 4 }}>
             {categories.length} categories
           </p>
         </div>
         <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.97 }}
+          whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
           onClick={openCreate}
           style={{
             display: 'flex', alignItems: 'center', gap: 8,
-            padding: '12px 20px',
-            background: 'var(--primary-gradient)',
-            border: 'none', borderRadius: 12,
-            fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 600,
-            color: 'var(--on-surface)', cursor: 'pointer',
-            boxShadow: '0 4px 16px rgba(255,133,208,0.3)',
+            padding: '12px 22px', borderRadius: 999,
+            background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+            border: 'none', cursor: 'pointer',
+            fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700,
+            color: '#1C0F0A', boxShadow: '0 4px 16px rgba(255,133,208,0.3)',
           }}
         >
           <Plus size={16} /> Add Category
         </motion.button>
       </div>
 
-      {/* Categories list */}
-      <div style={{
-        backgroundColor: 'var(--surface-white)',
-        borderRadius: 16, border: '1px solid var(--border)',
-        overflow: 'hidden',
-      }}>
-        {loading ? (
-          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--on-surface-muted)', fontFamily: 'var(--font-body)' }}>
-            Loading...
-          </div>
-        ) : categories.length === 0 ? (
-          <div style={{ padding: '60px', textAlign: 'center' }}>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, color: 'var(--on-surface-muted)', marginBottom: 16 }}>
-              No categories yet. Add your first one!
-            </p>
-            <button
-              onClick={openCreate}
-              style={{
-                padding: '10px 24px',
-                background: 'var(--primary-gradient)',
-                border: 'none', borderRadius: 999,
-                fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600,
-                color: 'var(--on-surface)', cursor: 'pointer',
-              }}
-            >Add Category</button>
-          </div>
-        ) : (
-          categories.map((cat, i) => (
+      {/* Categories grid */}
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '60px 0', color: '#9C7B6E', fontFamily: 'DM Sans, sans-serif' }}>
+          Loading...
+        </div>
+      ) : categories.length === 0 ? (
+        <div style={{
+          textAlign: 'center', padding: '80px 0',
+          backgroundColor: 'white', borderRadius: 16,
+          border: '1px solid rgba(255,133,208,0.15)',
+        }}>
+          <p style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, color: '#1C0F0A', marginBottom: 8 }}>
+            No categories yet
+          </p>
+          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9C7B6E', marginBottom: 24 }}>
+            Add your first category to start organizing products.
+          </p>
+          <button
+            onClick={openCreate}
+            style={{
+              padding: '11px 24px', borderRadius: 999,
+              background: 'linear-gradient(135deg,#FF85D0,#FFC8A2)',
+              border: 'none', cursor: 'pointer',
+              fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700,
+              color: '#1C0F0A',
+            }}
+          >Add First Category</button>
+        </div>
+      ) : (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+          gap: 16,
+        }}>
+          {categories.map((cat, i) => (
             <motion.div
               key={cat.id}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
               style={{
-                display: 'flex', alignItems: 'center', gap: 16,
-                padding: '16px 20px',
-                borderBottom: i < categories.length - 1 ? '1px solid var(--border)' : 'none',
+                backgroundColor: 'white',
+                border: '1px solid rgba(255,133,208,0.18)',
+                borderRadius: 16, overflow: 'hidden',
+                boxShadow: '0 2px 12px rgba(255,133,208,0.06)',
               }}
             >
-              <GripVertical size={16} color="var(--on-surface-faint)" style={{ flexShrink: 0, cursor: 'grab' }} />
-
-              {/* Image */}
+              {/* Category image */}
               <div style={{
-                width: 52, height: 52, borderRadius: 10,
-                backgroundColor: 'var(--surface-section)',
-                overflow: 'hidden', flexShrink: 0,
+                width: '100%', aspectRatio: '16/9',
+                backgroundColor: 'rgba(255,200,162,0.08)',
+                overflow: 'hidden',
               }}>
                 {cat.image_url ? (
                   <img src={cat.image_url} alt={cat.name}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
-                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
-                    🌸
+                  <div style={{
+                    width: '100%', height: '100%',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'linear-gradient(135deg,rgba(255,133,208,0.1),rgba(255,200,162,0.1))',
+                  }}>
+                    <ImageIcon size={24} color="rgba(156,123,110,0.3)" />
                   </div>
                 )}
               </div>
 
-              {/* Info */}
-              <div style={{ flex: 1 }}>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, fontWeight: 700, color: 'var(--on-surface)' }}>
-                  {cat.name}
-                </p>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--on-surface-muted)', marginTop: 2 }}>
-                  /{cat.slug} {cat.description ? `· ${cat.description}` : ''}
-                </p>
-              </div>
+              <div style={{ padding: '16px' }}>
+                <p style={{
+                  fontFamily: 'Playfair Display, serif',
+                  fontSize: 16, fontWeight: 600, color: '#1C0F0A', marginBottom: 4,
+                }}>{cat.name}</p>
+                <p style={{
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 12, color: '#9C7B6E', marginBottom: 4,
+                }}>/{cat.slug}</p>
+                {cat.description && (
+                  <p style={{
+                    fontFamily: 'DM Sans, sans-serif',
+                    fontSize: 12, color: '#5C4033', lineHeight: 1.4, marginBottom: 12,
+                    overflow: 'hidden', display: '-webkit-box',
+                    WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                  }}>{cat.description}</p>
+                )}
 
-              {/* Actions */}
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button
-                  onClick={() => openEdit(cat)}
-                  style={{
-                    padding: '8px 14px',
-                    border: '1.5px solid var(--border)',
-                    borderRadius: 8, background: 'white',
-                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
-                    fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--on-surface)',
-                  }}
-                >
-                  <Edit2 size={12} /> Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(cat.id)}
-                  style={{
-                    padding: '8px 10px',
-                    border: '1.5px solid #FFD0D0',
-                    borderRadius: 8, background: 'white',
-                    cursor: 'pointer', display: 'flex', alignItems: 'center',
-                    color: '#C33',
-                  }}
-                >
-                  <Trash2 size={12} />
-                </button>
+                <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+                    onClick={() => openEdit(cat)}
+                    style={{
+                      flex: 1, padding: '9px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      background: 'linear-gradient(135deg,rgba(255,133,208,0.12),rgba(255,200,162,0.12))',
+                      border: '1.5px solid rgba(255,133,208,0.25)',
+                      borderRadius: 10, cursor: 'pointer',
+                      fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600,
+                      color: '#1C0F0A',
+                    }}
+                  >
+                    <Edit2 size={13} /> Edit
+                  </motion.button>
+                  <button
+                    onClick={() => handleDelete(cat.id)}
+                    disabled={deleting === cat.id}
+                    style={{
+                      padding: '9px 14px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      border: '1.5px solid rgba(200,50,50,0.2)',
+                      borderRadius: 10, cursor: 'pointer',
+                      backgroundColor: 'transparent', color: '#C33',
+                    }}
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </div>
               </div>
             </motion.div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
 
-      {/* Form modal */}
+      {/* ── Centered modal ── */}
       <AnimatePresence>
-        {showForm && (
+        {mode !== 'closed' && (
           <>
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setShowForm(false)}
-              style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(61,26,46,0.5)', backdropFilter: 'blur(4px)', zIndex: 200 }}
+              onClick={closeForm}
+              style={{
+                position: 'fixed', inset: 0,
+                backgroundColor: 'rgba(28,15,10,0.5)',
+                backdropFilter: 'blur(4px)', zIndex: 1000,
+              }}
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.94, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.94 }}
+              initial={{ opacity: 0, scale: 0.95}}
+              animate={{ opacity: 1, scale: 1}}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 280, damping: 28 }}
               style={{
-                position: 'fixed', top: '50%', left: '50%',
-                transform: 'translate(-50%, -50%)',
-                zIndex: 201, backgroundColor: 'var(--surface-white)',
-                borderRadius: 20, padding: '28px',
-                width: '90vw', maxWidth: 480,
-                boxShadow: '0 24px 80px rgba(61,26,46,0.2)',
+                position: 'fixed',
+                top: '50%', left: '50%',
+                x: '-50%', y: '-50%',
+                zIndex: 1001,
+                width: '90vw', maxWidth: 560,
+                maxHeight: '90vh', overflowY: 'auto',
+                backgroundColor: '#FFF8F5',
+                borderRadius: 24,
+                boxShadow: '0 32px 80px rgba(255,133,208,0.2)',
+                border: '1px solid rgba(255,133,208,0.2)',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-                <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, color: 'var(--on-surface)' }}>
-                  {editing ? 'Edit Category' : 'Add Category'}
+              {/* Header */}
+              <div style={{
+                position: 'sticky', top: 0, zIndex: 10,
+                backgroundColor: '#FFF8F5',
+                padding: '20px 28px',
+                borderBottom: '1px solid rgba(255,133,208,0.15)',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                borderRadius: '24px 24px 0 0',
+              }}>
+                <h2 style={{
+                  fontFamily: 'Playfair Display, serif',
+                  fontSize: 20, fontWeight: 700, color: '#1C0F0A',
+                }}>
+                  {mode === 'edit' ? `Edit: ${editing?.name}` : 'Add New Category'}
                 </h2>
-                <button onClick={() => setShowForm(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--on-surface-muted)' }}>
-                  <X size={18} />
+                <button
+                  onClick={closeForm}
+                  style={{
+                    width: 34, height: 34, borderRadius: '50%',
+                    backgroundColor: 'rgba(255,133,208,0.12)',
+                    border: 'none', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
+                >
+                  <X size={15} color="#1C0F0A" />
                 </button>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {[
-                  { label: 'Category Name *', key: 'name' },
-                  { label: 'Slug (auto-generated)', key: 'slug' },
-                  { label: 'Description', key: 'description' },
-                  { label: 'Image URL (Cloudinary)', key: 'image_url' },
-                ].map(f => (
-                  <div key={f.key}>
-                    <label style={{
-                      display: 'block', fontFamily: 'var(--font-body)',
-                      fontSize: 11, fontWeight: 700,
-                      letterSpacing: '0.08em', textTransform: 'uppercase',
-                      color: 'var(--on-surface-muted)', marginBottom: 6,
-                    }}>{f.label}</label>
-                    <input
-                      style={inputStyle}
-                      value={(form as any)[f.key]}
-                      onChange={e => {
-                        set(f.key, e.target.value)
-                        if (f.key === 'name' && !editing) {
-                          set('slug', e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))
-                        }
-                      }}
-                      onFocus={e => e.target.style.borderColor = 'var(--primary)'}
-                      onBlur={e => e.target.style.borderColor = 'var(--border)'}
+              {/* Body */}
+              <div style={{ padding: '28px' }}>
+                {/* Image preview */}
+                {form.image_url && (
+                  <div style={{
+                    width: '100%', aspectRatio: '16/9',
+                    borderRadius: 14, overflow: 'hidden',
+                    marginBottom: 24,
+                    border: '1px solid rgba(255,133,208,0.2)',
+                  }}>
+                    <img src={form.image_url} alt=""
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={e => (e.target as HTMLImageElement).style.display = 'none'}
                     />
                   </div>
-                ))}
+                )}
 
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleSave}
-                  disabled={saving}
-                  style={{
-                    width: '100%', padding: '13px',
-                    background: 'var(--primary-gradient)',
-                    border: 'none', borderRadius: 12,
-                    fontFamily: 'var(--font-body)', fontSize: 15, fontWeight: 700,
-                    color: 'var(--on-surface)', cursor: saving ? 'not-allowed' : 'pointer',
-                    marginTop: 4, boxShadow: '0 4px 16px rgba(255,133,208,0.3)',
-                  }}
-                >
-                  {saving ? 'Saving...' : editing ? 'Update Category' : 'Add Category'}
-                </motion.button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 28 }}>
+                  <div>
+                    <label style={LBL}>Category Name *</label>
+                    <input
+                      style={F} value={form.name}
+                      placeholder="e.g. Keychains"
+                      onChange={e => {
+                        set('name', e.target.value)
+                        if (!editing) set('slug', e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))
+                      }}
+                      onFocus={focusF} onBlur={blurF}
+                    />
+                  </div>
+                  <div>
+                    <label style={LBL}>Slug (auto-generated)</label>
+                    <input
+                      style={{ ...F, color: '#9C7B6E' }} value={form.slug}
+                      placeholder="keychains"
+                      onChange={e => set('slug', e.target.value)}
+                      onFocus={focusF} onBlur={blurF}
+                    />
+                  </div>
+                  <div>
+                    <label style={LBL}>Description</label>
+                    <input
+                      style={F} value={form.description}
+                      placeholder="e.g. Carry a little bloom and a lot of love"
+                      onChange={e => set('description', e.target.value)}
+                      onFocus={focusF} onBlur={blurF}
+                    />
+                  </div>
+                  <div>
+                    <label style={LBL}>Image URL</label>
+                    <input
+                      style={F} value={form.image_url}
+                      placeholder="https://res.cloudinary.com/..."
+                      onChange={e => set('image_url', e.target.value)}
+                      onFocus={focusF} onBlur={blurF}
+                    />
+                    <p style={{
+                      fontFamily: 'DM Sans, sans-serif', fontSize: 11,
+                      color: '#9C7B6E', marginTop: 6,
+                    }}>
+                      Upload image to Cloudinary first → copy the URL → paste here
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+                  <button
+                    onClick={closeForm}
+                    style={{
+                      padding: '12px 24px', borderRadius: 999,
+                      border: '1.5px solid rgba(255,133,208,0.3)',
+                      background: 'transparent',
+                      fontFamily: 'DM Sans, sans-serif',
+                      fontSize: 14, fontWeight: 500, color: '#5C4033', cursor: 'pointer',
+                    }}
+                  >Cancel</button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+                    onClick={handleSave}
+                    disabled={saving || !form.name}
+                    style={{
+                      padding: '12px 32px', borderRadius: 999,
+                      background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+                      border: 'none', cursor: saving ? 'not-allowed' : 'pointer',
+                      fontFamily: 'DM Sans, sans-serif',
+                      fontSize: 14, fontWeight: 700, color: '#1C0F0A',
+                      opacity: saving || !form.name ? 0.6 : 1,
+                      boxShadow: '0 4px 16px rgba(255,133,208,0.3)',
+                      display: 'flex', alignItems: 'center', gap: 8,
+                    }}
+                  >
+                    {saving && (
+                      <div style={{
+                        width: 14, height: 14, borderRadius: '50%',
+                        border: '2px solid rgba(28,15,10,0.3)',
+                        borderTopColor: '#1C0F0A',
+                        animation: 'spin 0.7s linear infinite',
+                      }} />
+                    )}
+                    {saving ? 'Saving...' : mode === 'edit' ? 'Update Category' : 'Add Category'}
+                  </motion.button>
+                </div>
               </div>
             </motion.div>
           </>
         )}
       </AnimatePresence>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }

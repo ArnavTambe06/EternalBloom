@@ -13,41 +13,45 @@ export async function getProducts(options?: {
     .eq('is_available', true)
     .order('created_at', { ascending: false })
 
-  if (options?.categorySlug) {
-    query = query.eq('categories.slug', options.categorySlug)
-  }
-  if (options?.featured) {
-    query = query.eq('is_featured', true)
-  }
-  if (options?.limit) {
-    query = query.limit(options.limit)
-  }
-  if (options?.search) {
-    query = query.ilike('name', `%${options.search}%`)
-  }
+  if (options?.featured) query = query.eq('is_featured', true)
+  if (options?.limit) query = query.limit(options.limit)
+  if (options?.search) query = query.ilike('name', `%${options.search}%`)
 
   const { data, error } = await query
   if (error) throw error
-  return data as Product[]
+  return (data as unknown as Product[]) || []
 }
 
-export async function getProductBySlug(slug: string): Promise<Product | null> {
+export async function getProductsByCategory(categorySlug: string): Promise<Product[]> {
+  const { data: category } = await supabase
+    .from('categories')
+    .select('id')
+    .eq('slug', categorySlug)
+    .single()
+
+  if (!category) return []
+
   const { data, error } = await supabase
     .from('products')
     .select('*, category:categories(*)')
-    .eq('slug', slug)
-    .single()
+    .eq('category_id', category.id)
+    .eq('is_available', true)
+    .order('created_at', { ascending: false })
 
-  if (error) return null
-  return data as Product
+  if (error) throw error
+  return (data as unknown as Product[]) || []
 }
 
 export async function getCategories(): Promise<Category[]> {
   const { data, error } = await supabase
     .from('categories')
     .select('*')
-    .order('name')
+    .order('sort_order', { ascending: true })
 
   if (error) throw error
-  return data as Category[]
+  return (data as Category[]) || []
+}
+
+export async function getFeaturedProducts(): Promise<Product[]> {
+  return getProducts({ featured: true, limit: 6 })
 }

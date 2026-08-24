@@ -135,7 +135,7 @@ export function ContactPage() {
                   onClick={() => setSent(true)}
                   style={{
                     width: '100%', padding: '13px',
-                    backgroundColor: '#B56A45', color: 'white',
+                    backgroundColor: '#eb80d0', color: 'white',
                     border: 'none', borderRadius: 12,
                     fontFamily: 'Poppins, sans-serif',
                     fontSize: 14, fontWeight: 600, cursor: 'pointer',

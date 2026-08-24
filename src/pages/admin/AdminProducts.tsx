@@ -1,16 +1,37 @@
 import { useEffect, useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Search, Edit2, Trash2, X, Upload, ToggleLeft, ToggleRight, Star } from 'lucide-react'
+import {
+  Plus, Search, Edit2, Trash2, X,
+  Upload, ToggleLeft, ToggleRight, Star,
+  ChevronDown, Image as ImageIcon,
+} from 'lucide-react'
 import { supabase } from '@/services/supabase'
 import type { Product, Category } from '@/types'
 
-const inputStyle: React.CSSProperties = {
+/* ── Shared styles ── */
+const F: React.CSSProperties = {
   width: '100%', padding: '10px 14px',
-  border: '1.5px solid var(--border)',
-  borderRadius: 10, backgroundColor: 'var(--surface)',
-  fontFamily: 'var(--font-body)', fontSize: 14,
-  color: 'var(--on-surface)', outline: 'none',
-  boxSizing: 'border-box',
+  border: '1.5px solid rgba(255,133,208,0.25)',
+  borderRadius: 10,
+  fontFamily: 'DM Sans, sans-serif', fontSize: 14,
+  color: '#1C0F0A', backgroundColor: '#FFF8F5',
+  outline: 'none', boxSizing: 'border-box',
+  transition: 'border-color 0.2s, box-shadow 0.2s',
+}
+const focusF = (e: React.FocusEvent<any>) => {
+  e.target.style.borderColor = '#FF85D0'
+  e.target.style.boxShadow = '0 0 0 3px rgba(255,133,208,0.12)'
+}
+const blurF = (e: React.FocusEvent<any>) => {
+  e.target.style.borderColor = 'rgba(255,133,208,0.25)'
+  e.target.style.boxShadow = 'none'
+}
+const LBL: React.CSSProperties = {
+  display: 'block',
+  fontFamily: 'DM Sans, sans-serif',
+  fontSize: 11, fontWeight: 700,
+  letterSpacing: '0.1em', textTransform: 'uppercase',
+  color: '#9C7B6E', marginBottom: 7,
 }
 
 const emptyForm = {
@@ -22,18 +43,22 @@ const emptyForm = {
   color_variants: [] as { name: string; hex: string }[],
 }
 
+type FormMode = 'closed' | 'create' | 'edit'
+
 export function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [showForm, setShowForm] = useState(false)
+  const [categoryFilter, setCategoryFilter] = useState('all')
+  const [mode, setMode] = useState<FormMode>('closed')
   const [editing, setEditing] = useState<Product | null>(null)
   const [form, setForm] = useState({ ...emptyForm })
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
-  const [colorInput, setColorInput] = useState({ name: '', hex: '#FF85D0' })
   const [uploadingImage, setUploadingImage] = useState(false)
+  const [colorInput, setColorInput] = useState({ name: '', hex: '#FF85D0' })
+  const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => { load() }, [])
 
@@ -52,7 +77,7 @@ export function AdminProducts() {
   const openCreate = () => {
     setEditing(null)
     setForm({ ...emptyForm })
-    setShowForm(true)
+    setMode('create')
   }
 
   const openEdit = (p: Product) => {
@@ -66,13 +91,14 @@ export function AdminProducts() {
       is_featured: p.is_featured, images: p.images || [],
       color_variants: (p.color_variants as any) || [],
     })
-    setShowForm(true)
+    setMode('edit')
   }
+
+  const closeForm = () => { setMode('closed'); setEditing(null) }
 
   const handleSave = async () => {
     if (!form.name || !form.price) return
     setSaving(true)
-
     const payload = {
       name: form.name,
       slug: form.slug || form.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
@@ -80,28 +106,26 @@ export function AdminProducts() {
       price: parseFloat(form.price),
       compare_price: form.compare_price ? parseFloat(form.compare_price) : null,
       category_id: form.category_id || null,
-      materials: form.materials,
-      dimensions: form.dimensions,
+      materials: form.materials, dimensions: form.dimensions,
       care_instructions: form.care_instructions,
       stock_count: parseInt(form.stock_count),
-      is_available: form.is_available,
-      is_featured: form.is_featured,
-      images: form.images,
-      color_variants: form.color_variants,
+      is_available: form.is_available, is_featured: form.is_featured,
+      images: form.images, color_variants: form.color_variants,
     }
-
     if (editing) {
       const { error } = await supabase.from('products').update(payload).eq('id', editing.id)
       if (!error) {
-        setProducts(prev => prev.map(p => p.id === editing.id ? { ...p, ...payload, category: p.category } as any : p))
+        setProducts(prev => prev.map(p =>
+          p.id === editing.id ? { ...p, ...payload, category: p.category } as any : p
+        ))
       }
     } else {
-      const { data, error } = await supabase.from('products').insert(payload).select('*, category:categories(*)').single()
+      const { data, error } = await supabase.from('products')
+        .insert(payload).select('*, category:categories(*)').single()
       if (!error && data) setProducts(prev => [data as any, ...prev])
     }
-
     setSaving(false)
-    setShowForm(false)
+    closeForm()
   }
 
   const handleDelete = async (id: string) => {
@@ -112,14 +136,22 @@ export function AdminProducts() {
     setDeleting(null)
   }
 
-  const handleToggleAvailable = async (p: Product) => {
-    await supabase.from('products').update({ is_available: !p.is_available }).eq('id', p.id)
-    setProducts(prev => prev.map(x => x.id === p.id ? { ...x, is_available: !p.is_available } : x))
-  }
-
-  const handleToggleFeatured = async (p: Product) => {
-    await supabase.from('products').update({ is_featured: !p.is_featured }).eq('id', p.id)
-    setProducts(prev => prev.map(x => x.id === p.id ? { ...x, is_featured: !p.is_featured } : x))
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return
+    setUploadingImage(true)
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
+    const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
+    for (const file of Array.from(e.target.files)) {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('upload_preset', preset)
+      fd.append('folder', 'eternal-bloom/products')
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: 'POST', body: fd })
+      const data = await res.json()
+      if (data.secure_url) set('images', [...form.images, data.secure_url])
+    }
+    setUploadingImage(false)
+    if (fileRef.current) fileRef.current.value = ''
   }
 
   const addColor = () => {
@@ -128,55 +160,38 @@ export function AdminProducts() {
     setColorInput({ name: '', hex: '#FF85D0' })
   }
 
-  const removeColor = (i: number) => {
-    set('color_variants', form.color_variants.filter((_, idx) => idx !== i))
+  const filtered = products
+    .filter(p => p.name.toLowerCase().includes(search.toLowerCase()) ||
+      (p.category as any)?.name?.toLowerCase().includes(search.toLowerCase()))
+    .filter(p => categoryFilter === 'all' || p.category_id === categoryFilter)
+
+  /* ── Card toggle helpers ── */
+  const toggleAvail = async (p: Product) => {
+    await supabase.from('products').update({ is_available: !p.is_available }).eq('id', p.id)
+    setProducts(prev => prev.map(x => x.id === p.id ? { ...x, is_available: !p.is_available } : x))
+  }
+  const toggleFeat = async (p: Product) => {
+    await supabase.from('products').update({ is_featured: !p.is_featured }).eq('id', p.id)
+    setProducts(prev => prev.map(x => x.id === p.id ? { ...x, is_featured: !p.is_featured } : x))
   }
 
-  // Cloudinary upload
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (!files || files.length === 0) return
-    setUploadingImage(true)
-
-    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
-    const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
-
-    for (const file of Array.from(files)) {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('upload_preset', uploadPreset)
-      formData.append('folder', 'eternal-bloom/products')
-
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-        method: 'POST', body: formData,
-      })
-      const data = await res.json()
-      if (data.secure_url) {
-        set('images', [...form.images, data.secure_url])
-      }
-    }
-    setUploadingImage(false)
+  const cardStyle: React.CSSProperties = {
+    backgroundColor: 'white',
+    border: '1px solid rgba(255,133,208,0.2)',
+    borderRadius: 16,
+    padding: '20px',
+    boxShadow: '0 2px 12px rgba(255,133,208,0.06)',
   }
-
-  const removeImage = (i: number) => {
-    set('images', form.images.filter((_, idx) => idx !== i))
-  }
-
-  const filtered = products.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    (p.category as any)?.name?.toLowerCase().includes(search.toLowerCase())
-  )
 
   return (
-    <div style={{ padding: '32px 36px' }}>
-
+    <div>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
         <div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 700, color: 'var(--on-surface)' }}>
+          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 26, fontWeight: 700, color: '#1C0F0A' }}>
             Products
           </h1>
-          <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--on-surface-muted)', marginTop: 4 }}>
+          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9C7B6E', marginTop: 4 }}>
             {products.length} products total
           </p>
         </div>
@@ -186,11 +201,11 @@ export function AdminProducts() {
           onClick={openCreate}
           style={{
             display: 'flex', alignItems: 'center', gap: 8,
-            padding: '12px 20px',
-            background: 'var(--primary-gradient)',
-            border: 'none', borderRadius: 12,
-            fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 600,
-            color: 'var(--on-surface)', cursor: 'pointer',
+            padding: '12px 22px', borderRadius: 999,
+            background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+            border: 'none', cursor: 'pointer',
+            fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700,
+            color: '#1C0F0A',
             boxShadow: '0 4px 16px rgba(255,133,208,0.3)',
           }}
         >
@@ -198,496 +213,660 @@ export function AdminProducts() {
         </motion.button>
       </div>
 
-      {/* Search */}
-      <div style={{ position: 'relative', marginBottom: 24, maxWidth: 360 }}>
-        <Search size={16} color="var(--on-surface-faint)"
-          style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
-        <input
-          placeholder="Search products..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          style={{ ...inputStyle, paddingLeft: 42 }}
-        />
+      {/* Search + category filter */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 24, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ position: 'relative', flex: 1, minWidth: 240 }}>
+          <Search size={15} color="#9C7B6E"
+            style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)' }} />
+          <input
+            placeholder="Search products..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{ ...F, paddingLeft: 38 }}
+            onFocus={focusF} onBlur={blurF}
+          />
+        </div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {[{ id: 'all', name: 'All' }, ...categories].map(cat => (
+            <button
+              key={(cat as any).id || 'all'}
+              onClick={() => setCategoryFilter((cat as any).id || 'all')}
+              style={{
+                padding: '8px 16px', borderRadius: 999,
+                background: categoryFilter === ((cat as any).id || 'all')
+                  ? 'linear-gradient(135deg,#FF85D0,#FFC8A2)'
+                  : 'white',
+                border: '1.5px solid rgba(255,133,208,0.25)',
+                fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 500,
+                color: '#1C0F0A', cursor: 'pointer', transition: 'all 0.2s',
+              }}
+            >{cat.name}</button>
+          ))}
+        </div>
       </div>
 
-      {/* Product table */}
-      <div style={{
-        backgroundColor: 'var(--surface-white)',
-        borderRadius: 16, border: '1px solid var(--border)',
-        overflow: 'hidden',
-      }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ backgroundColor: 'var(--surface)' }}>
-              {['Product', 'Category', 'Price', 'Stock', 'Status', 'Actions'].map(h => (
-                <th key={h} style={{
-                  fontFamily: 'var(--font-body)', fontSize: 11, fontWeight: 700,
-                  letterSpacing: '0.08em', textTransform: 'uppercase',
-                  color: 'var(--on-surface-muted)',
-                  padding: '12px 16px', textAlign: 'left',
-                  borderBottom: '1px solid var(--border)',
-                }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: 'var(--on-surface-muted)', fontFamily: 'var(--font-body)' }}>
-                  Loading products...
-                </td>
-              </tr>
-            ) : filtered.length === 0 ? (
-              <tr>
-                <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: 'var(--on-surface-muted)', fontFamily: 'var(--font-body)' }}>
-                  No products found.
-                </td>
-              </tr>
-            ) : filtered.map((p, i) => (
-              <motion.tr
-                key={p.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: i * 0.04 }}
-                style={{ borderBottom: '1px solid var(--border)' }}
-              >
-                {/* Product */}
-                <td style={{ padding: '14px 16px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{
-                      width: 48, height: 48, borderRadius: 8,
-                      backgroundColor: 'var(--surface-section)',
-                      overflow: 'hidden', flexShrink: 0,
-                    }}>
-                      {p.images?.[0] && (
-                        <img src={p.images[0]} alt={p.name}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      )}
-                    </div>
-                    <div>
-                      <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 600, color: 'var(--on-surface)' }}>
-                        {p.name}
-                      </p>
-                      <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--on-surface-muted)' }}>
-                        {p.slug}
-                      </p>
-                    </div>
-                  </div>
-                </td>
-                {/* Category */}
-                <td style={{ padding: '14px 16px', fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--on-surface-muted)' }}>
-                  {(p.category as any)?.name || '—'}
-                </td>
-                {/* Price */}
-                <td style={{ padding: '14px 16px' }}>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 700, color: 'var(--on-surface)' }}>
-                    ₹{p.price}
-                  </p>
-                  {p.compare_price && (
-                    <p style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--on-surface-faint)', textDecoration: 'line-through' }}>
-                      ₹{p.compare_price}
-                    </p>
-                  )}
-                </td>
-                {/* Stock */}
-                <td style={{ padding: '14px 16px' }}>
-                  <span style={{
-                    backgroundColor: p.stock_count > 5 ? '#EEF7F2' : p.stock_count > 0 ? '#FFF5E0' : '#FFE8E8',
-                    color: p.stock_count > 5 ? '#5A8C6E' : p.stock_count > 0 ? '#B88B00' : '#C33',
-                    padding: '3px 10px', borderRadius: 999,
-                    fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 600,
+      {/* Product grid cards */}
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '60px 0', color: '#9C7B6E', fontFamily: 'DM Sans, sans-serif' }}>
+          Loading products...
+        </div>
+      ) : filtered.length === 0 ? (
+        <div style={{ ...cardStyle, textAlign: 'center', padding: '60px 0' }}>
+          <p style={{ fontFamily: 'DM Sans, sans-serif', color: '#9C7B6E', fontSize: 15 }}>
+            {products.length === 0 ? 'No products yet — add your first one!' : 'No products match your search.'}
+          </p>
+        </div>
+      ) : (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gap: 16,
+        }}>
+          {filtered.map((p, i) => (
+            <motion.div
+              key={p.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.04 }}
+              style={cardStyle}
+            >
+              {/* Image */}
+              <div style={{
+                width: '100%', aspectRatio: '4/3',
+                borderRadius: 12, overflow: 'hidden',
+                backgroundColor: 'rgba(255,200,162,0.1)',
+                marginBottom: 14,
+                position: 'relative',
+              }}>
+                {p.images?.[0] ? (
+                  <img src={p.images[0]} alt={p.name}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <div style={{
+                    width: '100%', height: '100%',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'linear-gradient(135deg,rgba(255,133,208,0.1),rgba(255,200,162,0.1))',
                   }}>
-                    {p.stock_count} left
-                  </span>
-                </td>
-                {/* Status */}
-                <td style={{ padding: '14px 16px' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <button
-                      onClick={() => handleToggleAvailable(p)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 6,
-                        background: 'none', border: 'none', cursor: 'pointer',
-                        padding: '3px 8px', borderRadius: 6,
-                        backgroundColor: p.is_available ? '#EEF7F2' : '#FFE8E8',
-                        color: p.is_available ? '#5A8C6E' : '#C33',
-                        fontFamily: 'var(--font-body)', fontSize: 11, fontWeight: 600,
-                      }}
-                    >
-                      {p.is_available ? <ToggleRight size={13} /> : <ToggleLeft size={13} />}
-                      {p.is_available ? 'Available' : 'Hidden'}
-                    </button>
-                    <button
-                      onClick={() => handleToggleFeatured(p)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 6,
-                        background: 'none', border: 'none', cursor: 'pointer',
-                        padding: '3px 8px', borderRadius: 6,
-                        backgroundColor: p.is_featured ? '#FFF8E0' : 'transparent',
-                        color: p.is_featured ? '#B88B00' : 'var(--on-surface-faint)',
-                        fontFamily: 'var(--font-body)', fontSize: 11, fontWeight: 600,
-                      }}
-                    >
-                      <Star size={11} fill={p.is_featured ? '#B88B00' : 'none'} />
-                      {p.is_featured ? 'Featured' : 'Not featured'}
-                    </button>
+                    <ImageIcon size={28} color="rgba(156,123,110,0.4)" />
                   </div>
-                </td>
-                {/* Actions */}
-                <td style={{ padding: '14px 16px' }}>
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    <button
-                      onClick={() => openEdit(p)}
-                      style={{
-                        padding: '7px 12px',
-                        border: '1.5px solid var(--border)',
-                        borderRadius: 8, background: 'white',
-                        cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
-                        fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--on-surface)',
-                      }}
-                    >
-                      <Edit2 size={12} /> Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(p.id)}
-                      disabled={deleting === p.id}
-                      style={{
-                        padding: '7px 10px',
-                        border: '1.5px solid #FFD0D0',
-                        borderRadius: 8, background: 'white',
-                        cursor: 'pointer', display: 'flex', alignItems: 'center',
-                        color: '#C33',
-                      }}
-                    >
-                      <Trash2 size={12} />
-                    </button>
-                  </div>
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                )}
+                {/* Badges */}
+                <div style={{ position: 'absolute', top: 8, left: 8, display: 'flex', gap: 4 }}>
+                  {p.is_featured && (
+                    <span style={{
+                      background: 'linear-gradient(135deg,#FF85D0,#FFE680)',
+                      padding: '2px 8px', borderRadius: 999,
+                      fontFamily: 'DM Sans, sans-serif', fontSize: 9, fontWeight: 800,
+                      color: '#1C0F0A', letterSpacing: '0.05em',
+                    }}>FEATURED</span>
+                  )}
+                  {!p.is_available && (
+                    <span style={{
+                      backgroundColor: 'rgba(28,15,10,0.75)', color: 'white',
+                      padding: '2px 8px', borderRadius: 999,
+                      fontFamily: 'DM Sans, sans-serif', fontSize: 9, fontWeight: 600,
+                    }}>HIDDEN</span>
+                  )}
+                </div>
+              </div>
 
-      {/* Create / Edit Modal */}
+              {/* Info */}
+              <div style={{ marginBottom: 14 }}>
+                <p style={{
+                  fontFamily: 'DM Sans, sans-serif', fontSize: 10,
+                  fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
+                  color: '#E8609A', marginBottom: 5,
+                }}>{(p.category as any)?.name || 'No category'}</p>
+                <p style={{
+                  fontFamily: 'Playfair Display, serif',
+                  fontSize: 15, fontWeight: 600, color: '#1C0F0A',
+                  marginBottom: 6, lineHeight: 1.3,
+                }}>{p.name}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, fontWeight: 700, color: '#1C0F0A' }}>
+                    ₹{p.price}
+                  </span>
+                  {p.compare_price && (
+                    <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#9C7B6E', textDecoration: 'line-through' }}>
+                      ₹{p.compare_price}
+                    </span>
+                  )}
+                  <span style={{
+                    marginLeft: 'auto',
+                    fontFamily: 'DM Sans, sans-serif', fontSize: 11,
+                    color: p.stock_count > 5 ? '#5A8C6E' : p.stock_count > 0 ? '#B88B00' : '#C33',
+                    fontWeight: 600,
+                    backgroundColor: p.stock_count > 5 ? '#EEF7F2' : p.stock_count > 0 ? '#FFF5E0' : '#FFE8E8',
+                    padding: '2px 8px', borderRadius: 999,
+                  }}>
+                    {p.stock_count} in stock
+                  </span>
+                </div>
+              </div>
+
+              {/* Quick toggles */}
+              <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+                <button
+                  onClick={() => toggleAvail(p)}
+                  style={{
+                    flex: 1, padding: '7px 0',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+                    border: '1.5px solid rgba(255,133,208,0.2)',
+                    borderRadius: 8, cursor: 'pointer',
+                    backgroundColor: p.is_available ? '#EEF7F2' : '#FFE8E8',
+                    color: p.is_available ? '#5A8C6E' : '#C33',
+                    fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 600,
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {p.is_available ? <ToggleRight size={13} /> : <ToggleLeft size={13} />}
+                  {p.is_available ? 'Available' : 'Hidden'}
+                </button>
+                <button
+                  onClick={() => toggleFeat(p)}
+                  style={{
+                    flex: 1, padding: '7px 0',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+                    border: '1.5px solid rgba(255,133,208,0.2)',
+                    borderRadius: 8, cursor: 'pointer',
+                    backgroundColor: p.is_featured ? '#FFF8E0' : 'transparent',
+                    color: p.is_featured ? '#B88B00' : '#9C7B6E',
+                    fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 600,
+                  }}
+                >
+                  <Star size={11} fill={p.is_featured ? '#B88B00' : 'none'} />
+                  {p.is_featured ? 'Featured' : 'Not featured'}
+                </button>
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => openEdit(p)}
+                  style={{
+                    flex: 1, padding: '9px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                    background: 'linear-gradient(135deg,rgba(255,133,208,0.15),rgba(255,200,162,0.15))',
+                    border: '1.5px solid rgba(255,133,208,0.3)',
+                    borderRadius: 10, cursor: 'pointer',
+                    fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600,
+                    color: '#1C0F0A',
+                  }}
+                >
+                  <Edit2 size={13} /> Edit
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => handleDelete(p.id)}
+                  disabled={deleting === p.id}
+                  style={{
+                    padding: '9px 16px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                    backgroundColor: 'transparent',
+                    border: '1.5px solid rgba(200,50,50,0.25)',
+                    borderRadius: 10, cursor: 'pointer',
+                    color: '#C33',
+                    fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600,
+                  }}
+                >
+                  <Trash2 size={13} />
+                </motion.button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Full-page form modal ── */}
       <AnimatePresence>
-        {showForm && (
+        {mode !== 'closed' && (
           <>
+            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setShowForm(false)}
+              onClick={closeForm}
               style={{
                 position: 'fixed', inset: 0,
-                backgroundColor: 'rgba(61,26,46,0.5)',
-                backdropFilter: 'blur(4px)', zIndex: 200,
+                backgroundColor: 'rgba(28,15,10,0.5)',
+                backdropFilter: 'blur(4px)',
+                zIndex: 1000,
               }}
             />
+
+            {/* Modal — centered, scrollable */}
             <motion.div
-              initial={{ opacity: 0, x: '100%' }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: '100%' }}
-              transition={{ type: 'spring', stiffness: 280, damping: 28 }}
+              initial={{ opacity: 0, scale: 0.95}}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95}}
+              transition={{ type: 'spring', stiffness: 260, damping: 26 }}
               style={{
-                position: 'fixed', top: 0, right: 0, bottom: 0,
-                width: '100%', maxWidth: 560,
-                backgroundColor: 'var(--surface-white)',
-                zIndex: 201, overflowY: 'auto',
-                boxShadow: '-8px 0 40px rgba(0,0,0,0.15)',
+                position: 'fixed',
+                top: '50%', left: '50%',
+                x: '-50%', y: '-50%',
+                zIndex: 1001,
+                width: '90vw', maxWidth: 760,
+                height: '90vh',
+                maxHeight: '90vh',
+                overflowY: 'auto',
+                backgroundColor: '#FFF8F5',
+                borderRadius: 24,
+                boxShadow: '0 32px 80px rgba(255,133,208,0.2)',
+                border: '1px solid rgba(255,133,208,0.2)',
               }}
             >
-              {/* Form header */}
+              {/* Modal header — sticky */}
               <div style={{
-                padding: '20px 28px',
-                borderBottom: '1px solid var(--border)',
+                position: 'sticky', top: 0, zIndex: 10,
+                backgroundColor: '#FFF8F5',
+                padding: '20px 32px',
+                borderBottom: '1px solid rgba(255,133,208,0.15)',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                position: 'sticky', top: 0,
-                backgroundColor: 'var(--surface-white)', zIndex: 1,
+                borderRadius: '24px 24px 0 0',
               }}>
-                <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, color: 'var(--on-surface)' }}>
-                  {editing ? 'Edit Product' : 'Add New Product'}
-                </h2>
+                <div>
+                  <h2 style={{
+                    fontFamily: 'Playfair Display, serif',
+                    fontSize: 22, fontWeight: 700, color: '#1C0F0A',
+                  }}>
+                    {mode === 'edit' ? 'Edit Product' : 'Add New Product'}
+                  </h2>
+                  {mode === 'edit' && editing && (
+                    <p style={{
+                      fontFamily: 'DM Sans, sans-serif',
+                      fontSize: 13, color: '#9C7B6E', marginTop: 2,
+                    }}>Editing: {editing.name}</p>
+                  )}
+                </div>
                 <button
-                  onClick={() => setShowForm(false)}
+                  onClick={closeForm}
                   style={{
-                    width: 32, height: 32, borderRadius: '50%',
-                    backgroundColor: 'var(--surface)',
+                    width: 36, height: 36, borderRadius: '50%',
+                    backgroundColor: 'rgba(255,133,208,0.12)',
                     border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}
                 >
-                  <X size={15} color="var(--on-surface)" />
+                  <X size={16} color="#1C0F0A" />
                 </button>
               </div>
 
-              {/* Form body */}
-              <div style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+              {/* Modal body */}
+              <div style={{ padding: '28px 32px' }}>
 
-                {/* Images */}
-                <div>
-                  <label style={{
-                    display: 'block', fontFamily: 'var(--font-body)',
-                    fontSize: 11, fontWeight: 700,
-                    letterSpacing: '0.08em', textTransform: 'uppercase',
-                    color: 'var(--on-surface-muted)', marginBottom: 10,
-                  }}>Product Images</label>
+                {/* Section: Images */}
+                <div style={{
+                  backgroundColor: 'white', borderRadius: 16,
+                  padding: '24px', marginBottom: 20,
+                  border: '1px solid rgba(255,133,208,0.15)',
+                }}>
+                  <p style={{ ...LBL, marginBottom: 16, fontSize: 12 }}>Product Images</p>
 
-                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 10 }}>
+                  <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 14 }}>
                     {form.images.map((url, i) => (
-                      <div key={i} style={{ position: 'relative', width: 72, height: 72 }}>
+                      <div key={i} style={{ position: 'relative', width: 90, height: 90 }}>
                         <img src={url} alt=""
-                          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8 }} />
+                          style={{
+                            width: '100%', height: '100%',
+                            objectFit: 'cover', borderRadius: 10,
+                            border: '1.5px solid rgba(255,133,208,0.3)',
+                          }}
+                        />
                         <button
-                          onClick={() => removeImage(i)}
+                          onClick={() => set('images', form.images.filter((_, idx) => idx !== i))}
                           style={{
                             position: 'absolute', top: -6, right: -6,
-                            width: 20, height: 20, borderRadius: '50%',
-                            backgroundColor: '#C33', color: 'white',
+                            width: 22, height: 22, borderRadius: '50%',
+                            backgroundColor: '#1C0F0A', color: 'white',
                             border: 'none', cursor: 'pointer',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                           }}
-                        >
-                          <X size={10} />
-                        </button>
+                        ><X size={11} /></button>
+                        {i === 0 && (
+                          <span style={{
+                            position: 'absolute', bottom: 4, left: 4,
+                            background: 'rgba(0,0,0,0.6)', color: 'white',
+                            fontFamily: 'DM Sans, sans-serif',
+                            fontSize: 8, fontWeight: 700, padding: '2px 5px',
+                            borderRadius: 4,
+                          }}>MAIN</span>
+                        )}
                       </div>
                     ))}
 
+                    {/* Upload button */}
                     <label style={{
-                      width: 72, height: 72, borderRadius: 8,
-                      border: '2px dashed var(--border)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      cursor: 'pointer', backgroundColor: 'var(--surface)',
-                      flexDirection: 'column', gap: 4,
+                      width: 90, height: 90, borderRadius: 10,
+                      border: '2px dashed rgba(255,133,208,0.4)',
+                      display: 'flex', flexDirection: 'column',
+                      alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer', gap: 4,
+                      backgroundColor: 'rgba(255,133,208,0.04)',
+                      transition: 'all 0.2s',
                     }}>
                       {uploadingImage ? (
                         <div style={{
-                          width: 20, height: 20, borderRadius: '50%',
-                          border: '2px solid var(--border)',
-                          borderTopColor: 'var(--primary)',
+                          width: 18, height: 18, borderRadius: '50%',
+                          border: '2px solid rgba(255,133,208,0.3)',
+                          borderTopColor: '#FF85D0',
                           animation: 'spin 0.7s linear infinite',
                         }} />
                       ) : (
                         <>
-                          <Upload size={18} color="var(--on-surface-faint)" />
-                          <span style={{ fontFamily: 'var(--font-body)', fontSize: 9, color: 'var(--on-surface-faint)' }}>
-                            Upload
-                          </span>
+                          <Upload size={18} color="#9C7B6E" />
+                          <span style={{
+                            fontFamily: 'DM Sans, sans-serif',
+                            fontSize: 10, color: '#9C7B6E', fontWeight: 600,
+                          }}>Upload</span>
                         </>
                       )}
                       <input
+                        ref={fileRef}
                         type="file" multiple accept="image/*"
                         style={{ display: 'none' }}
                         onChange={handleImageUpload}
                       />
                     </label>
                   </div>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--on-surface-faint)' }}>
-                    Images are uploaded to Cloudinary. First image is the main display image.
+                  <p style={{
+                    fontFamily: 'DM Sans, sans-serif',
+                    fontSize: 11, color: '#9C7B6E',
+                  }}>
+                    First image is the main display image. Upload multiple for gallery/hover effect.
                   </p>
                 </div>
 
-                {/* Basic info */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                  {[
-                    { label: 'Product Name *', key: 'name', col: 2, type: 'text' },
-                    { label: 'Slug (auto-generated)', key: 'slug', col: 2, type: 'text' },
-                    { label: 'Price (₹) *', key: 'price', col: 1, type: 'number' },
-                    { label: 'Compare Price (₹)', key: 'compare_price', col: 1, type: 'number' },
-                    { label: 'Stock Count', key: 'stock_count', col: 1, type: 'number' },
-                  ].map(f => (
-                    <div key={f.key} style={{ gridColumn: `span ${f.col}` }}>
-                      <label style={{
-                        display: 'block', fontFamily: 'var(--font-body)',
-                        fontSize: 11, fontWeight: 700,
-                        letterSpacing: '0.08em', textTransform: 'uppercase',
-                        color: 'var(--on-surface-muted)', marginBottom: 6,
-                      }}>{f.label}</label>
+                {/* Section: Basic info */}
+                <div style={{
+                  backgroundColor: 'white', borderRadius: 16,
+                  padding: '24px', marginBottom: 20,
+                  border: '1px solid rgba(255,133,208,0.15)',
+                }}>
+                  <p style={{ ...LBL, marginBottom: 20, fontSize: 12 }}>Basic Information</p>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                    <div style={{ gridColumn: 'span 2' }}>
+                      <label style={LBL}>Product Name *</label>
                       <input
-                        type={f.type}
-                        style={inputStyle}
-                        value={(form as any)[f.key]}
+                        style={F} value={form.name}
                         onChange={e => {
-                          set(f.key, e.target.value)
-                          if (f.key === 'name' && !editing) {
-                            set('slug', e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))
-                          }
+                          set('name', e.target.value)
+                          if (!editing) set('slug', e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))
                         }}
-                        onFocus={e => e.target.style.borderColor = 'var(--primary)'}
-                        onBlur={e => e.target.style.borderColor = 'var(--border)'}
+                        placeholder="e.g. Bow Keychain"
+                        onFocus={focusF} onBlur={blurF}
                       />
                     </div>
-                  ))}
 
-                  {/* Category */}
-                  <div style={{ gridColumn: 'span 1' }}>
-                    <label style={{
-                      display: 'block', fontFamily: 'var(--font-body)',
-                      fontSize: 11, fontWeight: 700,
-                      letterSpacing: '0.08em', textTransform: 'uppercase',
-                      color: 'var(--on-surface-muted)', marginBottom: 6,
-                    }}>Category</label>
-                    <select
-                      value={form.category_id}
-                      onChange={e => set('category_id', e.target.value)}
-                      style={{ ...inputStyle, cursor: 'pointer' }}
-                    >
-                      <option value="">No category</option>
-                      {categories.map(c => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                      ))}
-                    </select>
+                    <div>
+                      <label style={LBL}>Slug (auto-generated)</label>
+                      <input
+                        style={{ ...F, color: '#9C7B6E' }}
+                        value={form.slug}
+                        onChange={e => set('slug', e.target.value)}
+                        placeholder="bow-keychain"
+                        onFocus={focusF} onBlur={blurF}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={LBL}>Category</label>
+                      <select
+                        style={{ ...F, cursor: 'pointer' }}
+                        value={form.category_id}
+                        onChange={e => set('category_id', e.target.value)}
+                        onFocus={focusF} onBlur={blurF}
+                      >
+                        <option value="">No category</option>
+                        {categories.map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={LBL}>Price (₹) *</label>
+                      <input
+                        type="number" style={F} value={form.price}
+                        onChange={e => set('price', e.target.value)}
+                        placeholder="149"
+                        onFocus={focusF} onBlur={blurF}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={LBL}>Compare Price (₹)</label>
+                      <input
+                        type="number" style={F} value={form.compare_price}
+                        onChange={e => set('compare_price', e.target.value)}
+                        placeholder="199 (shows as strikethrough)"
+                        onFocus={focusF} onBlur={blurF}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={LBL}>Stock Count</label>
+                      <input
+                        type="number" style={F} value={form.stock_count}
+                        onChange={e => set('stock_count', e.target.value)}
+                        onFocus={focusF} onBlur={blurF}
+                      />
+                    </div>
                   </div>
-                </div>
 
-                {/* Description */}
-                <div>
-                  <label style={{
-                    display: 'block', fontFamily: 'var(--font-body)',
-                    fontSize: 11, fontWeight: 700,
-                    letterSpacing: '0.08em', textTransform: 'uppercase',
-                    color: 'var(--on-surface-muted)', marginBottom: 6,
-                  }}>Description</label>
-                  <textarea
-                    rows={4}
-                    value={form.description}
-                    onChange={e => set('description', e.target.value)}
-                    style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.6 }}
-                    onFocus={e => e.target.style.borderColor = 'var(--primary)'}
-                    onBlur={e => e.target.style.borderColor = 'var(--border)'}
-                  />
-                </div>
-
-                {/* Details */}
-                {[
-                  { label: 'Materials', key: 'materials' },
-                  { label: 'Dimensions', key: 'dimensions' },
-                  { label: 'Care Instructions', key: 'care_instructions' },
-                ].map(f => (
-                  <div key={f.key}>
-                    <label style={{
-                      display: 'block', fontFamily: 'var(--font-body)',
-                      fontSize: 11, fontWeight: 700,
-                      letterSpacing: '0.08em', textTransform: 'uppercase',
-                      color: 'var(--on-surface-muted)', marginBottom: 6,
-                    }}>{f.label}</label>
-                    <input
-                      style={inputStyle}
-                      value={(form as any)[f.key]}
-                      onChange={e => set(f.key, e.target.value)}
-                      onFocus={e => e.target.style.borderColor = 'var(--primary)'}
-                      onBlur={e => e.target.style.borderColor = 'var(--border)'}
+                  <div>
+                    <label style={LBL}>Description</label>
+                    <textarea
+                      rows={4} style={{ ...F, resize: 'vertical', lineHeight: 1.6 }}
+                      value={form.description}
+                      onChange={e => set('description', e.target.value)}
+                      placeholder="Describe the product — materials, feel, who it's perfect for..."
+                      onFocus={focusF} onBlur={blurF}
                     />
                   </div>
-                ))}
+                </div>
 
-                {/* Color variants */}
-                <div>
-                  <label style={{
-                    display: 'block', fontFamily: 'var(--font-body)',
-                    fontSize: 11, fontWeight: 700,
-                    letterSpacing: '0.08em', textTransform: 'uppercase',
-                    color: 'var(--on-surface-muted)', marginBottom: 10,
-                  }}>Colour Variants</label>
-
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
-                    {form.color_variants.map((c, i) => (
-                      <div key={i} style={{
-                        display: 'flex', alignItems: 'center', gap: 6,
-                        padding: '4px 10px 4px 6px',
-                        border: '1.5px solid var(--border)',
-                        borderRadius: 999,
-                      }}>
-                        <div style={{ width: 16, height: 16, borderRadius: '50%', backgroundColor: c.hex, flexShrink: 0 }} />
-                        <span style={{ fontFamily: 'var(--font-body)', fontSize: 12 }}>{c.name}</span>
-                        <button onClick={() => removeColor(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--on-surface-faint)', display: 'flex' }}>
-                          <X size={11} />
-                        </button>
+                {/* Section: Details */}
+                <div style={{
+                  backgroundColor: 'white', borderRadius: 16,
+                  padding: '24px', marginBottom: 20,
+                  border: '1px solid rgba(255,133,208,0.15)',
+                }}>
+                  <p style={{ ...LBL, marginBottom: 20, fontSize: 12 }}>Product Details</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    {[
+                      { label: 'Materials', key: 'materials', ph: 'e.g. 100% cotton yarn, metal keyring' },
+                      { label: 'Dimensions', key: 'dimensions', ph: 'e.g. 6cm x 4cm' },
+                      { label: 'Care Instructions', key: 'care_instructions', ph: 'e.g. Spot clean, air dry', col: 2 },
+                    ].map(f => (
+                      <div key={f.key} style={{ gridColumn: `span ${(f as any).col || 1}` }}>
+                        <label style={LBL}>{f.label}</label>
+                        <input
+                          style={F} value={(form as any)[f.key]}
+                          onChange={e => set(f.key, e.target.value)}
+                          placeholder={f.ph}
+                          onFocus={focusF} onBlur={blurF}
+                        />
                       </div>
                     ))}
                   </div>
+                </div>
 
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                {/* Section: Colour variants */}
+                <div style={{
+                  backgroundColor: 'white', borderRadius: 16,
+                  padding: '24px', marginBottom: 20,
+                  border: '1px solid rgba(255,133,208,0.15)',
+                }}>
+                  <p style={{ ...LBL, marginBottom: 16, fontSize: 12 }}>Colour Variants</p>
+
+                  {/* Existing colours */}
+                  {form.color_variants.length > 0 && (
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
+                      {form.color_variants.map((c, i) => (
+                        <div key={i} style={{
+                          display: 'flex', alignItems: 'center', gap: 6,
+                          padding: '5px 10px 5px 6px',
+                          border: '1.5px solid rgba(255,133,208,0.25)',
+                          borderRadius: 999, backgroundColor: 'white',
+                        }}>
+                          <div style={{
+                            width: 14, height: 14, borderRadius: '50%',
+                            backgroundColor: c.hex, flexShrink: 0,
+                            border: '1px solid rgba(0,0,0,0.1)',
+                          }} />
+                          <span style={{
+                            fontFamily: 'DM Sans, sans-serif',
+                            fontSize: 12, color: '#1C0F0A',
+                          }}>{c.name}</span>
+                          <button
+                            onClick={() => set('color_variants', form.color_variants.filter((_, idx) => idx !== i))}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9C7B6E', display: 'flex', padding: 0 }}
+                          ><X size={11} /></button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Add colour */}
+                  <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                     <input
-                      placeholder="Colour name"
+                      placeholder="Colour name e.g. Blush Pink"
                       value={colorInput.name}
                       onChange={e => setColorInput(c => ({ ...c, name: e.target.value }))}
-                      style={{ ...inputStyle, flex: 1 }}
+                      style={{ ...F, flex: 1 }}
+                      onFocus={focusF} onBlur={blurF}
+                      onKeyDown={e => e.key === 'Enter' && addColor()}
                     />
                     <input
                       type="color"
                       value={colorInput.hex}
                       onChange={e => setColorInput(c => ({ ...c, hex: e.target.value }))}
-                      style={{ width: 44, height: 40, borderRadius: 8, border: '1.5px solid var(--border)', cursor: 'pointer', padding: 2 }}
+                      style={{
+                        width: 44, height: 40, borderRadius: 10,
+                        border: '1.5px solid rgba(255,133,208,0.25)',
+                        cursor: 'pointer', padding: 2,
+                      }}
                     />
                     <button
                       onClick={addColor}
                       style={{
-                        padding: '10px 16px',
-                        background: 'var(--primary-gradient)',
-                        border: 'none', borderRadius: 8,
-                        fontFamily: 'var(--font-body)', fontSize: 13,
-                        fontWeight: 600, color: 'var(--on-surface)', cursor: 'pointer',
+                        padding: '10px 18px', borderRadius: 10,
+                        background: 'linear-gradient(135deg,#FF85D0,#FFC8A2)',
+                        border: 'none', cursor: 'pointer',
+                        fontFamily: 'DM Sans, sans-serif',
+                        fontSize: 13, fontWeight: 700, color: '#1C0F0A',
                         whiteSpace: 'nowrap',
                       }}
                     >Add</button>
                   </div>
                 </div>
 
-                {/* Toggles */}
-                <div style={{ display: 'flex', gap: 16 }}>
-                  {[
-                    { label: 'Available for sale', key: 'is_available' },
-                    { label: 'Featured product', key: 'is_featured' },
-                  ].map(f => (
-                    <button
-                      key={f.key}
-                      onClick={() => set(f.key, !(form as any)[f.key])}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 8,
-                        padding: '10px 16px',
-                        border: `1.5px solid ${(form as any)[f.key] ? 'var(--primary)' : 'var(--border)'}`,
-                        borderRadius: 10,
-                        backgroundColor: (form as any)[f.key] ? 'var(--primary-pale)' : 'transparent',
-                        cursor: 'pointer', transition: 'all 0.2s',
-                      }}
-                    >
-                      {(form as any)[f.key]
-                        ? <ToggleRight size={18} color="var(--primary)" />
-                        : <ToggleLeft size={18} color="var(--on-surface-faint)" />
-                      }
-                      <span style={{
-                        fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 500,
-                        color: (form as any)[f.key] ? 'var(--primary)' : 'var(--on-surface-muted)',
-                      }}>{f.label}</span>
-                    </button>
-                  ))}
+                {/* Section: Visibility */}
+                <div style={{
+                  backgroundColor: 'white', borderRadius: 16,
+                  padding: '24px', marginBottom: 28,
+                  border: '1px solid rgba(255,133,208,0.15)',
+                }}>
+                  <p style={{ ...LBL, marginBottom: 16, fontSize: 12 }}>Visibility</p>
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    {[
+                      { label: 'Available for sale', key: 'is_available', desc: 'Visible and purchasable' },
+                      { label: 'Featured product', key: 'is_featured', desc: 'Shown in featured section' },
+                    ].map(f => (
+                      <button
+                        key={f.key}
+                        onClick={() => set(f.key, !(form as any)[f.key])}
+                        style={{
+                          flex: 1, padding: '14px 16px',
+                          border: `2px solid ${(form as any)[f.key] ? '#FF85D0' : 'rgba(255,133,208,0.2)'}`,
+                          borderRadius: 12,
+                          background: (form as any)[f.key]
+                            ? 'linear-gradient(135deg,rgba(255,133,208,0.1),rgba(255,200,162,0.1))'
+                            : 'white',
+                          cursor: 'pointer', textAlign: 'left',
+                          transition: 'all 0.2s',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                          {(form as any)[f.key]
+                            ? <ToggleRight size={18} color="#FF85D0" />
+                            : <ToggleLeft size={18} color="#9C7B6E" />
+                          }
+                          <span style={{
+                            fontFamily: 'DM Sans, sans-serif',
+                            fontSize: 13, fontWeight: 700,
+                            color: (form as any)[f.key] ? '#E8609A' : '#9C7B6E',
+                          }}>{f.label}</span>
+                        </div>
+                        <p style={{
+                          fontFamily: 'DM Sans, sans-serif',
+                          fontSize: 11, color: '#9C7B6E', paddingLeft: 26,
+                        }}>{f.desc}</p>
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Save button */}
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleSave}
-                  disabled={saving}
-                  style={{
-                    width: '100%', padding: '14px',
-                    background: 'var(--primary-gradient)',
-                    border: 'none', borderRadius: 12,
-                    fontFamily: 'var(--font-body)', fontSize: 15, fontWeight: 700,
-                    color: 'var(--on-surface)', cursor: saving ? 'not-allowed' : 'pointer',
-                    opacity: saving ? 0.7 : 1,
-                    boxShadow: '0 4px 16px rgba(255,133,208,0.3)',
-                  }}
-                >
-                  {saving ? 'Saving...' : editing ? 'Update Product' : 'Add Product'}
-                </motion.button>
+                {/* Save button — sticky bottom */}
+                <div style={{
+                  position: 'sticky', bottom: 0,
+                  backgroundColor: '#FFF8F5',
+                  padding: '16px 0',
+                  borderTop: '1px solid rgba(255,133,208,0.15)',
+                  display: 'flex', gap: 12, justifyContent: 'flex-end',
+                  marginTop: -28, marginLeft: -32, marginRight: -32,
+                  paddingLeft: 32, paddingRight: 32,
+                }}>
+                  <button
+                    onClick={closeForm}
+                    style={{
+                      padding: '12px 24px', borderRadius: 999,
+                      border: '1.5px solid rgba(255,133,208,0.3)',
+                      background: 'transparent',
+                      fontFamily: 'DM Sans, sans-serif',
+                      fontSize: 14, fontWeight: 500, color: '#5C4033',
+                      cursor: 'pointer',
+                    }}
+                  >Cancel</button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={handleSave}
+                    disabled={saving || !form.name || !form.price}
+                    style={{
+                      padding: '12px 32px', borderRadius: 999,
+                      background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+                      border: 'none', cursor: saving ? 'not-allowed' : 'pointer',
+                      fontFamily: 'DM Sans, sans-serif',
+                      fontSize: 14, fontWeight: 700, color: '#1C0F0A',
+                      opacity: saving || !form.name || !form.price ? 0.6 : 1,
+                      boxShadow: '0 4px 16px rgba(255,133,208,0.3)',
+                      display: 'flex', alignItems: 'center', gap: 8,
+                    }}
+                  >
+                    {saving && (
+                      <div style={{
+                        width: 14, height: 14, borderRadius: '50%',
+                        border: '2px solid rgba(28,15,10,0.3)',
+                        borderTopColor: '#1C0F0A',
+                        animation: 'spin 0.7s linear infinite',
+                      }} />
+                    )}
+                    {saving ? 'Saving...' : mode === 'edit' ? 'Update Product' : 'Add Product'}
+                  </motion.button>
+                </div>
               </div>
-              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             </motion.div>
           </>
         )}
       </AnimatePresence>
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }

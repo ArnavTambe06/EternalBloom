@@ -1,120 +1,128 @@
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Package, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
-
-const mockOrders = [
-  {
-    id: 'ORD001', date: 'Aug 5, 2026', status: 'Delivered',
-    total: 528, items: [
-      { name: 'Bow Keychain', qty: 2, image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&q=80' },
-      { name: 'Daisy Hair Clip', qty: 1, image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=80&q=80' },
-    ],
-  },
-  {
-    id: 'ORD002', date: 'Aug 7, 2026', status: 'Processing',
-    total: 349, items: [
-      { name: 'Daisy Desk Buddy', qty: 1, image: 'https://images.unsplash.com/photo-1487530811015-780680fb1f4e?w=80&q=80' },
-    ],
-  },
-]
+import { useAuth } from '@/hooks/useAuth'
+import { getUserOrders } from '@/services/orders'
 
 const statusColor: Record<string, string> = {
-  Delivered: '#91A57A',
-  Processing: '#D68C6A',
-  Shipped: '#63B3ED',
-  Pending: '#786A61',
-  Cancelled: '#E53E3E',
+  pending: '#FFB800', confirmed: '#4A6FA5', processing: '#9B59B6',
+  shipped: '#2196F3', delivered: '#5A8C6E', cancelled: '#C33',
 }
 
 export function MyOrdersPage() {
+  const [orders, setOrders] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const { user } = useAuth()
+
+  useEffect(() => {
+    if (!user) return
+    getUserOrders(user.id).then(data => {
+      setOrders(data)
+      setLoading(false)
+    })
+  }, [user])
+
   return (
-    <div style={{ backgroundColor: '#FFF9F2', minHeight: '100vh', padding: '40px 24px' }}>
+    <div style={{ backgroundColor: 'var(--surface)', minHeight: '100vh', padding: '48px 24px' }}>
       <div style={{ maxWidth: 760, margin: '0 auto' }}>
-        <h1 style={{
-          fontFamily: 'Playfair Display, serif',
-          fontSize: 32, fontWeight: 700, color: '#46352A', marginBottom: 6,
-        }}>My Orders</h1>
-        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#786A61', marginBottom: 32 }}>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 32, fontWeight: 700, color: 'var(--on-surface)', marginBottom: 6 }}>
+          My Orders
+        </h1>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--on-surface-muted)', marginBottom: 32 }}>
           Track and manage your Eternal Bloom orders
         </p>
 
-        {mockOrders.length === 0 ? (
+        {loading ? (
+          <p style={{ fontFamily: 'var(--font-body)', color: 'var(--on-surface-muted)' }}>Loading orders...</p>
+        ) : orders.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 0' }}>
-            <Package size={48} color="#E7DDD5" style={{ margin: '0 auto 16px' }} />
-            <p style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, color: '#46352A', marginBottom: 8 }}>
+            <Package size={48} color="var(--border)" style={{ margin: '0 auto 16px' }} />
+            <p style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--on-surface)', marginBottom: 8 }}>
               No orders yet
             </p>
-            <Link to="/" style={{
+            <Link to="/#products" style={{
               display: 'inline-block', marginTop: 16,
-              padding: '12px 24px', backgroundColor: '#B56A45',
-              color: 'white', borderRadius: 12, textDecoration: 'none',
-              fontFamily: 'Poppins, sans-serif', fontSize: 13, fontWeight: 600,
+              padding: '12px 24px',
+              background: 'var(--primary-gradient)',
+              borderRadius: 999, fontFamily: 'var(--font-body)',
+              fontSize: 13, fontWeight: 600, color: 'var(--on-surface)',
             }}>Start Shopping</Link>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {mockOrders.map((order, i) => (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {orders.map((order, i) => (
               <motion.div
                 key={order.id}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08 }}
+                transition={{ delay: i * 0.07 }}
                 style={{
-                  backgroundColor: 'white', borderRadius: 18,
-                  padding: '20px 24px',
-                  border: '1px solid #E7DDD5',
-                  boxShadow: '0 2px 12px rgba(70,53,42,0.06)',
+                  backgroundColor: 'var(--surface-white)',
+                  borderRadius: 16, padding: '20px 24px',
+                  border: '1px solid var(--border)',
+                  boxShadow: '0 2px 12px rgba(212,72,154,0.06)',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                   <div>
-                    <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: 14, fontWeight: 700, color: '#46352A' }}>
-                      #{order.id}
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 700, color: 'var(--on-surface)' }}>
+                      #{order.id.slice(0, 8).toUpperCase()}
                     </p>
-                    <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#786A61', marginTop: 2 }}>
-                      {order.date}
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--on-surface-muted)', marginTop: 2 }}>
+                      {new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <span style={{
-                      backgroundColor: `${statusColor[order.status]}20`,
-                      color: statusColor[order.status],
+                      backgroundColor: `${statusColor[order.status] || '#999'}18`,
+                      color: statusColor[order.status] || '#999',
                       padding: '4px 12px', borderRadius: 999,
-                      fontFamily: 'Poppins, sans-serif', fontSize: 12, fontWeight: 600,
+                      fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 600,
+                      textTransform: 'capitalize',
                     }}>{order.status}</span>
-                    <ChevronRight size={16} color="#786A61" />
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
-                  {order.items.map(item => (
-                    <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{
-                        width: 44, height: 44, borderRadius: 8,
-                        overflow: 'hidden', backgroundColor: '#F6EFE7',
-                      }}>
-                        <img src={item.image} alt={item.name}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                {/* Items */}
+                {order.order_items?.length > 0 && (
+                  <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
+                    {order.order_items.slice(0, 3).map((item: any) => (
+                      <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{
+                          width: 44, height: 44, borderRadius: 8,
+                          backgroundColor: 'var(--surface-section)', overflow: 'hidden',
+                        }}>
+                          {item.product_image && (
+                            <img src={item.product_image} alt={item.product_name}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          )}
+                        </div>
+                        <div>
+                          <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--on-surface)', fontWeight: 500 }}>
+                            {item.product_name}
+                          </p>
+                          <p style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--on-surface-muted)' }}>
+                            Qty: {item.quantity}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#46352A', fontWeight: 500 }}>
-                          {item.name}
-                        </p>
-                        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 11, color: '#786A61' }}>
-                          Qty: {item.qty}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                    {order.order_items.length > 3 && (
+                      <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--on-surface-muted)', alignSelf: 'center' }}>
+                        +{order.order_items.length - 3} more
+                      </span>
+                    )}
+                  </div>
+                )}
 
-                <div style={{ height: 1, backgroundColor: '#F6EFE7', marginBottom: 12 }} />
+                <div style={{ height: 1, backgroundColor: 'var(--border)', marginBottom: 12 }} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#786A61' }}>
-                    {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
+                  <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--on-surface-muted)' }}>
+                    {order.order_items?.length || 0} item(s) · {order.payment_status}
                   </span>
-                  <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: 15, fontWeight: 700, color: '#B56A45' }}>
-                    ₹{order.total}
+                  <span style={{ fontFamily: 'var(--font-body)', fontSize: 16, fontWeight: 700, color: 'var(--primary)' }}>
+                    ₹{Number(order.total).toLocaleString('en-IN')}
                   </span>
                 </div>
               </motion.div>

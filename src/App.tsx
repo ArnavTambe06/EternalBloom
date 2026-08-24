@@ -16,6 +16,8 @@ import { MyOrdersPage } from '@/pages/MyOrdersPage'
 import { ProfilePage } from '@/pages/ProfilePage'
 import { AboutPage } from '@/pages/AboutPage'
 import { ContactPage } from '@/pages/ContactPage'
+import { ResetPasswordPage } from '@/pages/ResetPasswordPage'
+import { CollectionsPage } from '@/pages/CollectionsPage'
 
 import { AdminLayout } from '@/pages/admin/AdminLayout'
 import { AdminDashboard } from '@/pages/admin/AdminDashboard'
@@ -28,6 +30,7 @@ function AppRoutes() {
   useAuthInit() // initialize auth listener
 
   return (
+    
     <Routes>
       <Route element={<Layout />}>
         {/* Public */}
@@ -40,7 +43,9 @@ function AppRoutes() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/auth/callback" element={<AuthCallbackPage />} />
-
+        <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/categories" element={<CollectionsPage />} />
+        
         {/* Protected — logged in only */}
         <Route path="/checkout" element={
           <ProtectedRoute><CheckoutPage /></ProtectedRoute>
@@ -55,6 +60,8 @@ function AppRoutes() {
           <ProtectedRoute><ProfilePage /></ProtectedRoute>
         } />
 
+        </Route>
+
         {/* Admin — admin only */}
         <Route path="/admin" element={
           <ProtectedRoute adminOnly>
@@ -67,10 +74,11 @@ function AppRoutes() {
       <Route path="orders" element={<AdminOrders />} />
       <Route path="custom-orders" element={<AdminCustomOrders />} />
       </Route>
-      </Route>
+      
     </Routes>
   )
 }
+
 
 export default function App() {
   return (

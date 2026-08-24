@@ -24,4 +24,4 @@ export const SHIPPING = {
   flat: 80,
 }
 
-export const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID as string
+export const PINTEREST_URL = 'https://pinterest.com/your_board_link_here' // client replaces this

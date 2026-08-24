@@ -1,328 +1,137 @@
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
-import potsimage from '@/assets/pots1.png'
+import { ArrowRight, Sparkles } from 'lucide-react'
 
-const panels = [
-  {
-    tag: 'New Collection',
-    headline: 'Flowers That\nNever Fade',
-    sub: 'Handcrafted keychains, desk buddies, bouquets & more — made with patience, packed with love.',
-    cta: 'Shop Collection',
-    href: '/#products',
-    image: potsimage,
+const stagger = {
+  container: { hidden: {}, show: { transition: { staggerChildren: 0.1 } } },
+  item: {
+    hidden: { opacity: 0, y: 24 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
   },
-  {
-    tag: 'Made Just for You',
-    headline: 'Your Vision,\nOur Craft',
-    sub: "Describe your dream piece — colours, flowers, a feeling. We'll handcraft something entirely yours.",
-    cta: 'Custom Order',
-    href: '/custom-order',
-    image:
-      'https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=1600&q=85',
-  },
-]
+}
 
 export function Hero() {
-  const [active, setActive] = useState(0)
-
-  const panel = panels[active]
-
-  const nextPanel = () => {
-    setActive((prev) => (prev + 1) % panels.length)
-  }
-
-  const previousPanel = () => {
-    setActive((prev) => (prev - 1 + panels.length) % panels.length)
-  }
-
   return (
-    <section style={{ backgroundColor: 'var(--surface)' }}>
-      {/* Hero */}
-      <div
-        style={{
-          position: 'relative',
-          width: '100%',
-          height: 'clamp(380px, 32vw, 450px)',
-          overflow: 'hidden',
-        }}
-      >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={active}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            style={{
-              position: 'absolute',
-              inset: 0,
-            }}
-          >
-            {/* Background Image */}
-            <motion.div
-              initial={{ scale: 1.03 }}
-              animate={{ scale: 1.03 }}
-              transition={{ duration: 0.7 }}
-              style={{
-                position: 'absolute',
-                inset: 0,
-                backgroundImage: `url(${panel.image})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center center',
-              }}
-            />
+    <section style={{ padding: '100px 0 80px', position: 'relative' }}>
+      <div className="wrap">
+        <motion.div
+          variants={stagger.container}
+          initial="hidden"
+          animate="show"
+          style={{ maxWidth: 680, margin: '0 auto', textAlign: 'center' }}
+        >
+          {/* Badge */}
+          <motion.div variants={stagger.item} style={{ marginBottom: 24 }}>
+            <span className="glass" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 7,
+              padding: '6px 16px', borderRadius: 999,
+              fontFamily: 'var(--sans)', fontSize: 12,
+              fontWeight: 600, color: 'var(--accent)',
+              letterSpacing: '0.05em',
+            }}>
+              <Sparkles size={13} />
+              Handmade with love in India
+            </span>
+          </motion.div>
 
-            {/* Dark gradient */}
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                background:
-                  'linear-gradient(to top, rgba(61,26,46,0.72) 0%, rgba(61,26,46,0.18) 48%, rgba(61,26,46,0.002) 100%)',
-              }}
-            />
+          {/* Headline */}
+          <motion.h1 variants={stagger.item} style={{
+            fontFamily: 'var(--serif)',
+            fontSize: 'clamp(44px, 7vw, 88px)',
+            fontWeight: 700, lineHeight: 1.05,
+            letterSpacing: '-0.03em',
+            marginBottom: 24,
+            color: 'var(--ink)',
+          }}>
+            Flowers that{' '}
+            <em className="grad-text" style={{ fontStyle: 'italic' }}>
+              never fade.
+            </em>
+          </motion.h1>
 
-            {/* Top tint */}
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                background:
-                  active === 0
-                    ? 'linear-gradient(to bottom, rgba(255,133,208,0.15), transparent 40%)'
-                    : 'linear-gradient(to bottom, rgba(255,198,162,0.15), transparent 40%)',
-              }}
-            />
+          {/* Sub */}
+          <motion.p variants={stagger.item} style={{
+            fontFamily: 'var(--sans)', fontSize: 17,
+            color: 'var(--ink-2)', lineHeight: 1.65,
+            marginBottom: 40, fontWeight: 400,
+          }}>
+            Handcrafted crochet keychains, desk buddies, bouquets & more
+            — designed with patience, made to last a lifetime.
+          </motion.p>
 
-            {/* Tag */}
-            <div
-              style={{
-                position: 'absolute',
-                top: 28,
-                left: 36,
-              }}
-            >
-              <span
+          {/* CTAs */}
+          <motion.div variants={stagger.item} style={{
+            display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap',
+            marginBottom: 64,
+          }}>
+            <Link to="/#products">
+              <motion.button
+  whileHover={{ scale: 1.03, boxShadow: '0 8px 28px rgba(255,133,208,0.4)' }}
+  whileTap={{ scale: 0.96 }}
+  onClick={() => {
+    document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })
+  }}
+  style={{
+    display: 'inline-flex', alignItems: 'center', gap: 9,
+    padding: '14px 30px', borderRadius: 999,
+    background: 'var(--grad)',
+    border: 'none', cursor: 'pointer',
+    fontFamily: 'var(--sans)',
+    fontSize: 14, fontWeight: 600,
+    color: 'var(--ink)',
+    letterSpacing: '0.03em',
+    boxShadow: '0 4px 18px rgba(255,133,208,0.3)',
+  }}
+>
+  
+                Shop Collection <ArrowRight size={15} />
+              </motion.button>
+            </Link>
+            <Link to="/custom-order">
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.96 }}
+                className="glass"
                 style={{
-                  background: 'rgba(255,255,255,0.18)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  color: 'white',
-                  padding: '6px 17px',
-                  borderRadius: 999,
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
+                  display: 'inline-flex', alignItems: 'center', gap: 9,
+                  padding: '14px 30px', borderRadius: 999,
+                  fontFamily: 'var(--sans)', fontSize: 14,
+                  fontWeight: 600, color: 'var(--ink)',
+                  cursor: 'pointer',
                 }}
               >
-                {panel.tag}
-              </span>
-            </div>
+                Custom Order
+              </motion.button>
+            </Link>
+          </motion.div>
 
-            {/* Content */}
-            <motion.div
-              initial={{ opacity: 0, y: 25 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15, duration: 0.6 }}
-              style={{
-                position: 'absolute',
-                left: '6vw',
-                bottom: 62,
-                maxWidth: 480,
-              }}
-            >
-              <h1
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'clamp(32px, 3.4vw, 48px)',
-                  fontWeight: 700,
-                  color: 'white',
-                  lineHeight: 1.02,
-                  letterSpacing: '-0.02em',
-                  marginBottom: 12,
-                  whiteSpace: 'pre-line',
-                }}
-              >
-                {panel.headline}
-              </h1>
-
-              <p
-                style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 14,
-                  color: 'rgba(255,255,255,0.86)',
-                  lineHeight: 1.55,
-                  marginBottom: 22,
-                  maxWidth: 390,
-                }}
-              >
-                {panel.sub}
-              </p>
-
-              <Link
-                to={panel.href}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '12px 26px',
-                  background: 'var(--primary-gradient)',
-                  borderRadius: 999,
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: 'var(--on-surface)',
-                  textDecoration: 'none',
-                  boxShadow: '0 4px 20px rgba(255,133,208,0.4)',
-                }}
-              >
-                {panel.cta}
-                <ArrowRight size={15} />
-              </Link>
-            </motion.div>
-
-            {/* Bottom labels */}
-            <div
-              style={{
-                position: 'absolute',
-                bottom: 24,
-                left: 36,
-                right: 36,
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                color: 'rgba(255,255,255,0.85)',
-                fontFamily: 'var(--font-body)',
-                fontSize: 13,
-              }}
-            >
-              <span>
-                {active === 0
-                  ? 'Handcrafted With Love'
-                  : 'Made Just for You'}
-              </span>
-
-              <span>
-                {active === 0
-                  ? 'Explore Collection'
-                  : 'Custom Orders Welcome'}
-              </span>
+          {/* Stats */}
+          <motion.div variants={stagger.item}>
+            <div className="glass" style={{
+              display: 'inline-flex', gap: 0,
+              borderRadius: 20, overflow: 'hidden',
+            }}>
+              {[
+                { value: '500+', label: 'Happy Customers' },
+                { value: '10', label: 'Collections' },
+                { value: '100%', label: 'Handmade' },
+                { value: 'COD', label: 'On Delivery' },
+              ].map((s, i) => (
+                <div key={s.label} style={{
+                  padding: '18px 28px', textAlign: 'center',
+                  borderRight: i < 3 ? '1px solid var(--line)' : 'none',
+                }}>
+                  <p style={{
+                    fontFamily: 'var(--serif)',
+                    fontSize: 22, fontWeight: 700,
+                    color: 'var(--ink)', letterSpacing: '-0.02em',
+                  }}>{s.value}</p>
+                  <p className="label" style={{ marginTop: 3 }}>{s.label}</p>
+                </div>
+              ))}
             </div>
           </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* Carousel Controls */}
-      <div
-        style={{
-          height: 54,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 22,
-          borderBottom: '1px solid var(--border)',
-          background: 'var(--surface)',
-        }}
-      >
-        {/* Previous */}
-        <button
-          onClick={previousPanel}
-          aria-label="Previous slide"
-          style={{
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            color: 'var(--on-surface-muted)',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          <ArrowLeft size={17} />
-        </button>
-
-        {/* Counter */}
-        <span
-          style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: 12,
-            color: 'var(--on-surface-muted)',
-            minWidth: 32,
-            textAlign: 'center',
-          }}
-        >
-          {active + 1}/2
-        </span>
-
-        {/* Next */}
-        <button
-          onClick={nextPanel}
-          aria-label="Next slide"
-          style={{
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            color: 'var(--on-surface-muted)',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          <ArrowRight size={17} />
-        </button>
-      </div>
-
-      {/* Trust Strip */}
-      <div
-        style={{
-          background:
-            'linear-gradient(135deg, rgba(255,133,208,0.08) 0%, rgba(255,200,162,0.08) 50%, rgba(255,230,128,0.08) 100%)',
-          borderBottom: '1px solid var(--border)',
-          padding: '18px 0',
-        }}
-      >
-        <div className="container">
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 48,
-              flexWrap: 'wrap',
-            }}
-          >
-            {[
-              { emoji: '🌸', text: 'Handmade to Order' },
-              { emoji: '🚚', text: 'Free Shipping ₹999+' },
-              { emoji: '✨', text: '100% Handcrafted' },
-              { emoji: '💝', text: 'Custom Orders Welcome' },
-            ].map((item) => (
-              <div
-                key={item.text}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                }}
-              >
-                <span style={{ fontSize: 16 }}>{item.emoji}</span>
-
-                <span
-                  style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: 'var(--on-surface-muted)',
-                  }}
-                >
-                  {item.text}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   )

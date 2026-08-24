@@ -1,123 +1,96 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
-import { CATEGORIES } from '@/lib/constants'
-
-const categoryImages: Record<string, string> = {
-  'keychains':           'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80',
-  'desk-buddies':        'https://images.unsplash.com/photo-1487530811015-780680fb1f4e?w=400&q=80',
-  'flower-cards':        'https://images.unsplash.com/photo-1518709766631-a6a7f45921c3?w=400&q=80',
-  'hair-accessories':    'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&q=80',
-  'bouquets':            'https://images.unsplash.com/photo-1490750967868-88df5691cc2c?w=400&q=80',
-  'magnets':             'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=400&q=80',
-  'charms':              'https://images.unsplash.com/photo-1611604548018-d56bbd85d681?w=400&q=80',
-  'lamps':               'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80',
-  'everlasting-flowers': 'https://images.unsplash.com/photo-1487530811015-780680fb1f4e?w=400&q=80',
-  'garlands':            'https://images.unsplash.com/photo-1490750967868-88df5691cc2c?w=400&q=80',
-}
+import { getCategories } from '@/services/products'
+import type { Category } from '@/types'
 
 export function CategoriesSection() {
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    getCategories().then(cats => { setCategories(cats); setLoading(false) })
+  }, [])
+
+  if (loading || categories.length === 0) return null
+
   return (
     <section id="categories" style={{
-      background: 'linear-gradient(180deg, rgba(255,133,208,0.05) 0%, rgba(255,230,128,0.05) 100%)',
-      backgroundColor: 'var(--surface)',
-      padding: 'var(--section-gap) 0',
+      backgroundColor: 'var(--bg-soft)',
+      padding: '80px 0',
+      borderTop: '1px solid var(--line)',
+      borderBottom: '1px solid var(--line)',
     }}>
-      <div className="container">
+      <div className="wrap">
 
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          style={{ textAlign: 'center', marginBottom: 48 }}
-        >
-          <p className="label-caps" style={{ marginBottom: 12 }}>Collections</p>
+        <div style={{ marginBottom: 40 }}>
+          <p style={{
+            fontFamily: 'var(--sans)', fontSize: 11,
+            fontWeight: 600, letterSpacing: '0.15em',
+            textTransform: 'uppercase', color: 'var(--ink-3)',
+            marginBottom: 8,
+          }}>Browse</p>
           <h2 style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(28px, 4vw, 42px)',
-            fontWeight: 700, color: 'var(--on-surface)',
-          }}>Shop by Category</h2>
-        </motion.div>
+            fontFamily: 'var(--serif)',
+            fontSize: 'clamp(26px, 3vw, 36px)',
+            fontWeight: 600, color: 'var(--ink)',
+            letterSpacing: '-0.02em',
+          }}>Shop by Collection</h2>
+        </div>
 
-        {/* Grid */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(5, 1fr)',
           gap: 16,
-        }} className="category-grid">
-          {CATEGORIES.map((cat, i) => (
+        }} className="cat-grid">
+          {categories.map((cat, i) => (
             <motion.div
-              key={cat.slug}
-              initial={{ opacity: 0, y: 20 }}
+              key={cat.id}
+              initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.06 }}
+              transition={{ delay: i * 0.05 }}
             >
-              <Link to={`/categories/${cat.slug}`}>
-                <motion.div
-                  whileHover={{ y: -6 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-                  style={{
-                    backgroundColor: 'var(--surface-white)',
-                    borderRadius: 20,
-                    overflow: 'hidden',
-                    border: '1px solid var(--border)',
-                    cursor: 'pointer',
-                    boxShadow: '0 2px 12px rgba(196,82,106,0.06)',
-                    transition: 'box-shadow 0.3s',
-                  }}
-                  onHoverStart={e => {
-                    const el = (e.target as HTMLElement).closest('[data-card]') as HTMLElement
-                  }}
-                >
+              <Link to={`/categories/${cat.slug}`} style={{ display: 'block' }}>
+                <motion.div whileHover={{ y: -3 }} transition={{ duration: 0.2 }}>
                   {/* Image */}
                   <div style={{
-                    aspectRatio: '1/1',
+                    aspectRatio: '3/4',
+                    backgroundColor: 'var(--bg)',
                     overflow: 'hidden',
-                    background: 'linear-gradient(180deg, rgba(255,133,208,0.05) 0%, rgba(255,230,128,0.05) 100%)',
-                    backgroundColor: 'var(--surface)',
+                    marginBottom: 12,
+                    border: '1px solid var(--line)',
                   }}>
-                    <motion.img
-                      whileHover={{ scale: 1.08 }}
-                      transition={{ duration: 0.5 }}
-                      src={categoryImages[cat.slug]}
-                      alt={cat.name}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
+                    {cat.image_url ? (
+                      <motion.img
+                        whileHover={{ scale: 1.05 }}
+                        transition={{ duration: 0.45 }}
+                        src={cat.image_url}
+                        alt={cat.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <div style={{
+                        width: '100%', height: '100%',
+                        background: 'var(--grad)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontFamily: 'var(--serif)',
+                        fontSize: 13, color: 'var(--ink)',
+                        textAlign: 'center', padding: 12,
+                      }}>{cat.name}</div>
+                    )}
                   </div>
-
-                  {/* Label */}
-                  <div style={{ padding: '14px 12px 16px' }}>
-                    <p style={{
-                      fontFamily: 'var(--font-body)',
-                      fontSize: 13, fontWeight: 700,
-                      color: 'var(--on-surface)',
-                      marginBottom: 4,
-                      textAlign: 'center',
-                    }}>{cat.name}</p>
-                    <p style={{
-                      fontFamily: 'var(--font-body)',
-                      fontSize: 11, color: 'var(--on-surface-muted)',
-                      textAlign: 'center', lineHeight: 1.4,
-                    }}>{cat.tagline}</p>
-                  </div>
+                  <p style={{
+                    fontFamily: 'var(--sans)',
+                    fontSize: 12, fontWeight: 600,
+                    color: 'var(--ink)',
+                    textAlign: 'center',
+                    letterSpacing: '0.02em',
+                  }}>{cat.name}</p>
                 </motion.div>
               </Link>
             </motion.div>
           ))}
-        </div>
-
-        {/* View all */}
-        <div style={{ textAlign: 'center', marginTop: 36 }}>
-          <Link to="/#products" style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            fontFamily: 'var(--font-body)',
-            fontSize: 14, fontWeight: 600,
-            color: 'var(--primary)',
-          }}>
-            View all products <ArrowRight size={14} />
-          </Link>
         </div>
       </div>
     </section>
