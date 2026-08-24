@@ -1,137 +1,91 @@
 import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
-import { ArrowRight, Sparkles } from 'lucide-react'
-
-const stagger = {
-  container: { hidden: {}, show: { transition: { staggerChildren: 0.1 } } },
-  item: {
-    hidden: { opacity: 0, y: 24 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
-  },
-}
+import { ArrowDown } from 'lucide-react'
 
 export function Hero() {
-  return (
-    <section style={{ padding: '100px 0 80px', position: 'relative' }}>
-      <div className="wrap">
-        <motion.div
-          variants={stagger.container}
-          initial="hidden"
-          animate="show"
-          style={{ maxWidth: 680, margin: '0 auto', textAlign: 'center' }}
-        >
-          {/* Badge */}
-          <motion.div variants={stagger.item} style={{ marginBottom: 24 }}>
-            <span className="glass" style={{
-              display: 'inline-flex', alignItems: 'center', gap: 7,
-              padding: '6px 16px', borderRadius: 999,
-              fontFamily: 'var(--sans)', fontSize: 12,
-              fontWeight: 600, color: 'var(--accent)',
-              letterSpacing: '0.05em',
-            }}>
-              <Sparkles size={13} />
-              Handmade with love in India
-            </span>
-          </motion.div>
-
-          {/* Headline */}
-          <motion.h1 variants={stagger.item} style={{
-            fontFamily: 'var(--serif)',
-            fontSize: 'clamp(44px, 7vw, 88px)',
-            fontWeight: 700, lineHeight: 1.05,
-            letterSpacing: '-0.03em',
-            marginBottom: 24,
-            color: 'var(--ink)',
-          }}>
-            Flowers that{' '}
-            <em className="grad-text" style={{ fontStyle: 'italic' }}>
-              never fade.
-            </em>
-          </motion.h1>
-
-          {/* Sub */}
-          <motion.p variants={stagger.item} style={{
-            fontFamily: 'var(--sans)', fontSize: 17,
-            color: 'var(--ink-2)', lineHeight: 1.65,
-            marginBottom: 40, fontWeight: 400,
-          }}>
-            Handcrafted crochet keychains, desk buddies, bouquets & more
-            — designed with patience, made to last a lifetime.
-          </motion.p>
-
-          {/* CTAs */}
-          <motion.div variants={stagger.item} style={{
-            display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap',
-            marginBottom: 64,
-          }}>
-            <Link to="/#products">
-              <motion.button
-  whileHover={{ scale: 1.03, boxShadow: '0 8px 28px rgba(255,133,208,0.4)' }}
-  whileTap={{ scale: 0.96 }}
-  onClick={() => {
+  const scrollToProducts = () => {
     document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })
-  }}
-  style={{
-    display: 'inline-flex', alignItems: 'center', gap: 9,
-    padding: '14px 30px', borderRadius: 999,
-    background: 'var(--grad)',
-    border: 'none', cursor: 'pointer',
-    fontFamily: 'var(--sans)',
-    fontSize: 14, fontWeight: 600,
-    color: 'var(--ink)',
-    letterSpacing: '0.03em',
-    boxShadow: '0 4px 18px rgba(255,133,208,0.3)',
-  }}
->
-  
-                Shop Collection <ArrowRight size={15} />
-              </motion.button>
-            </Link>
-            <Link to="/custom-order">
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.96 }}
-                className="glass"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 9,
-                  padding: '14px 30px', borderRadius: 999,
-                  fontFamily: 'var(--sans)', fontSize: 14,
-                  fontWeight: 600, color: 'var(--ink)',
-                  cursor: 'pointer',
-                }}
-              >
-                Custom Order
-              </motion.button>
-            </Link>
-          </motion.div>
+  }
 
-          {/* Stats */}
-          <motion.div variants={stagger.item}>
-            <div className="glass" style={{
-              display: 'inline-flex', gap: 0,
-              borderRadius: 20, overflow: 'hidden',
-            }}>
-              {[
-                { value: '500+', label: 'Happy Customers' },
-                { value: '10', label: 'Collections' },
-                { value: '100%', label: 'Handmade' },
-                { value: 'COD', label: 'On Delivery' },
-              ].map((s, i) => (
-                <div key={s.label} style={{
-                  padding: '18px 28px', textAlign: 'center',
-                  borderRight: i < 3 ? '1px solid var(--line)' : 'none',
-                }}>
-                  <p style={{
-                    fontFamily: 'var(--serif)',
-                    fontSize: 22, fontWeight: 700,
-                    color: 'var(--ink)', letterSpacing: '-0.02em',
-                  }}>{s.value}</p>
-                  <p className="label" style={{ marginTop: 3 }}>{s.label}</p>
-                </div>
-              ))}
-            </div>
+  return (
+    <section style={{
+      padding: '56px 0 40px',
+      textAlign: 'center',
+      position: 'relative', zIndex: 1,
+      borderBottom: '1px solid rgba(255,133,208,0.12)',
+    }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 48px' }}>
+        <motion.p
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            fontFamily: 'DM Sans, sans-serif', fontSize: 11,
+            fontWeight: 700, letterSpacing: '0.2em',
+            textTransform: 'uppercase', color: '#9C7B6E', marginBottom: 14,
+          }}
+        >Handmade in India · Never-Dying Creations</motion.p>
+
+        <motion.h1
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.06 }}
+          style={{
+            fontFamily: 'Playfair Display, serif',
+            fontSize: 'clamp(38px,5.5vw,70px)',
+            fontWeight: 700, color: '#1C0F0A',
+            letterSpacing: '-0.03em', lineHeight: 1.08,
+            marginBottom: 16,
+          }}
+        >
+          Flowers that{' '}
+          <em style={{
+            fontStyle: 'italic',
+            background: 'linear-gradient(135deg,#FF85D0,#FFA6E0,#FFC8A2)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}>never fade.</em>
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.12 }}
+          style={{
+            fontFamily: 'DM Sans, sans-serif',
+            fontSize: 16, color: '#5C4033', lineHeight: 1.6,
+            maxWidth: 400, margin: '0 auto 28px',
+          }}
+        >
+          Handcrafted crochet keychains, desk buddies, bouquets & more — made with patience.
+        </motion.p>
+
+        {/* Animated scroll cue */}
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          onClick={scrollToProducts}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            padding: '10px 22px', borderRadius: 999,
+            background: 'rgba(255,255,255,0.7)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(255,133,208,0.3)',
+            fontFamily: 'DM Sans, sans-serif',
+            fontSize: 13, fontWeight: 600, color: '#1C0F0A',
+            cursor: 'pointer',
+          }}
+        >
+          <motion.div
+            animate={{ y: [0, 4, 0] }}
+            transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
+          >
+            <ArrowDown size={15} color="#E8609A" />
           </motion.div>
-        </motion.div>
+          Shop the collection
+        </motion.button>
       </div>
     </section>
   )

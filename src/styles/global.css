@@ -289,3 +289,50 @@ input, textarea, select { font-family: var(--sans); }
 @media (max-width: 640px) {
   .cat-grid { grid-template-columns: repeat(2, 1fr) !important; }
 }
+
+
+/* ── Peeking card ── */
+.peek-card {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) translateX(-220px);
+  z-index: 80;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+}
+.peek-card:hover,
+.peek-card.open {
+  transform: translateY(-50%) translateX(0px);
+}
+
+/* ── Product grid ── */
+.product-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+@media (max-width: 768px) {
+  .product-grid-3 { grid-template-columns: repeat(2, 1fr) !important; }
+  .peek-card { display: none; }
+}
+
+/* ── Category strip ── */
+.cat-strip {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+.cat-strip::-webkit-scrollbar { display: none; }
+
+/* ── Floating pulse ── */
+@keyframes float-pulse {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-8px) scale(1.02); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}

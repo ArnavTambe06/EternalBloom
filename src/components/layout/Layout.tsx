@@ -4,6 +4,7 @@ import { Footer } from './Footer'
 import { CartDrawer } from '@/components/cart/CartDrawer'
 import { WelcomePopup } from '@/components/ui/WelcomePopup'
 import { AuroraBg } from '@/components/AurorBg'
+import { PeekingCard } from '@/components/ui/PeekingCard'
 
 export function Layout() {
   return (
@@ -16,6 +17,7 @@ export function Layout() {
         </main>
         <Footer />
       </div>
+      <PeekingCard />
       <CartDrawer />
       <WelcomePopup />
     </div>

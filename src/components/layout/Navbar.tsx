@@ -152,29 +152,77 @@ export function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop links */}
-          <div style={{
-            position: 'absolute', left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex', gap: 4,
-          }} className="hidden md:flex">
-            {navLinks.map(link => (
-              <Link key={link.href} to={link.href}>
-                <motion.div
-                  whileHover={{ backgroundColor: 'rgba(255,133,208,0.1)' }}
-                  style={{
-                    padding: '7px 16px', borderRadius: 999,
-                    fontFamily: 'var(--sans)', fontSize: 13,
-                    fontWeight: 500, color: 'var(--ink-2)',
-                    transition: 'color 0.2s', whiteSpace: 'nowrap',
-                    cursor: 'pointer',
-                  }}
-                  onMouseEnter={e => (e.currentTarget.style.color = 'var(--ink)')}
-                  onMouseLeave={e => (e.currentTarget.style.color = 'var(--ink-2)')}
-                >{link.label}</motion.div>
-              </Link>
-            ))}
-          </div>
+         {/* Desktop links */}
+<div style={{
+  position: 'absolute', left: '50%',
+  transform: 'translateX(-50%)',
+  display: 'flex', gap: 4,
+}} className="hidden md:flex">
+  {navLinks.map(link => (
+    link.label === 'Custom Order' ? (
+      <Link key={link.href} to={link.href}>
+        <motion.div
+          style={{
+            padding: '7px 16px',
+            borderRadius: 999,
+            background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+            backgroundSize: '200% 100%',
+            fontFamily: 'var(--sans)',
+            fontSize: 13,
+            fontWeight: 700,
+            color: '#1C0F0A',
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+            boxShadow: '0 3px 12px rgba(255,133,208,0.3)',
+          }}
+          animate={{
+            boxShadow: [
+              '0 3px 12px rgba(255,133,208,0.3)',
+              '0 6px 20px rgba(255,133,208,0.5)',
+              '0 3px 12px rgba(255,133,208,0.3)',
+            ],
+          }}
+          transition={{
+            repeat: Infinity,
+            duration: 2.5,
+            ease: 'easeInOut',
+          }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          ✦ Custom Order
+        </motion.div>
+      </Link>
+    ) : (
+      <Link key={link.href} to={link.href}>
+        <motion.div
+          whileHover={{
+            backgroundColor: 'rgba(255,133,208,0.1)',
+          }}
+          style={{
+            padding: '7px 16px',
+            borderRadius: 999,
+            fontFamily: 'var(--sans)',
+            fontSize: 13,
+            fontWeight: 500,
+            color: 'var(--ink-2)',
+            transition: 'color 0.2s',
+            whiteSpace: 'nowrap',
+            cursor: 'pointer',
+          }}
+          onMouseEnter={e =>
+            (e.currentTarget.style.color = 'var(--ink)')
+          }
+          onMouseLeave={e =>
+            (e.currentTarget.style.color = 'var(--ink-2)')
+          }
+        >
+          {link.label}
+        </motion.div>
+      </Link>
+    )
+  ))}
+</div>
 
           {/* Actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>

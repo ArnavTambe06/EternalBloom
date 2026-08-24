@@ -5,10 +5,12 @@ import {
   Edit2, Save, Plus, Trash2, ShoppingBag,
 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Sparkles } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { signOut } from '@/services/auth'
 import { supabase } from '@/services/supabase'
 import { getUserOrders } from '@/services/orders'
+
 
 const statusColor: Record<string, string> = {
   pending:    '#FFB800',
@@ -109,6 +111,7 @@ export function ProfilePage() {
     { label: 'Profile', icon: <User size={16} /> },
     { label: 'Orders', icon: <Package size={16} /> },
     { label: 'Addresses', icon: <MapPin size={16} /> },
+    { label: 'Custom Orders', icon: <Sparkles size={16} /> },
   ]
 
   return (
@@ -623,6 +626,10 @@ export function ProfilePage() {
                 </>
               )}
 
+              {activeTab === 'Custom Orders' && (
+  <CustomOrdersTab userId={user?.id} />
+)}
+
               {/* ════ ADDRESSES TAB ════ */}
               {activeTab === 'Addresses' && (
                 <AddressesTab userId={user?.id} />
@@ -635,7 +642,106 @@ export function ProfilePage() {
     </div>
   )
 }
+ // -- Custom orders sub-component --
+function CustomOrdersTab({ userId }: { userId?: string }) {
+  const [orders, setOrders] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
+  const statusColor: Record<string, string> = {
+    pending: '#B88B00', reviewing: '#4A6FA5',
+    quoted: '#9B59B6', accepted: '#5A8C6E', rejected: '#C33',
+  }
+
+  useEffect(() => {
+    if (!userId) return
+    supabase
+      .from('custom_orders')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => { setOrders(data || []); setLoading(false) })
+  }, [userId])
+
+  return (
+    <>
+      <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 700, color: '#1C0F0A', marginBottom: 24 }}>
+        My Custom Requests
+      </h2>
+
+      {loading ? (
+        <p style={{ fontFamily: 'DM Sans, sans-serif', color: '#9C7B6E' }}>Loading...</p>
+      ) : orders.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '48px 0' }}>
+          <p style={{ fontFamily: 'Playfair Display, serif', fontSize: 18, color: '#1C0F0A', marginBottom: 8 }}>
+            No custom requests yet
+          </p>
+          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9C7B6E', marginBottom: 20 }}>
+            Have something in mind? Let us create it for you.
+          </p>
+          <Link to="/custom-order" style={{
+            display: 'inline-block', padding: '11px 24px', borderRadius: 999,
+            background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+            fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700,
+            color: '#1C0F0A',
+          }}>Place Custom Order</Link>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {orders.map((order, i) => (
+            <motion.div
+              key={order.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.06 }}
+              style={{
+                border: '1px solid rgba(255,133,208,0.2)',
+                borderRadius: 14, padding: '18px 20px',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                <div>
+                  <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#9C7B6E', marginBottom: 4 }}>
+                    {new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </p>
+                  <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#5C4033', fontWeight: 500 }}>
+                    {order.category ? `Category: ${order.category}` : 'General request'}
+                    {order.budget ? ` · Budget: ${order.budget}` : ''}
+                  </p>
+                </div>
+                <span style={{
+                  backgroundColor: `${statusColor[order.status] || '#999'}18`,
+                  color: statusColor[order.status] || '#999',
+                  padding: '4px 12px', borderRadius: 999,
+                  fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700,
+                  textTransform: 'capitalize', flexShrink: 0,
+                }}>{order.status}</span>
+              </div>
+              <p style={{
+                fontFamily: 'DM Sans, sans-serif', fontSize: 14,
+                color: '#1C0F0A', lineHeight: 1.55,
+              }}>{order.description}</p>
+              {order.admin_notes && (
+                <div style={{
+                  marginTop: 12, padding: '10px 14px',
+                  backgroundColor: 'rgba(255,133,208,0.06)',
+                  border: '1px solid rgba(255,133,208,0.15)',
+                  borderRadius: 10,
+                }}>
+                  <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#9C7B6E', marginBottom: 4, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                    Note from Eternal Bloom
+                  </p>
+                  <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#5C4033' }}>
+                    {order.admin_notes}
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          ))}
+        </div>
+      )}
+    </>
+  )
+}
 // ── Addresses sub-component ────────────────────────────────────────────
 function AddressesTab({ userId }: { userId?: string }) {
   const [addresses, setAddresses] = useState<any[]>([])

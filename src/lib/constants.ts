@@ -3,6 +3,7 @@ export const BRAND = {
   tagline: 'Never-Dying Creation for Life',
   subtitle: 'Designed with patience, packed with emotions',
   email: 'hello@eternalbloom.in',
+  phone: '+91 9321064387',
   instagram: 'https://www.instagram.com/its.eternalbloom?igsh=MXpxdHR6ZmtmMWxw',
 }
 

@@ -3,35 +3,48 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plus, Search, Edit2, Trash2, X,
   Upload, ToggleLeft, ToggleRight, Star,
-  ChevronDown, Image as ImageIcon,
+  Image as ImageIcon,
 } from 'lucide-react'
 import { supabase } from '@/services/supabase'
 import type { Product, Category } from '@/types'
 
 /* ── Shared styles ── */
+const palette = {
+  ink: '#17110D',
+  muted: '#75675D',
+  soft: '#F7F2EE',
+  paper: '#FFFCF8',
+  line: 'rgba(23,17,13,0.11)',
+  lineStrong: 'rgba(23,17,13,0.18)',
+  rose: '#9F6E64',
+  gold: '#A77E42',
+  green: '#4D765D',
+  red: '#A4493F',
+}
+
 const F: React.CSSProperties = {
-  width: '100%', padding: '10px 14px',
-  border: '1.5px solid rgba(255,133,208,0.25)',
-  borderRadius: 10,
+  width: '100%', padding: '11px 13px',
+  border: `1px solid ${palette.line}`,
+  borderRadius: 6,
   fontFamily: 'DM Sans, sans-serif', fontSize: 14,
-  color: '#1C0F0A', backgroundColor: '#FFF8F5',
+  color: palette.ink, backgroundColor: '#FFFFFF',
   outline: 'none', boxSizing: 'border-box',
-  transition: 'border-color 0.2s, box-shadow 0.2s',
+  transition: 'border-color 0.2s, box-shadow 0.2s, background-color 0.2s',
 }
 const focusF = (e: React.FocusEvent<any>) => {
-  e.target.style.borderColor = '#FF85D0'
-  e.target.style.boxShadow = '0 0 0 3px rgba(255,133,208,0.12)'
+  e.target.style.borderColor = palette.rose
+  e.target.style.boxShadow = '0 0 0 3px rgba(159,110,100,0.12)'
 }
 const blurF = (e: React.FocusEvent<any>) => {
-  e.target.style.borderColor = 'rgba(255,133,208,0.25)'
+  e.target.style.borderColor = palette.line
   e.target.style.boxShadow = 'none'
 }
 const LBL: React.CSSProperties = {
   display: 'block',
   fontFamily: 'DM Sans, sans-serif',
   fontSize: 11, fontWeight: 700,
-  letterSpacing: '0.1em', textTransform: 'uppercase',
-  color: '#9C7B6E', marginBottom: 7,
+  letterSpacing: '0.12em', textTransform: 'uppercase',
+  color: palette.muted, marginBottom: 7,
 }
 
 const emptyForm = {
@@ -57,7 +70,7 @@ export function AdminProducts() {
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
-  const [colorInput, setColorInput] = useState({ name: '', hex: '#FF85D0' })
+  const [colorInput, setColorInput] = useState({ name: '', hex: palette.rose })
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => { load() }, [])
@@ -157,7 +170,7 @@ export function AdminProducts() {
   const addColor = () => {
     if (!colorInput.name) return
     set('color_variants', [...form.color_variants, { ...colorInput }])
-    setColorInput({ name: '', hex: '#FF85D0' })
+    setColorInput({ name: '', hex: palette.rose })
   }
 
   const filtered = products
@@ -177,10 +190,10 @@ export function AdminProducts() {
 
   const cardStyle: React.CSSProperties = {
     backgroundColor: 'white',
-    border: '1px solid rgba(255,133,208,0.2)',
-    borderRadius: 16,
-    padding: '20px',
-    boxShadow: '0 2px 12px rgba(255,133,208,0.06)',
+    border: `1px solid ${palette.line}`,
+    borderRadius: 8,
+    padding: '18px',
+    boxShadow: '0 18px 48px rgba(23,17,13,0.055)',
   }
 
   return (
@@ -188,10 +201,10 @@ export function AdminProducts() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
         <div>
-          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 26, fontWeight: 700, color: '#1C0F0A' }}>
+          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 30, fontWeight: 600, color: palette.ink, letterSpacing: 0 }}>
             Products
           </h1>
-          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9C7B6E', marginTop: 4 }}>
+          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: palette.muted, marginTop: 3 }}>
             {products.length} products total
           </p>
         </div>
@@ -201,12 +214,12 @@ export function AdminProducts() {
           onClick={openCreate}
           style={{
             display: 'flex', alignItems: 'center', gap: 8,
-            padding: '12px 22px', borderRadius: 999,
-            background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
-            border: 'none', cursor: 'pointer',
+            padding: '11px 18px', borderRadius: 6,
+            background: palette.ink,
+            border: `1px solid ${palette.ink}`, cursor: 'pointer',
             fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700,
-            color: '#1C0F0A',
-            boxShadow: '0 4px 16px rgba(255,133,208,0.3)',
+            color: '#FFFFFF',
+            boxShadow: '0 12px 28px rgba(23,17,13,0.16)',
           }}
         >
           <Plus size={16} /> Add Product
@@ -216,7 +229,7 @@ export function AdminProducts() {
       {/* Search + category filter */}
       <div style={{ display: 'flex', gap: 12, marginBottom: 24, flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ position: 'relative', flex: 1, minWidth: 240 }}>
-          <Search size={15} color="#9C7B6E"
+          <Search size={15} color={palette.muted}
             style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)' }} />
           <input
             placeholder="Search products..."
@@ -232,13 +245,14 @@ export function AdminProducts() {
               key={(cat as any).id || 'all'}
               onClick={() => setCategoryFilter((cat as any).id || 'all')}
               style={{
-                padding: '8px 16px', borderRadius: 999,
+                padding: '8px 14px', borderRadius: 6,
                 background: categoryFilter === ((cat as any).id || 'all')
-                  ? 'linear-gradient(135deg,#FF85D0,#FFC8A2)'
+                  ? palette.ink
                   : 'white',
-                border: '1.5px solid rgba(255,133,208,0.25)',
+                border: `1px solid ${categoryFilter === ((cat as any).id || 'all') ? palette.ink : palette.line}`,
                 fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 500,
-                color: '#1C0F0A', cursor: 'pointer', transition: 'all 0.2s',
+                color: categoryFilter === ((cat as any).id || 'all') ? '#FFFFFF' : palette.ink,
+                cursor: 'pointer', transition: 'all 0.2s',
               }}
             >{cat.name}</button>
           ))}
@@ -247,13 +261,13 @@ export function AdminProducts() {
 
       {/* Product grid cards */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '60px 0', color: '#9C7B6E', fontFamily: 'DM Sans, sans-serif' }}>
+        <div style={{ textAlign: 'center', padding: '60px 0', color: palette.muted, fontFamily: 'DM Sans, sans-serif' }}>
           Loading products...
         </div>
       ) : filtered.length === 0 ? (
         <div style={{ ...cardStyle, textAlign: 'center', padding: '60px 0' }}>
-          <p style={{ fontFamily: 'DM Sans, sans-serif', color: '#9C7B6E', fontSize: 15 }}>
-            {products.length === 0 ? 'No products yet — add your first one!' : 'No products match your search.'}
+          <p style={{ fontFamily: 'DM Sans, sans-serif', color: palette.muted, fontSize: 15 }}>
+            {products.length === 0 ? 'No products yet - add your first one.' : 'No products match your search.'}
           </p>
         </div>
       ) : (
@@ -273,9 +287,9 @@ export function AdminProducts() {
               {/* Image */}
               <div style={{
                 width: '100%', aspectRatio: '4/3',
-                borderRadius: 12, overflow: 'hidden',
-                backgroundColor: 'rgba(255,200,162,0.1)',
-                marginBottom: 14,
+                borderRadius: 6, overflow: 'hidden',
+                backgroundColor: palette.soft,
+                marginBottom: 16,
                 position: 'relative',
               }}>
                 {p.images?.[0] ? (
@@ -285,25 +299,26 @@ export function AdminProducts() {
                   <div style={{
                     width: '100%', height: '100%',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: 'linear-gradient(135deg,rgba(255,133,208,0.1),rgba(255,200,162,0.1))',
+                    background: palette.soft,
                   }}>
-                    <ImageIcon size={28} color="rgba(156,123,110,0.4)" />
+                    <ImageIcon size={28} color="rgba(23,17,13,0.28)" />
                   </div>
                 )}
                 {/* Badges */}
                 <div style={{ position: 'absolute', top: 8, left: 8, display: 'flex', gap: 4 }}>
                   {p.is_featured && (
                     <span style={{
-                      background: 'linear-gradient(135deg,#FF85D0,#FFE680)',
-                      padding: '2px 8px', borderRadius: 999,
+                      background: '#FFFFFF',
+                      padding: '3px 8px', borderRadius: 4,
                       fontFamily: 'DM Sans, sans-serif', fontSize: 9, fontWeight: 800,
-                      color: '#1C0F0A', letterSpacing: '0.05em',
+                      color: palette.gold, letterSpacing: '0.08em',
+                      border: '1px solid rgba(167,126,66,0.28)',
                     }}>FEATURED</span>
                   )}
                   {!p.is_available && (
                     <span style={{
                       backgroundColor: 'rgba(28,15,10,0.75)', color: 'white',
-                      padding: '2px 8px', borderRadius: 999,
+                      padding: '3px 8px', borderRadius: 4,
                       fontFamily: 'DM Sans, sans-serif', fontSize: 9, fontWeight: 600,
                     }}>HIDDEN</span>
                   )}
@@ -315,29 +330,29 @@ export function AdminProducts() {
                 <p style={{
                   fontFamily: 'DM Sans, sans-serif', fontSize: 10,
                   fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
-                  color: '#E8609A', marginBottom: 5,
+                  color: palette.rose, marginBottom: 5,
                 }}>{(p.category as any)?.name || 'No category'}</p>
                 <p style={{
                   fontFamily: 'Playfair Display, serif',
-                  fontSize: 15, fontWeight: 600, color: '#1C0F0A',
+                  fontSize: 16, fontWeight: 600, color: palette.ink,
                   marginBottom: 6, lineHeight: 1.3,
                 }}>{p.name}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, fontWeight: 700, color: '#1C0F0A' }}>
+                  <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, fontWeight: 700, color: palette.ink }}>
                     ₹{p.price}
                   </span>
                   {p.compare_price && (
-                    <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#9C7B6E', textDecoration: 'line-through' }}>
+                    <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: palette.muted, textDecoration: 'line-through' }}>
                       ₹{p.compare_price}
                     </span>
                   )}
                   <span style={{
                     marginLeft: 'auto',
                     fontFamily: 'DM Sans, sans-serif', fontSize: 11,
-                    color: p.stock_count > 5 ? '#5A8C6E' : p.stock_count > 0 ? '#B88B00' : '#C33',
+                    color: p.stock_count > 5 ? palette.green : p.stock_count > 0 ? palette.gold : palette.red,
                     fontWeight: 600,
                     backgroundColor: p.stock_count > 5 ? '#EEF7F2' : p.stock_count > 0 ? '#FFF5E0' : '#FFE8E8',
-                    padding: '2px 8px', borderRadius: 999,
+                    padding: '3px 8px', borderRadius: 4,
                   }}>
                     {p.stock_count} in stock
                   </span>
@@ -351,10 +366,10 @@ export function AdminProducts() {
                   style={{
                     flex: 1, padding: '7px 0',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
-                    border: '1.5px solid rgba(255,133,208,0.2)',
-                    borderRadius: 8, cursor: 'pointer',
+                    border: `1px solid ${palette.line}`,
+                    borderRadius: 6, cursor: 'pointer',
                     backgroundColor: p.is_available ? '#EEF7F2' : '#FFE8E8',
-                    color: p.is_available ? '#5A8C6E' : '#C33',
+                    color: p.is_available ? palette.green : palette.red,
                     fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 600,
                     transition: 'all 0.2s',
                   }}
@@ -367,14 +382,14 @@ export function AdminProducts() {
                   style={{
                     flex: 1, padding: '7px 0',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
-                    border: '1.5px solid rgba(255,133,208,0.2)',
-                    borderRadius: 8, cursor: 'pointer',
+                    border: `1px solid ${palette.line}`,
+                    borderRadius: 6, cursor: 'pointer',
                     backgroundColor: p.is_featured ? '#FFF8E0' : 'transparent',
-                    color: p.is_featured ? '#B88B00' : '#9C7B6E',
+                    color: p.is_featured ? palette.gold : palette.muted,
                     fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 600,
                   }}
                 >
-                  <Star size={11} fill={p.is_featured ? '#B88B00' : 'none'} />
+                  <Star size={11} fill={p.is_featured ? palette.gold : 'none'} />
                   {p.is_featured ? 'Featured' : 'Not featured'}
                 </button>
               </div>
@@ -388,11 +403,11 @@ export function AdminProducts() {
                   style={{
                     flex: 1, padding: '9px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                    background: 'linear-gradient(135deg,rgba(255,133,208,0.15),rgba(255,200,162,0.15))',
-                    border: '1.5px solid rgba(255,133,208,0.3)',
-                    borderRadius: 10, cursor: 'pointer',
+                    background: palette.soft,
+                    border: `1px solid ${palette.lineStrong}`,
+                    borderRadius: 6, cursor: 'pointer',
                     fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600,
-                    color: '#1C0F0A',
+                    color: palette.ink,
                   }}
                 >
                   <Edit2 size={13} /> Edit
@@ -406,9 +421,9 @@ export function AdminProducts() {
                     padding: '9px 16px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                     backgroundColor: 'transparent',
-                    border: '1.5px solid rgba(200,50,50,0.25)',
-                    borderRadius: 10, cursor: 'pointer',
-                    color: '#C33',
+                    border: '1px solid rgba(164,73,63,0.25)',
+                    borderRadius: 6, cursor: 'pointer',
+                    color: palette.red,
                     fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600,
                   }}
                 >
@@ -453,45 +468,45 @@ export function AdminProducts() {
                 height: '90vh',
                 maxHeight: '90vh',
                 overflowY: 'auto',
-                backgroundColor: '#FFF8F5',
-                borderRadius: 24,
-                boxShadow: '0 32px 80px rgba(255,133,208,0.2)',
-                border: '1px solid rgba(255,133,208,0.2)',
+                backgroundColor: palette.paper,
+                borderRadius: 10,
+                boxShadow: '0 34px 90px rgba(23,17,13,0.24)',
+                border: `1px solid ${palette.lineStrong}`,
               }}
             >
               {/* Modal header — sticky */}
               <div style={{
                 position: 'sticky', top: 0, zIndex: 10,
-                backgroundColor: '#FFF8F5',
+                backgroundColor: palette.paper,
                 padding: '20px 32px',
-                borderBottom: '1px solid rgba(255,133,208,0.15)',
+                borderBottom: `1px solid ${palette.line}`,
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                borderRadius: '24px 24px 0 0',
+                borderRadius: '10px 10px 0 0',
               }}>
                 <div>
                   <h2 style={{
                     fontFamily: 'Playfair Display, serif',
-                    fontSize: 22, fontWeight: 700, color: '#1C0F0A',
+                    fontSize: 22, fontWeight: 700, color: palette.ink,
                   }}>
                     {mode === 'edit' ? 'Edit Product' : 'Add New Product'}
                   </h2>
                   {mode === 'edit' && editing && (
                     <p style={{
                       fontFamily: 'DM Sans, sans-serif',
-                      fontSize: 13, color: '#9C7B6E', marginTop: 2,
+                      fontSize: 13, color: palette.muted, marginTop: 2,
                     }}>Editing: {editing.name}</p>
                   )}
                 </div>
                 <button
                   onClick={closeForm}
                   style={{
-                    width: 36, height: 36, borderRadius: '50%',
-                    backgroundColor: 'rgba(255,133,208,0.12)',
+                    width: 36, height: 36, borderRadius: 6,
+                    backgroundColor: '#FFFFFF',
                     border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}
                 >
-                  <X size={16} color="#1C0F0A" />
+                  <X size={16} color={palette.ink} />
                 </button>
               </div>
 
@@ -500,9 +515,9 @@ export function AdminProducts() {
 
                 {/* Section: Images */}
                 <div style={{
-                  backgroundColor: 'white', borderRadius: 16,
+                  backgroundColor: '#FFFFFF', borderRadius: 8,
                   padding: '24px', marginBottom: 20,
-                  border: '1px solid rgba(255,133,208,0.15)',
+                  border: `1px solid ${palette.line}`,
                 }}>
                   <p style={{ ...LBL, marginBottom: 16, fontSize: 12 }}>Product Images</p>
 
@@ -512,8 +527,8 @@ export function AdminProducts() {
                         <img src={url} alt=""
                           style={{
                             width: '100%', height: '100%',
-                            objectFit: 'cover', borderRadius: 10,
-                            border: '1.5px solid rgba(255,133,208,0.3)',
+                            objectFit: 'cover', borderRadius: 6,
+                            border: `1px solid ${palette.lineStrong}`,
                           }}
                         />
                         <button
@@ -521,7 +536,7 @@ export function AdminProducts() {
                           style={{
                             position: 'absolute', top: -6, right: -6,
                             width: 22, height: 22, borderRadius: '50%',
-                            backgroundColor: '#1C0F0A', color: 'white',
+                            backgroundColor: palette.ink, color: 'white',
                             border: 'none', cursor: 'pointer',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                           }}
@@ -540,27 +555,27 @@ export function AdminProducts() {
 
                     {/* Upload button */}
                     <label style={{
-                      width: 90, height: 90, borderRadius: 10,
-                      border: '2px dashed rgba(255,133,208,0.4)',
+                      width: 90, height: 90, borderRadius: 6,
+                      border: `1px dashed ${palette.lineStrong}`,
                       display: 'flex', flexDirection: 'column',
                       alignItems: 'center', justifyContent: 'center',
                       cursor: 'pointer', gap: 4,
-                      backgroundColor: 'rgba(255,133,208,0.04)',
+                      backgroundColor: palette.soft,
                       transition: 'all 0.2s',
                     }}>
                       {uploadingImage ? (
                         <div style={{
                           width: 18, height: 18, borderRadius: '50%',
-                          border: '2px solid rgba(255,133,208,0.3)',
-                          borderTopColor: '#FF85D0',
+                          border: `2px solid ${palette.line}`,
+                          borderTopColor: palette.rose,
                           animation: 'spin 0.7s linear infinite',
                         }} />
                       ) : (
                         <>
-                          <Upload size={18} color="#9C7B6E" />
+                          <Upload size={18} color={palette.muted} />
                           <span style={{
                             fontFamily: 'DM Sans, sans-serif',
-                            fontSize: 10, color: '#9C7B6E', fontWeight: 600,
+                            fontSize: 10, color: palette.muted, fontWeight: 600,
                           }}>Upload</span>
                         </>
                       )}
@@ -574,7 +589,7 @@ export function AdminProducts() {
                   </div>
                   <p style={{
                     fontFamily: 'DM Sans, sans-serif',
-                    fontSize: 11, color: '#9C7B6E',
+                    fontSize: 11, color: palette.muted,
                   }}>
                     First image is the main display image. Upload multiple for gallery/hover effect.
                   </p>
@@ -582,9 +597,9 @@ export function AdminProducts() {
 
                 {/* Section: Basic info */}
                 <div style={{
-                  backgroundColor: 'white', borderRadius: 16,
+                  backgroundColor: '#FFFFFF', borderRadius: 8,
                   padding: '24px', marginBottom: 20,
-                  border: '1px solid rgba(255,133,208,0.15)',
+                  border: '1px solid rgba(23,17,13,0.11)',
                 }}>
                   <p style={{ ...LBL, marginBottom: 20, fontSize: 12 }}>Basic Information</p>
 
@@ -605,7 +620,7 @@ export function AdminProducts() {
                     <div>
                       <label style={LBL}>Slug (auto-generated)</label>
                       <input
-                        style={{ ...F, color: '#9C7B6E' }}
+                        style={{ ...F, color: palette.muted }}
                         value={form.slug}
                         onChange={e => set('slug', e.target.value)}
                         placeholder="bow-keychain"
@@ -672,9 +687,9 @@ export function AdminProducts() {
 
                 {/* Section: Details */}
                 <div style={{
-                  backgroundColor: 'white', borderRadius: 16,
+                  backgroundColor: '#FFFFFF', borderRadius: 8,
                   padding: '24px', marginBottom: 20,
-                  border: '1px solid rgba(255,133,208,0.15)',
+                  border: '1px solid rgba(23,17,13,0.11)',
                 }}>
                   <p style={{ ...LBL, marginBottom: 20, fontSize: 12 }}>Product Details</p>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
@@ -698,9 +713,9 @@ export function AdminProducts() {
 
                 {/* Section: Colour variants */}
                 <div style={{
-                  backgroundColor: 'white', borderRadius: 16,
+                  backgroundColor: '#FFFFFF', borderRadius: 8,
                   padding: '24px', marginBottom: 20,
-                  border: '1px solid rgba(255,133,208,0.15)',
+                  border: '1px solid rgba(23,17,13,0.11)',
                 }}>
                   <p style={{ ...LBL, marginBottom: 16, fontSize: 12 }}>Colour Variants</p>
 
@@ -711,8 +726,8 @@ export function AdminProducts() {
                         <div key={i} style={{
                           display: 'flex', alignItems: 'center', gap: 6,
                           padding: '5px 10px 5px 6px',
-                          border: '1.5px solid rgba(255,133,208,0.25)',
-                          borderRadius: 999, backgroundColor: 'white',
+                          border: `1px solid ${palette.line}`,
+                          borderRadius: 6, backgroundColor: '#FFFFFF',
                         }}>
                           <div style={{
                             width: 14, height: 14, borderRadius: '50%',
@@ -721,11 +736,11 @@ export function AdminProducts() {
                           }} />
                           <span style={{
                             fontFamily: 'DM Sans, sans-serif',
-                            fontSize: 12, color: '#1C0F0A',
+                            fontSize: 12, color: palette.ink,
                           }}>{c.name}</span>
                           <button
                             onClick={() => set('color_variants', form.color_variants.filter((_, idx) => idx !== i))}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9C7B6E', display: 'flex', padding: 0 }}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: palette.muted, display: 'flex', padding: 0 }}
                           ><X size={11} /></button>
                         </div>
                       ))}
@@ -747,19 +762,19 @@ export function AdminProducts() {
                       value={colorInput.hex}
                       onChange={e => setColorInput(c => ({ ...c, hex: e.target.value }))}
                       style={{
-                        width: 44, height: 40, borderRadius: 10,
-                        border: '1.5px solid rgba(255,133,208,0.25)',
+                        width: 44, height: 40, borderRadius: 6,
+                        border: `1px solid ${palette.line}`,
                         cursor: 'pointer', padding: 2,
                       }}
                     />
                     <button
                       onClick={addColor}
                       style={{
-                        padding: '10px 18px', borderRadius: 10,
-                        background: 'linear-gradient(135deg,#FF85D0,#FFC8A2)',
-                        border: 'none', cursor: 'pointer',
+                        padding: '10px 18px', borderRadius: 6,
+                        background: palette.ink,
+                        border: `1px solid ${palette.ink}`, cursor: 'pointer',
                         fontFamily: 'DM Sans, sans-serif',
-                        fontSize: 13, fontWeight: 700, color: '#1C0F0A',
+                        fontSize: 13, fontWeight: 700, color: '#FFFFFF',
                         whiteSpace: 'nowrap',
                       }}
                     >Add</button>
@@ -768,9 +783,9 @@ export function AdminProducts() {
 
                 {/* Section: Visibility */}
                 <div style={{
-                  backgroundColor: 'white', borderRadius: 16,
+                  backgroundColor: '#FFFFFF', borderRadius: 8,
                   padding: '24px', marginBottom: 28,
-                  border: '1px solid rgba(255,133,208,0.15)',
+                  border: '1px solid rgba(23,17,13,0.11)',
                 }}>
                   <p style={{ ...LBL, marginBottom: 16, fontSize: 12 }}>Visibility</p>
                   <div style={{ display: 'flex', gap: 12 }}>
@@ -783,29 +798,29 @@ export function AdminProducts() {
                         onClick={() => set(f.key, !(form as any)[f.key])}
                         style={{
                           flex: 1, padding: '14px 16px',
-                          border: `2px solid ${(form as any)[f.key] ? '#FF85D0' : 'rgba(255,133,208,0.2)'}`,
-                          borderRadius: 12,
+                          border: `1px solid ${(form as any)[f.key] ? palette.ink : palette.line}`,
+                          borderRadius: 6,
                           background: (form as any)[f.key]
-                            ? 'linear-gradient(135deg,rgba(255,133,208,0.1),rgba(255,200,162,0.1))'
-                            : 'white',
+                            ? palette.soft
+                            : '#FFFFFF',
                           cursor: 'pointer', textAlign: 'left',
                           transition: 'all 0.2s',
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                           {(form as any)[f.key]
-                            ? <ToggleRight size={18} color="#FF85D0" />
-                            : <ToggleLeft size={18} color="#9C7B6E" />
+                            ? <ToggleRight size={18} color={palette.ink} />
+                            : <ToggleLeft size={18} color={palette.muted} />
                           }
                           <span style={{
                             fontFamily: 'DM Sans, sans-serif',
                             fontSize: 13, fontWeight: 700,
-                            color: (form as any)[f.key] ? '#E8609A' : '#9C7B6E',
+                            color: (form as any)[f.key] ? palette.ink : palette.muted,
                           }}>{f.label}</span>
                         </div>
                         <p style={{
                           fontFamily: 'DM Sans, sans-serif',
-                          fontSize: 11, color: '#9C7B6E', paddingLeft: 26,
+                          fontSize: 11, color: palette.muted, paddingLeft: 26,
                         }}>{f.desc}</p>
                       </button>
                     ))}
@@ -815,9 +830,9 @@ export function AdminProducts() {
                 {/* Save button — sticky bottom */}
                 <div style={{
                   position: 'sticky', bottom: 0,
-                  backgroundColor: '#FFF8F5',
+                  backgroundColor: palette.paper,
                   padding: '16px 0',
-                  borderTop: '1px solid rgba(255,133,208,0.15)',
+                  borderTop: `1px solid ${palette.line}`,
                   display: 'flex', gap: 12, justifyContent: 'flex-end',
                   marginTop: -28, marginLeft: -32, marginRight: -32,
                   paddingLeft: 32, paddingRight: 32,
@@ -825,8 +840,8 @@ export function AdminProducts() {
                   <button
                     onClick={closeForm}
                     style={{
-                      padding: '12px 24px', borderRadius: 999,
-                      border: '1.5px solid rgba(255,133,208,0.3)',
+                      padding: '12px 24px', borderRadius: 6,
+                      border: `1px solid ${palette.lineStrong}`,
                       background: 'transparent',
                       fontFamily: 'DM Sans, sans-serif',
                       fontSize: 14, fontWeight: 500, color: '#5C4033',
@@ -839,13 +854,13 @@ export function AdminProducts() {
                     onClick={handleSave}
                     disabled={saving || !form.name || !form.price}
                     style={{
-                      padding: '12px 32px', borderRadius: 999,
-                      background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
-                      border: 'none', cursor: saving ? 'not-allowed' : 'pointer',
+                      padding: '12px 32px', borderRadius: 6,
+                      background: palette.ink,
+                      border: `1px solid ${palette.ink}`, cursor: saving ? 'not-allowed' : 'pointer',
                       fontFamily: 'DM Sans, sans-serif',
-                      fontSize: 14, fontWeight: 700, color: '#1C0F0A',
+                      fontSize: 14, fontWeight: 700, color: '#FFFFFF',
                       opacity: saving || !form.name || !form.price ? 0.6 : 1,
-                      boxShadow: '0 4px 16px rgba(255,133,208,0.3)',
+                      boxShadow: '0 12px 28px rgba(23,17,13,0.16)',
                       display: 'flex', alignItems: 'center', gap: 8,
                     }}
                   >
@@ -853,7 +868,7 @@ export function AdminProducts() {
                       <div style={{
                         width: 14, height: 14, borderRadius: '50%',
                         border: '2px solid rgba(28,15,10,0.3)',
-                        borderTopColor: '#1C0F0A',
+                        borderTopColor: '#FFFFFF',
                         animation: 'spin 0.7s linear infinite',
                       }} />
                     )}

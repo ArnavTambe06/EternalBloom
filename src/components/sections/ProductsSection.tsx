@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { getProducts, getCategories } from '@/services/products'
 import { ProductCard } from '@/components/product/ProductCard'
 import { ProductModal } from '@/components/product/ProductModal'
@@ -23,224 +24,136 @@ export function ProductsSection() {
     ? products
     : products.filter(p => p.category?.slug === activeCategory)
 
-  const filters = [
-    { label: 'All', value: 'all' },
-    ...categories.map(c => ({ label: c.name, value: c.slug })),
-  ]
-
   return (
-    <section
-      id="products"
-      style={{
-        backgroundColor: 'var(--bg)',
-        padding: '80px 0',
-      }}
-    >
-      <div className="wrap">
-
-        {/* Header */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'space-between',
-            marginBottom: 40,
-            paddingBottom: 24,
-            borderBottom: '1px solid var(--line)',
-          }}
-        >
+    <section id="products" style={{
+      backgroundColor: '#FAFAFA',
+      position: 'relative', zIndex: 1,
+    }}>
+      {/* Section header + filter */}
+      <div style={{
+        padding: '40px 48px 24px',
+        maxWidth: 1200, margin: '0 auto',
+      }}>
+        <div style={{
+          display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', marginBottom: 20,
+          flexWrap: 'wrap', gap: 16,
+        }}>
           <div>
-            <p
-              style={{
-                fontFamily: 'var(--sans)',
-                fontSize: 11,
-                fontWeight: 600,
-                letterSpacing: '0.15em',
-                textTransform: 'uppercase',
-                color: 'var(--ink-3)',
-                marginBottom: 8,
-              }}
-            >
-              The Collection
-            </p>
-
-            <h2
-              style={{
-                fontFamily: 'var(--serif)',
-                fontSize: 'clamp(26px, 3vw, 36px)',
-                fontWeight: 600,
-                color: 'var(--ink)',
-                letterSpacing: '-0.02em',
-              }}
-            >
-              All Products
-            </h2>
+            <p style={{
+              fontFamily: 'DM Sans, sans-serif', fontSize: 11,
+              fontWeight: 700, letterSpacing: '0.15em',
+              textTransform: 'uppercase', color: '#9C7B6E', marginBottom: 6,
+            }}>Shop All</p>
+            <h2 style={{
+              fontFamily: 'Playfair Display, serif',
+              fontSize: 'clamp(24px,3vw,34px)',
+              fontWeight: 700, color: '#1C0F0A',
+              letterSpacing: '-0.02em',
+            }}>Handpicked for you</h2>
           </div>
-
-          <p
-            style={{
-              fontFamily: 'var(--sans)',
-              fontSize: 13,
-              color: 'var(--ink-3)',
-            }}
-          >
+          <p style={{
+            fontFamily: 'DM Sans, sans-serif',
+            fontSize: 13, color: '#9C7B6E',
+          }}>
             {loading ? '' : `${filtered.length} products`}
           </p>
         </div>
 
-        {/* Filter tabs */}
+        {/* Category filter — horizontal scroll strip */}
         {!loading && categories.length > 0 && (
-          <div
-            style={{
-              display: 'flex',
-              gap: 8,
-              flexWrap: 'wrap',
-              marginBottom: 48,
-              overflowX: 'auto',
-            }}
-          >
-            {filters.map(f => (
-              <button
-                key={f.value}
-                onClick={() => setActiveCategory(f.value)}
+          <div className="cat-strip">
+            {[{ name: 'All', slug: 'all' }, ...categories].map(cat => (
+              <motion.button
+                key={cat.slug}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setActiveCategory(cat.slug)}
                 style={{
-                  padding: '7px 16px',
-                  backgroundColor:
-                    activeCategory === f.value
-                      ? 'var(--ink)'
-                      : 'transparent',
-                  color:
-                    activeCategory === f.value
-                      ? 'white'
-                      : 'var(--ink-2)',
-                  border: '1px solid',
-                  borderColor:
-                    activeCategory === f.value
-                      ? 'var(--ink)'
-                      : 'var(--line)',
-                  borderRadius: 0,
-                  fontFamily: 'var(--sans)',
-                  fontSize: 12,
-                  fontWeight: 500,
-                  cursor: 'pointer',
+                  padding: '7px 18px', borderRadius: 999, flexShrink: 0,
+                  background: activeCategory === cat.slug
+                    ? 'linear-gradient(135deg,#FF85D0,#FFC8A2)'
+                    : 'white',
+                  border: `1.5px solid ${activeCategory === cat.slug
+                    ? 'transparent' : 'rgba(255,133,208,0.25)'}`,
+                  fontFamily: 'DM Sans, sans-serif', fontSize: 13,
+                  fontWeight: activeCategory === cat.slug ? 700 : 400,
+                  color: '#1C0F0A', cursor: 'pointer',
                   transition: 'all 0.2s',
                   whiteSpace: 'nowrap',
-                  letterSpacing: '0.03em',
+                  boxShadow: activeCategory === cat.slug
+                    ? '0 4px 12px rgba(255,133,208,0.25)' : 'none',
                 }}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Grid */}
-        {loading ? (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: 24,
-            }}
-            className="product-grid"
-          >
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i}>
-                <div
-                  style={{
-                    aspectRatio: '3/4',
-                    backgroundColor: 'var(--bg-soft)',
-                    marginBottom: 12,
-                    animation: 'pulse 1.5s ease infinite',
-                  }}
-                />
-
-                <div
-                  style={{
-                    height: 12,
-                    backgroundColor: 'var(--bg-soft)',
-                    marginBottom: 8,
-                    width: '60%',
-                    animation: 'pulse 1.5s ease infinite',
-                  }}
-                />
-
-                <div
-                  style={{
-                    height: 10,
-                    backgroundColor: 'var(--bg-soft)',
-                    width: '40%',
-                    animation: 'pulse 1.5s ease infinite',
-                  }}
-                />
-              </div>
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <div
-            style={{
-              textAlign: 'center',
-              padding: '80px 0',
-            }}
-          >
-            <p
-              style={{
-                fontFamily: 'var(--serif)',
-                fontSize: 20,
-                color: 'var(--ink)',
-                marginBottom: 8,
-              }}
-            >
-              No products yet
-            </p>
-
-            <p
-              style={{
-                fontFamily: 'var(--sans)',
-                fontSize: 14,
-                color: 'var(--ink-3)',
-              }}
-            >
-              Check back soon — new pieces are being crafted.
-            </p>
-          </div>
-        ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: '32px 24px',
-            }}
-            className="product-grid"
-          >
-            {filtered.map((product) => (
-              <div key={product.id}>
-                <ProductCard
-                  product={product}
-                  onViewDetails={setSelected}
-                />
-              </div>
+              >{cat.name}</motion.button>
             ))}
           </div>
         )}
       </div>
 
-      <ProductModal
-        product={selected}
-        onClose={() => setSelected(null)}
-      />
+      {/* Product grid — pipecleanerflorals style */}
+      {loading ? (
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 2,
+          maxWidth: 1200, margin: '0 auto', padding: '0 48px 48px',
+        }} className="product-grid-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} style={{
+              aspectRatio: '4/5', backgroundColor: '#F0E8E8',
+              animation: 'pulse 1.5s ease infinite',
+            }} />
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div style={{
+          textAlign: 'center', padding: '80px 48px',
+          maxWidth: 1200, margin: '0 auto',
+        }}>
+          <p style={{
+            fontFamily: 'Playfair Display, serif',
+            fontSize: 20, color: '#1C0F0A', marginBottom: 8,
+          }}>
+            {products.length === 0 ? 'Products coming soon' : 'No products in this category'}
+          </p>
+          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9C7B6E' }}>
+            {products.length === 0
+              ? 'New pieces are being crafted — check back shortly.'
+              : 'Try selecting a different category.'}
+          </p>
+        </div>
+      ) : (
+        <motion.div
+          layout
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: 0,
+            maxWidth: 1200, margin: '0 auto',
+            borderTop: '1px solid rgba(255,133,208,0.12)',
+            borderLeft: '1px solid rgba(255,133,208,0.12)',
+          }}
+          className="product-grid-3"
+        >
+          <AnimatePresence>
+            {filtered.map((product) => (
+              <motion.div
+                key={product.id}
+                layout
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                style={{
+                  borderRight: '1px solid rgba(255,133,208,0.12)',
+                  borderBottom: '1px solid rgba(255,133,208,0.12)',
+                }}
+              >
+                <ProductCard product={product} onViewDetails={setSelected} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+      )}
 
-      <style>{`
-        @keyframes pulse {
-          0%,100% {
-            opacity: 1;
-          }
-
-          50% {
-            opacity: 0.4;
-          }
-        }
-      `}</style>
+      <ProductModal product={selected} onClose={() => setSelected(null)} />
+      <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }`}</style>
     </section>
   )
 }
