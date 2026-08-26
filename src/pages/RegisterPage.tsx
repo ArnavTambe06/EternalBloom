@@ -85,7 +85,7 @@ export function RegisterPage() {
           background: 'linear-gradient(160deg, #FFC8A2 0%, #FFE680 40%, #FFA6E0 100%)',
           padding: '60px 48px',
           display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 32,
-        }} className="hidden md:flex">
+        }} className="auth-side-panel">
           <div>
             <p className="label" style={{ marginBottom: 12, color: 'rgba(28,15,10,0.6)' }}>Join us</p>
             <h2 style={{

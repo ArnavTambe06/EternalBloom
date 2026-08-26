@@ -59,9 +59,6 @@
 
 - Cloudinary
 
-### Payments
-
-- Razorpay
 
 ### Emails
 
@@ -127,15 +124,13 @@ Layouts are intentionally optimized for each screen size rather than simply scal
 
 - [x] Project Setup
 - [x] Design System
-- [ ] Homepage
-- [ ] Categories
-- [ ] Product Modal
-- [ ] Authentication
-- [ ] Shopping Cart
-- [ ] Checkout
-- [ ] Razorpay Integration
-- [ ] Order Management
-- [ ] Admin Dashboard
+- [x] Homepage
+- [x] Categories
+- [x] Product Modal
+- [x] Authentication
+- [x] Shopping Cart
+- [x] Checkout
+- [x] Admin Dashboard
 - [ ] Deployment
 
 ### Future

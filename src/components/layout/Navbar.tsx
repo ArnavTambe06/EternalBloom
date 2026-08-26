@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, ShoppingBag, User, Menu, X } from 'lucide-react'
 import { useCartStore } from '@/store/cartStore'
@@ -35,7 +35,6 @@ export function Navbar() {
   const { isLoggedIn } = useAuth()
   const count = itemCount()
   const location = useLocation()
-  const navigate = useNavigate()
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 10)
@@ -111,7 +110,7 @@ export function Navbar() {
       </div>
 
       {/* Main nav */}
-      <nav style={{
+      <nav className="site-nav" style={{
         position: 'sticky', top: 0, zIndex: 100,
         background: scrolled
           ? 'rgba(255,252,250,0.88)'
@@ -122,14 +121,14 @@ export function Navbar() {
         transition: 'all 0.3s ease',
         boxShadow: scrolled ? '0 2px 24px rgba(255,133,208,0.1)' : 'none',
       }}>
-        <div className="wrap" style={{
+        <div className="wrap navbar-inner" style={{
           height: 68,
           display: 'flex', alignItems: 'center',
           justifyContent: 'space-between',
         }}>
 
           {/* Logo */}
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Link to="/" className="navbar-brand" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
               width: 36, height: 36, borderRadius: '50%',
               background: 'var(--grad)',
@@ -138,13 +137,13 @@ export function Navbar() {
               color: 'var(--ink)',
               boxShadow: '0 4px 14px rgba(255,133,208,0.4)',
             }}>EB</div>
-            <div>
-              <p style={{
+            <div className="navbar-brand-copy">
+               <p style={{
                 fontFamily: 'var(--serif)', fontSize: 17,
                 fontWeight: 700, color: 'var(--ink)',
                 letterSpacing: '-0.01em', lineHeight: 1.1,
               }}>{BRAND.name}</p>
-              <p style={{
+               <p className="navbar-brand-tagline" style={{
                 fontFamily: 'var(--sans)', fontSize: 9,
                 color: 'var(--ink-3)', letterSpacing: '0.1em',
                 textTransform: 'uppercase',
@@ -153,11 +152,11 @@ export function Navbar() {
           </Link>
 
          {/* Desktop links */}
-<div style={{
-  position: 'absolute', left: '50%',
-  transform: 'translateX(-50%)',
-  display: 'flex', gap: 4,
-}} className="hidden md:flex">
+ <div className="desktop-nav-links" style={{
+   position: 'absolute', left: '50%',
+   transform: 'translateX(-50%)',
+   gap: 4,
+ }}>
   {navLinks.map(link => (
     link.label === 'Custom Order' ? (
       <Link key={link.href} to={link.href}>
@@ -225,7 +224,7 @@ export function Navbar() {
 </div>
 
           {/* Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <div className="navbar-actions" style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             {iconBtn(() => setSearchOpen(true), <Search size={18} strokeWidth={1.8} />, 'Search')}
 
             <Link to={isLoggedIn() ? '/profile' : '/login'}>
@@ -254,7 +253,7 @@ export function Navbar() {
               </AnimatePresence>
             </div>
 
-            <div className="md:hidden">
+            <div className="mobile-menu-toggle">
               {iconBtn(() => setMenuOpen(!menuOpen), menuOpen ? <X size={18} strokeWidth={1.8} /> : <Menu size={18} strokeWidth={1.8} />, 'Menu')}
             </div>
           </div>
@@ -358,6 +357,7 @@ export function Navbar() {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
+            className="mobile-menu"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}

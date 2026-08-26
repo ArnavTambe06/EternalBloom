@@ -31,7 +31,7 @@ export function ProductsSection() {
     }}>
       {/* Section header + filter */}
       <div style={{
-        padding: '40px 48px 24px',
+        padding: '40px var(--px) 24px',
         maxWidth: 1200, margin: '0 auto',
       }}>
         <div style={{
@@ -92,8 +92,8 @@ export function ProductsSection() {
       {/* Product grid — pipecleanerflorals style */}
       {loading ? (
         <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 2,
-          maxWidth: 1200, margin: '0 auto', padding: '0 48px 48px',
+          display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 18,
+          maxWidth: 1200, margin: '0 auto', padding: '0 var(--px) 48px',
         }} className="product-grid-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} style={{
@@ -125,10 +125,8 @@ export function ProductsSection() {
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: 0,
-            maxWidth: 1200, margin: '0 auto',
-            borderTop: '1px solid rgba(255,133,208,0.12)',
-            borderLeft: '1px solid rgba(255,133,208,0.12)',
+            gap: 18,
+            maxWidth: 1200, margin: '0 auto', padding: '0 var(--px) 48px',
           }}
           className="product-grid-3"
         >
@@ -140,10 +138,6 @@ export function ProductsSection() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                style={{
-                  borderRight: '1px solid rgba(255,133,208,0.12)',
-                  borderBottom: '1px solid rgba(255,133,208,0.12)',
-                }}
               >
                 <ProductCard product={product} onViewDetails={setSelected} />
               </motion.div>

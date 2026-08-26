@@ -26,7 +26,7 @@ function Testimonials() {
       borderTop: '1px solid rgba(255,133,208,0.12)',
       position: 'relative', zIndex: 1, backgroundColor: '#FAFAFA',
     }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 48px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 var(--px)' }}>
         <div style={{ marginBottom: 40 }}>
           <p style={{
             fontFamily: 'DM Sans, sans-serif', fontSize: 11,
@@ -39,7 +39,7 @@ function Testimonials() {
             fontWeight: 700, color: '#1C0F0A', letterSpacing: '-0.02em',
           }}>What customers say</h2>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+        <div className="testimonials-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
           {testimonials.map((t, i) => (
             <motion.div
               key={i}
@@ -85,7 +85,7 @@ function FAQ() {
       borderTop: '1px solid rgba(28,15,10,0.06)',
       position: 'relative', zIndex: 1, backgroundColor: 'white',
     }}>
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 48px' }}>
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 var(--px)' }}>
         <div style={{ marginBottom: 36 }}>
           <p style={{
             fontFamily: 'DM Sans, sans-serif', fontSize: 11,

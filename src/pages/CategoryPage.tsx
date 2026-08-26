@@ -70,7 +70,7 @@ export function CategoryPage() {
       </div>
 
       {/* Products */}
-      <div className="container" style={{ padding: '56px 64px' }}>
+      <div className="container" style={{ padding: '56px var(--px)' }}>
         {loading ? (
           <ProductGridSkeleton count={8} />
         ) : products.length === 0 ? (

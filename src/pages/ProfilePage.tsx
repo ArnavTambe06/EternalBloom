@@ -115,19 +115,19 @@ export function ProfilePage() {
   ]
 
   return (
-    <div style={{
+    <div className="profile-page" style={{
       backgroundColor: 'var(--surface)',
-      minHeight: '100vh', padding: '48px 24px',
+      minHeight: '100vh', padding: '48px var(--px)',
     }}>
-      <div style={{ maxWidth: 920, margin: '0 auto' }}>
+      <div className="profile-shell" style={{ maxWidth: 920, margin: '0 auto' }}>
         <div style={{
           display: 'grid',
           gridTemplateColumns: '260px 1fr',
           gap: 24, alignItems: 'start',
-        }}>
+        }} className="profile-layout">
 
           {/* ── Sidebar ── */}
-          <div style={{
+          <div className="profile-sidebar" style={{
             backgroundColor: 'var(--surface-white)',
             borderRadius: 20, padding: '28px 20px',
             border: '1px solid var(--border)',
@@ -220,6 +220,7 @@ export function ProfilePage() {
           {/* ── Content ── */}
           <AnimatePresence mode="wait">
             <motion.div
+              className="profile-content"
               key={activeTab}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -237,7 +238,7 @@ export function ProfilePage() {
               {/* ════ PROFILE TAB ════ */}
               {activeTab === 'Profile' && (
                 <>
-                  <div style={{
+                  <div className="profile-content-header" style={{
                     display: 'flex', alignItems: 'center',
                     justifyContent: 'space-between', marginBottom: 32,
                   }}>
@@ -265,7 +266,7 @@ export function ProfilePage() {
                         <Edit2 size={13} /> Edit Profile
                       </motion.button>
                     ) : (
-                      <div style={{ display: 'flex', gap: 8 }}>
+                      <div className="profile-edit-actions" style={{ display: 'flex', gap: 8 }}>
                         <button
                           onClick={() => setEditing(false)}
                           style={{
@@ -302,7 +303,7 @@ export function ProfilePage() {
                   </div>
 
                   {editing ? (
-                    <div style={{
+                    <div className="profile-form-grid" style={{
                       display: 'grid',
                       gridTemplateColumns: '1fr 1fr', gap: 20,
                     }}>
@@ -340,7 +341,7 @@ export function ProfilePage() {
                   ) : (
                     <>
                       {/* Info grid */}
-                      <div style={{
+                      <div className="profile-info-grid" style={{
                         display: 'grid',
                         gridTemplateColumns: '1fr 1fr', gap: 28,
                         marginBottom: 32,
@@ -477,7 +478,7 @@ export function ProfilePage() {
                           }}
                         >
                           {/* Order header */}
-                          <div style={{
+                          <div className="profile-order-header" style={{
                             display: 'flex', justifyContent: 'space-between',
                             alignItems: 'center', marginBottom: 14,
                           }}>
@@ -585,7 +586,7 @@ export function ProfilePage() {
                           }} />
 
                           {/* Footer */}
-                          <div style={{
+                          <div className="profile-order-footer" style={{
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
@@ -824,7 +825,7 @@ function AddressesTab({ userId }: { userId?: string }) {
 
   return (
     <>
-      <div style={{
+      <div className="profile-section-header" style={{
         display: 'flex', alignItems: 'center',
         justifyContent: 'space-between', marginBottom: 24,
       }}>
@@ -867,7 +868,7 @@ function AddressesTab({ userId }: { userId?: string }) {
               borderRadius: 16, padding: '20px 20px',
               backgroundColor: 'var(--surface)',
             }}>
-              <div style={{
+              <div className="profile-address-form" style={{
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr', gap: 14,
               }}>
@@ -964,6 +965,7 @@ function AddressesTab({ userId }: { userId?: string }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {addresses.map((addr, i) => (
             <motion.div
+              className="profile-address-card"
               key={addr.id}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1014,7 +1016,7 @@ function AddressesTab({ userId }: { userId?: string }) {
                   </p>
                 </div>
 
-                <div style={{ display: 'flex', gap: 8, flexShrink: 0, marginLeft: 12 }}>
+                <div className="profile-address-actions" style={{ display: 'flex', gap: 8, flexShrink: 0, marginLeft: 12 }}>
                   {!addr.is_default && (
                     <button
                       onClick={() => handleSetDefault(addr.id)}

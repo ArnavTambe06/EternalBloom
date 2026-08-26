@@ -22,7 +22,7 @@ export function CategoriesSection() {
       position: 'relative', zIndex: 1,
       backgroundColor: 'white',
     }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 48px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 var(--px)' }}>
 
         <div style={{
           display: 'flex', alignItems: 'center',
@@ -51,7 +51,7 @@ export function CategoriesSection() {
         </div>
 
         {/* Wide cards — landscape ratio like pipecleanerflorals */}
-        <div style={{
+        <div className="category-grid" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(3, 1fr)',
           gap: 16,

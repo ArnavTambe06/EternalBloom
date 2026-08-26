@@ -438,34 +438,32 @@ export function AdminProducts() {
       {/* ── Full-page form modal ── */}
       <AnimatePresence>
         {mode !== 'closed' && (
-          <>
-            {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeForm}
+            style={{
+              position: 'fixed', inset: 0,
+              backgroundColor: 'rgba(28,15,10,0.5)',
+              backdropFilter: 'blur(4px)',
+              zIndex: 1000,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '5vh 16px',
+            }}
+          >
+            {/* Modal — centered via the flex wrapper above, not position/transform math */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={closeForm}
-              style={{
-                position: 'fixed', inset: 0,
-                backgroundColor: 'rgba(28,15,10,0.5)',
-                backdropFilter: 'blur(4px)',
-                zIndex: 1000,
-              }}
-            />
-
-            {/* Modal — centered, scrollable */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95}}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95}}
+              onClick={e => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 260, damping: 26 }}
               style={{
-                position: 'fixed',
-                top: '50%', left: '50%',
-                x: '-50%', y: '-50%',
                 zIndex: 1001,
                 width: '90vw', maxWidth: 760,
-                height: '90vh',
                 maxHeight: '90vh',
                 overflowY: 'auto',
                 backgroundColor: palette.paper,
@@ -877,7 +875,7 @@ export function AdminProducts() {
                 </div>
               </div>
             </motion.div>
-          </>
+          </motion.div>
         )}
       </AnimatePresence>
 

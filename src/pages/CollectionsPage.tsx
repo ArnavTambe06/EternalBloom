@@ -17,10 +17,10 @@ export function CollectionsPage() {
   }, [])
 
   return (
-    <div style={{ position: 'relative', zIndex: 1 }}>
+    <div className="collections-page" style={{ position: 'relative', zIndex: 1 }}>
       {/* Header */}
-      <div style={{ padding: '80px 0 56px', textAlign: 'center' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 48px' }}>
+      <div className="collections-hero" style={{ padding: '80px 0 56px', textAlign: 'center' }}>
+        <div className="collections-container" style={{ maxWidth: 1200, margin: '0 auto', padding: '0 var(--px)' }}>
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -65,9 +65,9 @@ export function CollectionsPage() {
       </div>
 
       {/* Categories grid */}
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 48px 96px' }}>
+      <div className="collections-container collections-list" style={{ maxWidth: 1200, margin: '0 auto', padding: '0 var(--px) 96px' }}>
         {loading ? (
-          <div style={{
+          <div className="collections-grid" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
             gap: 24,
@@ -82,7 +82,7 @@ export function CollectionsPage() {
             ))}
           </div>
         ) : categories.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '80px 0' }}>
+          <div className="collections-empty" style={{ textAlign: 'center', padding: '80px 0' }}>
             <p style={{
               fontFamily: 'Playfair Display, serif',
               fontSize: 22, color: '#1C0F0A', marginBottom: 8,
@@ -97,7 +97,7 @@ export function CollectionsPage() {
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
             gap: 24,
-          }} className="cat-grid">
+          }} className="collections-grid cat-grid">
             {categories.map((cat, i) => (
               <motion.div
                 key={cat.id}
@@ -106,7 +106,7 @@ export function CollectionsPage() {
                 transition={{ delay: i * 0.07 }}
               >
                 <Link to={`/categories/${cat.slug}`} style={{ display: 'block' }}>
-                  <div
+                  <div className="collection-card"
                     style={{
                       borderRadius: 20, overflow: 'hidden',
                       background: 'rgba(255,255,255,0.85)',
@@ -126,7 +126,7 @@ export function CollectionsPage() {
                     }}
                   >
                     {/* Image */}
-                    <div style={{
+                    <div className="collection-card__image" style={{
                       aspectRatio: '16/9',
                       overflow: 'hidden',
                       backgroundColor: 'rgba(255,200,162,0.1)',
@@ -158,25 +158,25 @@ export function CollectionsPage() {
                     </div>
 
                     {/* Info */}
-                    <div style={{ padding: '20px 24px' }}>
-                      <div style={{
+                    <div className="collection-card__info" style={{ padding: '20px 24px' }}>
+                      <div className="collection-card__meta" style={{
                         display: 'flex', alignItems: 'center',
                         justifyContent: 'space-between',
                       }}>
                         <div>
-                          <p style={{
+                          <p className="collection-card__name" style={{
                             fontFamily: 'Playfair Display, serif',
                             fontSize: 18, fontWeight: 600, color: '#1C0F0A',
                             marginBottom: 4, letterSpacing: '-0.01em',
                           }}>{cat.name}</p>
                           {cat.description && (
-                            <p style={{
+                            <p className="collection-card__description" style={{
                               fontFamily: 'DM Sans, sans-serif',
                               fontSize: 13, color: '#9C7B6E', lineHeight: 1.4,
                             }}>{cat.description}</p>
                           )}
                         </div>
-                        <div style={{
+                        <div className="collection-card__arrow" style={{
                           width: 36, height: 36, borderRadius: '50%',
                           background: 'linear-gradient(135deg,#FF85D0,#FFC8A2)',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',

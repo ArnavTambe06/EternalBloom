@@ -29,34 +29,37 @@ export function ProductModal({ product, onClose }: Props) {
             onClick={onClose}
             style={{
               position: 'fixed', inset: 0,
-              backgroundColor: 'rgba(4,22,39,0.6)',
+              backgroundColor: 'rgba(28,15,10,0.52)',
               backdropFilter: 'blur(6px)',
               zIndex: 200,
             }}
           />
 
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 24 }}
+            className="product-modal"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
             transition={{ type: 'spring', stiffness: 240, damping: 26 }}
             style={{
               position: 'fixed',
               top: '50%', left: '50%',
-              transform: 'translate(-50%, -50%)',
+              // Keep centering in Framer Motion's transform pipeline so its
+              // animation cannot override the modal's position.
+              x: '-50%', y: '-50%',
               zIndex: 201,
-              backgroundColor: 'var(--surface-white)',
+              backgroundColor: 'var(--card)',
               width: '90vw', maxWidth: 900,
               maxHeight: '90vh',
               overflow: 'hidden',
               display: 'flex',
-              boxShadow: '0 32px 80px rgba(4,22,39,0.2)',
+              boxShadow: '0 32px 80px rgba(28,15,10,0.3)',
             }}
           >
             {/* Left — Image */}
-            <div style={{
+            <div className="product-modal-media" style={{
               width: '48%', flexShrink: 0,
-              backgroundColor: 'var(--surface-container)',
+              backgroundColor: 'var(--card-soft)',
               position: 'relative', overflow: 'hidden',
             }}>
               <motion.img
@@ -88,7 +91,7 @@ export function ProductModal({ product, onClose }: Props) {
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}
                     >
-                      <Icon size={18} color="var(--primary)" />
+                      <Icon size={18} color="var(--ink)" />
                     </button>
                   ))}
                   <div style={{
@@ -103,7 +106,7 @@ export function ProductModal({ product, onClose }: Props) {
                         style={{
                           width: imgIndex === i ? 24 : 6,
                           height: 6,
-                          backgroundColor: imgIndex === i ? 'var(--primary)' : 'rgba(255,255,255,0.5)',
+                          backgroundColor: imgIndex === i ? 'var(--accent)' : 'rgba(255,255,255,0.7)',
                           border: 'none', cursor: 'pointer', padding: 0,
                           transition: 'all 0.3s',
                         }}
@@ -116,10 +119,10 @@ export function ProductModal({ product, onClose }: Props) {
               {product.compare_price && (
                 <div style={{
                   position: 'absolute', top: 16, left: 16,
-                  backgroundColor: 'var(--primary-container)',
-                  color: 'var(--primary-dim)',
+                  background: 'var(--grad)',
+                  color: 'var(--ink)',
                   padding: '4px 12px',
-                  fontFamily: 'var(--font-body)',
+                  fontFamily: 'var(--sans)',
                   fontSize: 10, fontWeight: 600, letterSpacing: '0.08em',
                 }}>
                   −{Math.round(((product.compare_price - product.price) / product.compare_price) * 100)}% OFF
@@ -128,7 +131,7 @@ export function ProductModal({ product, onClose }: Props) {
             </div>
 
             {/* Right — Details */}
-            <div style={{
+            <div className="product-modal-details" style={{
               flex: 1, padding: '40px 36px',
               overflowY: 'auto', position: 'relative',
             }}>
@@ -137,59 +140,63 @@ export function ProductModal({ product, onClose }: Props) {
                 style={{
                   position: 'absolute', top: 20, right: 20,
                   width: 32, height: 32,
-                  backgroundColor: 'var(--surface-container)',
+                  backgroundColor: 'var(--accent-bg)',
                   border: 'none', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}
               >
-                <X size={15} color="var(--primary)" />
+                <X size={15} color="var(--ink)" />
               </button>
 
-              <p className="label-caps" style={{ color: 'var(--secondary)', marginBottom: 12 }}>
+              <p style={{
+                color: 'var(--accent)', fontFamily: 'var(--sans)',
+                fontSize: 11, fontWeight: 700, letterSpacing: '0.12em',
+                textTransform: 'uppercase', marginBottom: 12,
+              }}>
                 {product.category?.name}
               </p>
 
               <h2 style={{
-                fontFamily: 'var(--font-display)',
+                fontFamily: 'var(--serif)',
                 fontSize: 26, fontWeight: 700,
-                color: 'var(--primary)',
+                color: 'var(--ink)',
                 letterSpacing: '-0.02em',
                 marginBottom: 16, lineHeight: 1.2,
               }}>{product.name}</h2>
 
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 20 }}>
                 <span style={{
-                  fontFamily: 'var(--font-body)',
+                  fontFamily: 'var(--sans)',
                   fontSize: 22, fontWeight: 600,
-                  color: 'var(--primary)',
+                  color: 'var(--accent)',
                 }}>₹{product.price}</span>
                 {product.compare_price && (
                   <span style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 15, color: 'var(--outline)',
+                    fontFamily: 'var(--sans)',
+                    fontSize: 15, color: 'var(--ink-3)',
                     textDecoration: 'line-through',
                   }}>₹{product.compare_price}</span>
                 )}
               </div>
 
               <p style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: 14, color: 'var(--on-surface-variant)',
+                fontFamily: 'var(--sans)',
+                fontSize: 14, color: 'var(--ink-2)',
                 lineHeight: 1.7, marginBottom: 24,
               }}>{product.description}</p>
 
-              <div style={{ height: 1, backgroundColor: 'rgba(4,22,39,0.08)', marginBottom: 24 }} />
+              <div style={{ height: 1, backgroundColor: 'var(--line-2)', marginBottom: 24 }} />
 
               {/* Colors */}
               {product.color_variants && product.color_variants.length > 0 && (
                 <div style={{ marginBottom: 24 }}>
                   <p style={{
-                    fontFamily: 'var(--font-body)',
+                    fontFamily: 'var(--sans)',
                     fontSize: 11, fontWeight: 600,
                     letterSpacing: '0.1em', textTransform: 'uppercase',
-                    color: 'var(--on-surface-variant)', marginBottom: 12,
+                    color: 'var(--ink-2)', marginBottom: 12,
                   }}>
-                    Colour — <span style={{ color: 'var(--primary)', textTransform: 'none', letterSpacing: 0 }}>
+                    Colour — <span style={{ color: 'var(--accent)', textTransform: 'none', letterSpacing: 0 }}>
                       {product.color_variants[selectedColor].name}
                     </span>
                   </p>
@@ -203,11 +210,11 @@ export function ProductModal({ product, onClose }: Props) {
                           width: 26, height: 26,
                           backgroundColor: c.hex,
                           border: selectedColor === i
-                            ? '2px solid var(--primary)'
-                            : '1px solid rgba(4,22,39,0.15)',
+                            ? '2px solid var(--accent)'
+                            : '1px solid var(--line-2)',
                           cursor: 'pointer',
                           outline: selectedColor === i
-                            ? '2px solid var(--surface-white)'
+                            ? '2px solid var(--card)'
                             : 'none',
                           outlineOffset: -4,
                           transition: 'all 0.15s',
@@ -221,10 +228,10 @@ export function ProductModal({ product, onClose }: Props) {
               {/* Quantity */}
               <div style={{ marginBottom: 28 }}>
                 <p style={{
-                  fontFamily: 'var(--font-body)',
+                  fontFamily: 'var(--sans)',
                   fontSize: 11, fontWeight: 600,
                   letterSpacing: '0.1em', textTransform: 'uppercase',
-                  color: 'var(--on-surface-variant)', marginBottom: 12,
+                  color: 'var(--ink-2)', marginBottom: 12,
                 }}>Quantity</p>
                 <div style={{ display: 'inline-flex', alignItems: 'center' }}>
                   {[
@@ -235,11 +242,11 @@ export function ProductModal({ product, onClose }: Props) {
                     item === null ? (
                       <div key="val" style={{
                         width: 48, height: 38,
-                        border: '1px solid rgba(4,22,39,0.15)',
+                        border: '1px solid var(--line-2)',
                         borderLeft: 'none', borderRight: 'none',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontFamily: 'var(--font-body)',
-                        fontSize: 14, fontWeight: 600, color: 'var(--primary)',
+                        fontFamily: 'var(--sans)',
+                        fontSize: 14, fontWeight: 600, color: 'var(--ink)',
                       }}>{qty}</div>
                     ) : (
                       <button
@@ -247,13 +254,13 @@ export function ProductModal({ product, onClose }: Props) {
                         onClick={item.action}
                         style={{
                           width: 38, height: 38,
-                          border: '1px solid rgba(4,22,39,0.15)',
-                          backgroundColor: 'var(--surface-low)',
+                          border: '1px solid var(--line-2)',
+                          backgroundColor: 'var(--card-soft)',
                           cursor: 'pointer',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                         }}
                       >
-                        <item.Icon size={13} color="var(--primary)" />
+                        <item.Icon size={13} color="var(--ink)" />
                       </button>
                     )
                   )}
@@ -268,10 +275,10 @@ export function ProductModal({ product, onClose }: Props) {
                 disabled={!product.is_available}
                 style={{
                   width: '100%', padding: '15px',
-                  backgroundColor: product.is_available ? 'var(--primary)' : 'var(--surface-high)',
-                  color: product.is_available ? 'white' : 'var(--outline)',
+                  background: product.is_available ? 'var(--grad)' : 'var(--bg-muted)',
+                  color: product.is_available ? 'var(--ink)' : 'var(--ink-3)',
                   border: 'none', cursor: product.is_available ? 'pointer' : 'not-allowed',
-                  fontFamily: 'var(--font-body)',
+                  fontFamily: 'var(--sans)',
                   fontSize: 12, fontWeight: 600,
                   letterSpacing: '0.1em', textTransform: 'uppercase',
                   display: 'flex', alignItems: 'center',
@@ -293,12 +300,17 @@ export function ProductModal({ product, onClose }: Props) {
                   <div key={d.label} style={{
                     display: 'flex', gap: 16,
                     padding: '10px 0',
-                    borderBottom: '1px solid rgba(4,22,39,0.06)',
+                    borderBottom: '1px solid var(--line)',
                   }}>
-                    <span className="label-caps" style={{ minWidth: 80 }}>{d.label}</span>
                     <span style={{
-                      fontFamily: 'var(--font-body)',
-                      fontSize: 13, color: 'var(--on-surface-variant)',
+                      minWidth: 80, color: 'var(--ink-3)',
+                      fontFamily: 'var(--sans)', fontSize: 10,
+                      fontWeight: 700, letterSpacing: '0.1em',
+                      textTransform: 'uppercase',
+                    }}>{d.label}</span>
+                    <span style={{
+                      fontFamily: 'var(--sans)',
+                      fontSize: 13, color: 'var(--ink-2)',
                       lineHeight: 1.5,
                     }}>{d.value}</span>
                   </div>

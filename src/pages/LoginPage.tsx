@@ -42,7 +42,7 @@ export function LoginPage() {
           padding: '60px 48px',
           display: 'flex', flexDirection: 'column',
           justifyContent: 'space-between',
-        }} className="hidden md:flex">
+        }} className="auth-side-panel">
           <div>
             <div style={{
               width: 48, height: 48, borderRadius: '50%',
