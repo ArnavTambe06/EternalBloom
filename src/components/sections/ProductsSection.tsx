@@ -21,8 +21,14 @@ export function ProductsSection() {
   }, [])
 
   const filtered = activeCategory === 'all'
-    ? products
+    ? products.filter(product => product.is_featured)
     : products.filter(p => p.category?.slug === activeCategory)
+
+  const emptyTitle = products.length === 0
+    ? 'Products coming soon'
+    : activeCategory === 'all'
+      ? 'No featured products yet'
+      : 'No products in this category'
 
   return (
     <section id="products" style={{
@@ -111,12 +117,14 @@ export function ProductsSection() {
             fontFamily: 'Playfair Display, serif',
             fontSize: 20, color: '#1C0F0A', marginBottom: 8,
           }}>
-            {products.length === 0 ? 'Products coming soon' : 'No products in this category'}
+            {emptyTitle}
           </p>
           <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9C7B6E' }}>
             {products.length === 0
               ? 'New pieces are being crafted — check back shortly.'
-              : 'Try selecting a different category.'}
+              : activeCategory === 'all'
+                ? 'Featured products will appear here once they are selected by the admin.'
+                : 'Try selecting a different category.'}
           </p>
         </div>
       ) : (

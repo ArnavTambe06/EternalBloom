@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { useAuthInit } from '@/hooks/useAuth'
+import { useShippingSettingsInit } from '@/hooks/useShippingSettings'
 import { Layout } from '@/components/layout/Layout'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 
@@ -25,9 +26,11 @@ import { AdminProducts } from '@/pages/admin/AdminProducts'
 import { AdminCategories } from '@/pages/admin/AdminCategories'
 import { AdminOrders } from '@/pages/admin/AdminOrders'
 import { AdminCustomOrders } from '@/pages/admin/AdminCustomOrders'
+import { AdminSettings } from '@/pages/admin/AdminSettings'
 
 function AppRoutes() {
   useAuthInit() // initialize auth listener
+  useShippingSettingsInit()
 
   return (
     
@@ -73,6 +76,7 @@ function AppRoutes() {
       <Route path="categories" element={<AdminCategories />} />
       <Route path="orders" element={<AdminOrders />} />
       <Route path="custom-orders" element={<AdminCustomOrders />} />
+      <Route path="settings" element={<AdminSettings />} />
       </Route>
       
     </Routes>

@@ -1,20 +1,47 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ShoppingBag, Plus, Minus, ChevronLeft, ChevronRight } from 'lucide-react'
-import type { Product } from '@/types'
+import type { Product, ProductVariant } from '@/types'
 import { useCartStore } from '@/store/cartStore'
 
 interface Props { product: Product | null; onClose: () => void }
 
+function getProductVariants(product: Product): ProductVariant[] {
+  if (product.variants?.length) {
+    return product.variants.map((variant, index) => ({
+      ...variant,
+      id: variant.id || `variant-${index}-${variant.name}`,
+      images: variant.images || [],
+    }))
+  }
+
+  // Keep older products working while they are migrated to the new variants field.
+  return (product.color_variants || []).map((color, index) => ({
+    id: `legacy-color-${index}-${color.name}`,
+    name: color.name,
+    color: color.hex,
+    images: product.images,
+  }))
+}
+
 export function ProductModal({ product, onClose }: Props) {
   const [imgIndex, setImgIndex] = useState(0)
   const [qty, setQty] = useState(1)
-  const [selectedColor, setSelectedColor] = useState(0)
+  const [selectedVariant, setSelectedVariant] = useState(0)
   const { addItem } = useCartStore()
+  const variants = product ? getProductVariants(product) : []
+  const activeVariant = variants[selectedVariant]
+  const activeImages = activeVariant?.images.length ? activeVariant.images : product?.images || []
+
+  useEffect(() => {
+    setImgIndex(0)
+    setQty(1)
+    setSelectedVariant(0)
+  }, [product?.id])
 
   const handleAdd = () => {
     if (!product) return
-    addItem(product, qty, product.color_variants?.[selectedColor])
+    addItem(product, qty, activeVariant)
     onClose()
   }
 
@@ -67,16 +94,16 @@ export function ProductModal({ product, onClose }: Props) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
-                src={product.images?.[imgIndex]}
-                alt={product.name}
+                src={activeImages[imgIndex]}
+                alt={activeVariant ? `${product.name} - ${activeVariant.name}` : product.name}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
 
-              {product.images.length > 1 && (
+              {activeImages.length > 1 && (
                 <>
                   {[
                     { side: 'left', action: () => setImgIndex(i => Math.max(0, i - 1)), Icon: ChevronLeft },
-                    { side: 'right', action: () => setImgIndex(i => Math.min(product.images.length - 1, i + 1)), Icon: ChevronRight },
+                    { side: 'right', action: () => setImgIndex(i => Math.min(activeImages.length - 1, i + 1)), Icon: ChevronRight },
                   ].map(({ side, action, Icon }) => (
                     <button
                       key={side}
@@ -99,7 +126,7 @@ export function ProductModal({ product, onClose }: Props) {
                     transform: 'translateX(-50%)',
                     display: 'flex', gap: 6,
                   }}>
-                    {product.images.map((_, i) => (
+                    {activeImages.map((_, i) => (
                       <button
                         key={i}
                         onClick={() => setImgIndex(i)}
@@ -187,8 +214,8 @@ export function ProductModal({ product, onClose }: Props) {
 
               <div style={{ height: 1, backgroundColor: 'var(--line-2)', marginBottom: 24 }} />
 
-              {/* Colors */}
-              {product.color_variants && product.color_variants.length > 0 && (
+              {/* Variant selector */}
+              {variants.length > 0 && (
                 <div style={{ marginBottom: 24 }}>
                   <p style={{
                     fontFamily: 'var(--sans)',
@@ -196,30 +223,41 @@ export function ProductModal({ product, onClose }: Props) {
                     letterSpacing: '0.1em', textTransform: 'uppercase',
                     color: 'var(--ink-2)', marginBottom: 12,
                   }}>
-                    Colour — <span style={{ color: 'var(--accent)', textTransform: 'none', letterSpacing: 0 }}>
-                      {product.color_variants[selectedColor].name}
+                    Choose your variant — <span style={{ color: 'var(--accent)', textTransform: 'none', letterSpacing: 0 }}>
+                      {activeVariant?.name}
                     </span>
                   </p>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    {product.color_variants.map((c, i) => (
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    {variants.map((variant, i) => (
                       <button
-                        key={i}
-                        onClick={() => setSelectedColor(i)}
-                        title={c.name}
-                        style={{
-                          width: 26, height: 26,
-                          backgroundColor: c.hex,
-                          border: selectedColor === i
-                            ? '2px solid var(--accent)'
-                            : '1px solid var(--line-2)',
-                          cursor: 'pointer',
-                          outline: selectedColor === i
-                            ? '2px solid var(--card)'
-                            : 'none',
-                          outlineOffset: -4,
-                          transition: 'all 0.15s',
+                        key={variant.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedVariant(i)
+                          setImgIndex(0)
                         }}
-                      />
+                        aria-pressed={selectedVariant === i}
+                        style={{
+                          minHeight: 38,
+                          padding: '7px 11px',
+                          backgroundColor: selectedVariant === i ? 'var(--accent-bg)' : 'var(--card)',
+                          border: selectedVariant === i
+                            ? '2px solid var(--accent)' : '1px solid var(--line-2)',
+                          cursor: 'pointer',
+                          display: 'inline-flex', alignItems: 'center', gap: 7,
+                          fontFamily: 'var(--sans)', fontSize: 12,
+                          color: 'var(--ink)', fontWeight: selectedVariant === i ? 600 : 400,
+                        }}
+                      >
+                        {variant.color && (
+                          <span style={{
+                            width: 15, height: 15, borderRadius: '50%',
+                            backgroundColor: variant.color,
+                            border: '1px solid rgba(0,0,0,0.12)',
+                          }} />
+                        )}
+                        {variant.name}
+                      </button>
                     ))}
                   </div>
                 </div>

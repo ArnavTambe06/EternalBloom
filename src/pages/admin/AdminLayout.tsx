@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, Package, Tag,
   ShoppingBag, Sparkles, ChevronLeft,
-  ChevronRight, LogOut, Menu,
+  ChevronRight, LogOut, Settings2,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { signOut } from '@/services/auth'
@@ -15,6 +15,7 @@ const navItems = [
   { label: 'Categories',    href: '/admin/categories',    icon: Tag },
   { label: 'Orders',        href: '/admin/orders',        icon: ShoppingBag },
   { label: 'Custom Orders', href: '/admin/custom-orders', icon: Sparkles },
+  { label: 'Settings',      href: '/admin/settings',      icon: Settings2 },
 ]
 
 export function AdminLayout() {

@@ -1,54 +1,108 @@
-import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
+import { ArrowLeft, ArrowRight, Check, MapPin, Package, Pencil, ShieldCheck, ShoppingBag, Truck } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ChevronRight, MapPin, CreditCard, ShieldCheck } from 'lucide-react'
-import { useCartStore } from '@/store/cartStore'
+import { getCartVariantKey, useCartStore } from '@/store/cartStore'
 import { useAuth } from '@/hooks/useAuth'
 import { createOrder } from '@/services/orders'
 import type { Address } from '@/types'
 
-const steps = ['Address', 'Payment', 'Review']
-
-const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '11px 14px',
-  border: '1.5px solid var(--border)', borderRadius: 10,
-  fontFamily: 'var(--font-body)', fontSize: 14,
-  color: 'var(--on-surface)', backgroundColor: 'var(--surface)',
-  outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.2s',
+type AddressForm = {
+  full_name: string
+  phone: string
+  line1: string
+  line2: string
+  city: string
+  state: string
+  pincode: string
 }
 
-const labelStyle: React.CSSProperties = {
-  display: 'block', fontFamily: 'var(--font-body)',
-  fontSize: 11, fontWeight: 700,
-  letterSpacing: '0.08em', textTransform: 'uppercase',
-  color: 'var(--on-surface-muted)', marginBottom: 6,
+type AddressField = keyof AddressForm
+
+const initialAddress: AddressForm = {
+  full_name: '',
+  phone: '',
+  line1: '',
+  line2: '',
+  city: '',
+  state: '',
+  pincode: '',
+}
+
+const fields: Array<{
+  key: AddressField
+  label: string
+  placeholder: string
+  type?: string
+  inputMode?: 'text' | 'tel' | 'numeric'
+  wide?: boolean
+}> = [
+  { key: 'full_name', label: 'Full name', placeholder: 'Your full name', wide: true },
+  { key: 'phone', label: 'Phone number', placeholder: '+91 98765 43210', type: 'tel', inputMode: 'tel' },
+  { key: 'pincode', label: 'Pincode', placeholder: '6-digit pincode', inputMode: 'numeric' },
+  { key: 'line1', label: 'Address line 1', placeholder: 'House / flat number, street', wide: true },
+  { key: 'line2', label: 'Address line 2', placeholder: 'Landmark (optional)', wide: true },
+  { key: 'city', label: 'City', placeholder: 'Your city' },
+  { key: 'state', label: 'State', placeholder: 'Your state' },
+]
+
+const requiredFields: AddressField[] = ['full_name', 'phone', 'line1', 'city', 'state', 'pincode']
+
+function formatCurrency(value: number) {
+  return `₹${value.toLocaleString('en-IN')}`
 }
 
 export function CheckoutPage() {
   const [step, setStep] = useState(0)
+  const [address, setAddress] = useState<AddressForm>(initialAddress)
+  const [errors, setErrors] = useState<Partial<Record<AddressField, string>>>({})
   const [placing, setPlacing] = useState(false)
-  const [address, setAddress] = useState({
-    full_name: '', phone: '', line1: '',
-    line2: '', city: '', state: '', pincode: '',
-  })
+  const [submitError, setSubmitError] = useState('')
   const { items, subtotal, shipping, total, clearCart } = useCartStore()
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const navigate = useNavigate()
 
   const sub = subtotal()
   const ship = shipping()
   const tot = total()
 
-  const setA = (k: string, v: string) => setAddress(a => ({ ...a, [k]: v }))
+  useEffect(() => {
+    setAddress(current => ({
+      ...current,
+      full_name: current.full_name || profile?.full_name || '',
+      phone: current.phone || profile?.phone || '',
+    }))
+  }, [profile])
 
-  const focusStyle = (e: React.FocusEvent<HTMLInputElement>) =>
-    e.target.style.borderColor = 'var(--primary)'
-  const blurStyle = (e: React.FocusEvent<HTMLInputElement>) =>
-    e.target.style.borderColor = 'var(--border)'
+  const setAddressField = (key: AddressField, value: string) => {
+    setAddress(current => ({ ...current, [key]: value }))
+    setErrors(current => ({ ...current, [key]: '' }))
+    setSubmitError('')
+  }
+
+  const validateAddress = () => {
+    const nextErrors: Partial<Record<AddressField, string>> = {}
+
+    requiredFields.forEach(key => {
+      if (!address[key].trim()) nextErrors[key] = 'This field is required.'
+    })
+
+    if (address.phone.trim() && address.phone.replace(/\D/g, '').length < 10) {
+      nextErrors.phone = 'Enter a valid phone number.'
+    }
+
+    if (address.pincode.trim() && !/^\d{6}$/.test(address.pincode.trim())) {
+      nextErrors.pincode = 'Enter a valid 6-digit pincode.'
+    }
+
+    setErrors(nextErrors)
+    return Object.keys(nextErrors).length === 0
+  }
 
   const handlePlaceOrder = async () => {
-    if (items.length === 0) return
+    if (items.length === 0 || !validateAddress()) return
+
     setPlacing(true)
+    setSubmitError('')
     try {
       const order = await createOrder({
         userId: user?.id,
@@ -62,342 +116,323 @@ export function CheckoutPage() {
       navigate(`/order-success/${order.id}`)
     } catch (err) {
       console.error('Order creation failed:', err)
-      alert('Something went wrong. Please try again.')
+      setSubmitError('We could not place your order right now. Please try again.')
     } finally {
       setPlacing(false)
     }
   }
 
+  if (items.length === 0) {
+    return (
+      <div className="checkout-page">
+        <div className="checkout-empty">
+          <div className="checkout-empty__icon"><ShoppingBag size={26} /></div>
+          <p className="checkout-eyebrow">Checkout</p>
+          <h1>Your bag is empty</h1>
+          <p>Add something handmade to your bag before checking out.</p>
+          <Link to="/#products" className="checkout-button checkout-button--primary">Browse the collection <ArrowRight size={16} /></Link>
+        </div>
+        <CheckoutStyles />
+      </div>
+    )
+  }
+
   return (
-    <div style={{ backgroundColor: 'var(--surface)', minHeight: '100vh', padding: '40px 24px' }}>
-      <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-
-        {/* Stepper */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, marginBottom: 48 }}>
-          {steps.map((s, i) => (
-            <div key={s} style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                <div style={{
-                  width: 34, height: 34, borderRadius: '50%',
-                  background: i <= step ? 'var(--primary-gradient)' : 'var(--surface-container)',
-                  color: i <= step ? 'var(--on-surface)' : 'var(--on-surface-faint)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 700,
-                  transition: 'all 0.3s',
-                  boxShadow: i <= step ? '0 4px 12px rgba(255,133,208,0.3)' : 'none',
-                }}>
-                  {i < step ? '✓' : i + 1}
-                </div>
-                <span style={{
-                  fontFamily: 'var(--font-body)', fontSize: 11,
-                  color: i <= step ? 'var(--primary)' : 'var(--on-surface-faint)',
-                  fontWeight: 500,
-                }}>{s}</span>
-              </div>
-              {i < steps.length - 1 && (
-                <div style={{
-                  width: 80, height: 2, margin: '0 8px', marginBottom: 20,
-                  background: i < step ? 'var(--primary-gradient)' : 'var(--border)',
-                  transition: 'all 0.3s',
-                }} />
-              )}
-            </div>
-          ))}
+    <div className="checkout-page">
+      <div className="checkout-container">
+        <div className="checkout-topbar">
+          <Link to="/cart" className="checkout-back"><ArrowLeft size={15} /> Back to bag</Link>
+          <div className="checkout-secure"><ShieldCheck size={15} /> Secure checkout</div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24, alignItems: 'start' }}
-          className="checkout-grid">
+        <div className="checkout-heading">
+          <p className="checkout-eyebrow">A little closer to forever</p>
+          <h1>Complete your order</h1>
+          <p>Share your delivery details, review your handmade picks, and place your COD order.</p>
+        </div>
 
-          {/* Left — steps */}
-          <div style={{
-            backgroundColor: 'var(--surface-white)',
-            borderRadius: 20, padding: '28px 24px',
-            border: '1px solid var(--border)',
-            boxShadow: '0 2px 12px rgba(212,72,154,0.06)',
-          }}>
+        <div className="checkout-progress" aria-label="Checkout progress">
+          {[
+            { label: 'Delivery details', icon: MapPin },
+            { label: 'Review & confirm', icon: Check },
+          ].map((item, index) => {
+            const Icon = item.icon
+            const complete = index < step
+            const active = index === step
+            return (
+              <div className="checkout-progress__item" key={item.label}>
+                <div className={`checkout-progress__step ${active || complete ? 'is-active' : ''}`}>
+                  <span className="checkout-progress__dot">{complete ? <Check size={15} /> : <Icon size={15} />}</span>
+                  <span>{item.label}</span>
+                </div>
+                {index === 0 && <div className={`checkout-progress__line ${step > 0 ? 'is-active' : ''}`} />}
+              </div>
+            )
+          })}
+        </div>
 
-            {/* Step 0 — Address */}
+        <div className="checkout-layout">
+          <main className="checkout-main">
             {step === 0 && (
-              <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-                  <MapPin size={18} color="var(--primary)" />
-                  <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, color: 'var(--on-surface)' }}>
-                    Delivery Address
-                  </h2>
+              <section className="checkout-card">
+                <div className="checkout-card__header">
+                  <div className="checkout-card__icon"><MapPin size={19} /></div>
+                  <div>
+                    <p className="checkout-card__eyebrow">Step 1 of 2</p>
+                    <h2>Where should we deliver?</h2>
+                    <p>We will use these details to handcraft and deliver your order.</p>
+                  </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                  {[
-                    { label: 'Full Name *', key: 'full_name', col: 2 },
-                    { label: 'Phone *', key: 'phone', col: 1 },
-                    { label: 'Pincode *', key: 'pincode', col: 1 },
-                    { label: 'Address Line 1 *', key: 'line1', col: 2 },
-                    { label: 'Address Line 2 (optional)', key: 'line2', col: 2 },
-                    { label: 'City *', key: 'city', col: 1 },
-                    { label: 'State *', key: 'state', col: 1 },
-                  ].map(f => (
-                    <div key={f.key} style={{ gridColumn: `span ${f.col}` }}>
-                      <label style={labelStyle}>{f.label}</label>
+
+                <div className="checkout-form">
+                  {fields.map(field => (
+                    <div className={`checkout-field ${field.wide ? 'checkout-field--wide' : ''}`} key={field.key}>
+                      <label htmlFor={`checkout-${field.key}`}>{field.label}{requiredFields.includes(field.key) && <span> *</span>}</label>
                       <input
-                        style={inputStyle}
-                        value={(address as any)[f.key]}
-                        onChange={e => setA(f.key, e.target.value)}
-                        onFocus={focusStyle}
-                        onBlur={blurStyle}
+                        id={`checkout-${field.key}`}
+                        type={field.type || 'text'}
+                        inputMode={field.inputMode}
+                        autoComplete={field.key === 'full_name' ? 'name' : field.key === 'phone' ? 'tel' : field.key === 'pincode' ? 'postal-code' : 'street-address'}
+                        placeholder={field.placeholder}
+                        value={address[field.key]}
+                        onChange={event => setAddressField(field.key, event.target.value)}
+                        className={errors[field.key] ? 'has-error' : ''}
                       />
+                      {errors[field.key] && <span className="checkout-field__error">{errors[field.key]}</span>}
                     </div>
                   ))}
                 </div>
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => {
-                    if (!address.full_name || !address.phone || !address.line1 || !address.city || !address.state || !address.pincode) {
-                      alert('Please fill in all required fields.')
-                      return
-                    }
-                    setStep(1)
-                  }}
-                  style={{
-                    marginTop: 24, width: '100%', padding: '13px',
-                    background: 'var(--primary-gradient)',
-                    border: 'none', borderRadius: 12,
-                    fontFamily: 'var(--font-body)', fontSize: 15, fontWeight: 600,
-                    color: 'var(--on-surface)', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                    boxShadow: '0 4px 16px rgba(255,133,208,0.3)',
-                  }}
-                >
-                  Continue to Payment <ChevronRight size={16} />
-                </motion.button>
-              </motion.div>
+
+                <div className="checkout-note">
+                  <Truck size={18} />
+                  <div><strong>Made to order</strong><span>Dispatch in 3–5 business days, with delivery updates along the way.</span></div>
+                </div>
+
+                <button className="checkout-button checkout-button--primary checkout-button--full" onClick={() => validateAddress() && setStep(1)}>
+                  Continue to review <ArrowRight size={16} />
+                </button>
+              </section>
             )}
 
-            {/* Step 1 — Payment */}
             {step === 1 && (
-  <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-      <CreditCard size={18} color="var(--primary)" />
-      <h2 style={{
-        fontFamily: 'var(--font-display)',
-        fontSize: 20, fontWeight: 700, color: 'var(--on-surface)',
-      }}>
-        Payment Method
-      </h2>
-    </div>
-
-    {/* COD card — selected by default */}
-    <div style={{
-      border: '2px solid var(--primary)',
-      borderRadius: 14, padding: '20px',
-      backgroundColor: 'var(--primary-pale)',
-      display: 'flex', alignItems: 'center', gap: 16,
-      marginBottom: 16,
-    }}>
-      <div style={{
-        width: 44, height: 44, borderRadius: '50%',
-        background: 'var(--primary-gradient)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        flexShrink: 0,
-        boxShadow: '0 4px 12px rgba(255,133,208,0.3)',
-      }}>
-        <span style={{ fontSize: 20 }}>💵</span>
-      </div>
-      <div style={{ flex: 1 }}>
-        <p style={{
-          fontFamily: 'var(--font-body)',
-          fontSize: 15, fontWeight: 700, color: 'var(--on-surface)',
-          marginBottom: 3,
-        }}>Cash on Delivery</p>
-        <p style={{
-          fontFamily: 'var(--font-body)',
-          fontSize: 13, color: 'var(--on-surface-muted)',
-        }}>
-          Pay in cash when your order arrives at your door.
-        </p>
-      </div>
-      <div style={{
-        width: 20, height: 20, borderRadius: '50%',
-        background: 'var(--primary-gradient)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        flexShrink: 0,
-      }}>
-        <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'white' }} />
-      </div>
-    </div>
-
-    {/* Info note */}
-    <div style={{
-      backgroundColor: 'var(--surface)',
-      borderRadius: 12, padding: '14px 16px',
-      border: '1px solid var(--border)',
-      marginBottom: 28,
-    }}>
-      <p style={{
-        fontFamily: 'var(--font-body)',
-        fontSize: 13, color: 'var(--on-surface-muted)', lineHeight: 1.6,
-      }}>
-        🌸 Since every piece is <strong>handmade to order</strong>, your order will be
-        crafted and dispatched within <strong>3–5 business days</strong>.
-        You'll receive a confirmation call before delivery.
-      </p>
-    </div>
-
-    <div style={{ display: 'flex', gap: 10 }}>
-      <button
-        onClick={() => setStep(0)}
-        style={{
-          flex: 1, padding: '13px',
-          border: '1.5px solid var(--border)', borderRadius: 12,
-          backgroundColor: 'white', color: 'var(--on-surface)',
-          fontFamily: 'var(--font-body)', fontSize: 14, cursor: 'pointer',
-        }}
-      >Back</button>
-      <motion.button
-        whileHover={{ scale: 1.01 }}
-        whileTap={{ scale: 0.97 }}
-        onClick={() => setStep(2)}
-        style={{
-          flex: 2, padding: '13px',
-          background: 'var(--primary-gradient)',
-          border: 'none', borderRadius: 12,
-          fontFamily: 'var(--font-body)', fontSize: 15, fontWeight: 600,
-          color: 'var(--on-surface)', cursor: 'pointer',
-          boxShadow: '0 4px 16px rgba(255,133,208,0.3)',
-        }}
-      >Review Order</motion.button>
-    </div>
-  </motion.div>
-)}
-
-            {/* Step 2 — Review */}
-            {step === 2 && (
-              <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}>
-                <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, color: 'var(--on-surface)', marginBottom: 20 }}>
-                  Review & Confirm
-                </h2>
-
-                {/* Address summary */}
-                <div style={{ marginBottom: 20, padding: '14px 16px', backgroundColor: 'var(--surface)', borderRadius: 12, border: '1px solid var(--border)' }}>
-                  <p className="label-caps" style={{ marginBottom: 6 }}>Delivering to</p>
-                  <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--on-surface)', lineHeight: 1.6 }}>
-                    {address.full_name} · {address.phone}<br />
-                    {address.line1}{address.line2 ? `, ${address.line2}` : ''}<br />
-                    {address.city}, {address.state} — {address.pincode}
-                  </p>
+              <section className="checkout-card">
+                <div className="checkout-card__header">
+                  <div className="checkout-card__icon"><Check size={19} /></div>
+                  <div>
+                    <p className="checkout-card__eyebrow">Step 2 of 2</p>
+                    <h2>Review & confirm</h2>
+                    <p>Everything look right? Place your order and pay when it arrives.</p>
+                  </div>
                 </div>
 
-                {/* Items */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-                  {items.map(item => (
-                    <div key={item.product.id} style={{
-                      display: 'flex', gap: 12, alignItems: 'center',
-                      padding: '12px', backgroundColor: 'var(--surface)', borderRadius: 12,
-                    }}>
-                      <div style={{ width: 48, height: 48, borderRadius: 8, backgroundColor: 'var(--surface-section)', overflow: 'hidden', flexShrink: 0 }}>
-                        {item.product.images?.[0] && (
-                          <img src={item.product.images[0]} alt={item.product.name}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        )}
+                <div className="checkout-review-block">
+                  <div className="checkout-review-block__heading">
+                    <div><p className="checkout-card__eyebrow">Delivery address</p><h3>{address.full_name}</h3></div>
+                    <button className="checkout-edit" onClick={() => setStep(0)}><Pencil size={13} /> Edit</button>
+                  </div>
+                  <p>{address.phone}<br />{address.line1}{address.line2 ? `, ${address.line2}` : ''}<br />{address.city}, {address.state} – {address.pincode}</p>
+                </div>
+
+                <div className="checkout-items">
+                  <div className="checkout-section-label">Your items</div>
+                  {items.map(item => {
+                    const image = item.selected_variant?.images?.[0] || item.product.images?.[0]
+                    const variant = item.selected_variant?.name || item.selected_color?.name
+                    return (
+                      <div className="checkout-item" key={`${item.product.id}-${getCartVariantKey(item)}`}>
+                        <div className="checkout-item__image">
+                          {image ? <img src={image} alt={item.product.name} /> : <span>✿</span>}
+                        </div>
+                        <div className="checkout-item__details">
+                          <h3>{item.product.name}</h3>
+                          <p>{variant ? `${variant} · ` : ''}Qty {item.quantity}</p>
+                        </div>
+                        <strong>{formatCurrency(item.product.price * item.quantity)}</strong>
                       </div>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, color: 'var(--on-surface)' }}>
-                          {item.product.name}
-                        </p>
-                        <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--on-surface-muted)' }}>
-                          Qty: {item.quantity}
-                          {item.selected_color ? ` · ${item.selected_color.name}` : ''}
-                        </p>
-                      </div>
-                      <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 700, color: 'var(--primary)' }}>
-                        ₹{item.product.price * item.quantity}
-                      </p>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
 
-                <div style={{ display: 'flex', gap: 10 }}>
-                  <button
-                    onClick={() => setStep(1)}
-                    style={{
-                      flex: 1, padding: '13px',
-                      border: '1.5px solid var(--border)', borderRadius: 12,
-                      backgroundColor: 'white', color: 'var(--on-surface)',
-                      fontFamily: 'var(--font-body)', fontSize: 14, cursor: 'pointer',
-                    }}
-                  >Back</button>
-                  <motion.button
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={handlePlaceOrder}
-                    disabled={placing}
-                    style={{
-                      flex: 2, padding: '13px',
-                      background: 'var(--primary-gradient)',
-                      border: 'none', borderRadius: 12,
-                      fontFamily: 'var(--font-body)', fontSize: 15, fontWeight: 600,
-                      color: 'var(--on-surface)', cursor: placing ? 'not-allowed' : 'pointer',
-                      opacity: placing ? 0.7 : 1,
-                      boxShadow: '0 4px 16px rgba(255,133,208,0.3)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                    }}
-                  >
-                    {placing && (
-                      <div style={{
-                        width: 16, height: 16, borderRadius: '50%',
-                        border: '2px solid rgba(61,26,46,0.3)',
-                        borderTopColor: 'var(--on-surface)',
-                        animation: 'spin 0.7s linear infinite',
-                      }} />
-                    )}
-                    {placing ? 'Placing Order...' : `Place Order · ₹${tot}`}
-                  </motion.button>
+                <div className="checkout-cod">
+                  <div className="checkout-cod__icon"><Package size={19} /></div>
+                  <div><strong>Cash on Delivery</strong><p>No payment is needed now. Please keep {formatCurrency(tot)} ready when your order arrives.</p></div>
+                  <span className="checkout-cod__check"><Check size={14} /></span>
                 </div>
-              </motion.div>
+
+                {submitError && <p className="checkout-submit-error" role="alert">{submitError}</p>}
+
+                <div className="checkout-actions">
+                  <button className="checkout-button checkout-button--secondary" onClick={() => setStep(0)}><ArrowLeft size={15} /> Back</button>
+                  <button className="checkout-button checkout-button--primary" onClick={handlePlaceOrder} disabled={placing}>
+                    {placing ? <span className="checkout-spinner" /> : <Check size={16} />}
+                    {placing ? 'Placing order…' : 'Place COD order'}
+                  </button>
+                </div>
+              </section>
             )}
-          </div>
+          </main>
 
-          {/* Right — order summary */}
-          <div style={{
-            backgroundColor: 'var(--surface-white)',
-            borderRadius: 20, padding: '24px',
-            border: '1px solid var(--border)',
-            boxShadow: '0 2px 12px rgba(212,72,154,0.06)',
-            position: 'sticky', top: 24,
-          }}>
-            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--on-surface)', marginBottom: 16 }}>
-              Order Summary
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
-              {items.map(item => (
-                <div key={item.product.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--on-surface-muted)', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {item.product.name} × {item.quantity}
-                  </span>
-                  <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, color: 'var(--on-surface)' }}>
-                    ₹{item.product.price * item.quantity}
-                  </span>
-                </div>
-              ))}
+          <aside className="checkout-summary">
+            <div className="checkout-summary__header"><h2>Order summary</h2><span>{items.length} {items.length === 1 ? 'item' : 'items'}</span></div>
+            <div className="checkout-summary__items">
+              {items.map(item => {
+                const image = item.selected_variant?.images?.[0] || item.product.images?.[0]
+                const variant = item.selected_variant?.name || item.selected_color?.name
+                return (
+                  <div className="checkout-summary__item" key={`${item.product.id}-${getCartVariantKey(item)}`}>
+                    <div className="checkout-summary__image">{image ? <img src={image} alt="" /> : <span>✿</span>}<b>{item.quantity}</b></div>
+                    <div><p>{item.product.name}</p>{variant && <small>{variant}</small>}</div>
+                    <strong>{formatCurrency(item.product.price * item.quantity)}</strong>
+                  </div>
+                )
+              })}
             </div>
-            <div style={{ height: 1, backgroundColor: 'var(--border)', marginBottom: 12 }} />
-            {[
-              { label: 'Subtotal', value: `₹${sub}` },
-              { label: 'Shipping', value: ship === 0 ? '🎉 Free' : `₹${ship}` },
-            ].map(r => (
-              <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--on-surface-muted)' }}>{r.label}</span>
-                <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, color: 'var(--on-surface)' }}>{r.value}</span>
-              </div>
-            ))}
-            <div style={{ height: 1, backgroundColor: 'var(--border)', margin: '12px 0' }} />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700, color: 'var(--on-surface)' }}>Total</span>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, color: 'var(--primary)' }}>₹{tot}</span>
+            <div className="checkout-summary__rows">
+              <div><span>Subtotal</span><strong>{formatCurrency(sub)}</strong></div>
+              <div><span>Shipping</span><strong>{ship === 0 ? 'Free' : formatCurrency(ship)}</strong></div>
             </div>
-          </div>
+            <div className="checkout-summary__total"><span>Total</span><strong>{formatCurrency(tot)}</strong></div>
+            <div className="checkout-summary__cod"><span>✓</span><div><strong>Cash on Delivery</strong><small>Pay when your order arrives</small></div></div>
+          </aside>
         </div>
       </div>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <CheckoutStyles />
     </div>
+  )
+}
+
+function CheckoutStyles() {
+  return (
+    <style>{`
+      .checkout-page {
+        min-height: 100vh;
+        padding: 42px var(--px) 84px;
+        background: linear-gradient(135deg, rgba(255,240,247,.82) 0%, #fffdfa 42%, rgba(255,246,218,.62) 100%);
+      }
+      .checkout-container { max-width: 1120px; margin: 0 auto; }
+      .checkout-topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:42px; }
+      .checkout-back, .checkout-secure { display:inline-flex; align-items:center; gap:7px; color:#786a61; font-size:12px; font-weight:600; }
+      .checkout-back:hover { color:#b56a45; }
+      .checkout-secure { color:#91a57a; }
+      .checkout-heading { text-align:center; margin:0 auto 32px; max-width:620px; }
+      .checkout-eyebrow, .checkout-card__eyebrow, .checkout-section-label { color:#b56a45; font-size:10px; font-weight:700; letter-spacing:.17em; text-transform:uppercase; }
+      .checkout-heading h1 { margin:8px 0 10px; color:#46352a; font-family:var(--serif); font-size:clamp(34px, 5vw, 52px); font-weight:700; letter-spacing:-.045em; }
+      .checkout-heading > p:last-child { color:#786a61; font-size:14px; }
+      .checkout-progress { display:flex; justify-content:center; align-items:center; margin:0 auto 34px; max-width:540px; }
+      .checkout-progress__item { display:flex; align-items:center; flex:1; }
+      .checkout-progress__item:last-child { flex:0 1 auto; }
+      .checkout-progress__step { display:flex; align-items:center; gap:9px; color:#b6aaa1; font-size:12px; white-space:nowrap; }
+      .checkout-progress__step.is-active { color:#46352a; font-weight:700; }
+      .checkout-progress__dot { display:grid; place-items:center; width:32px; height:32px; border:1px solid #e7ddd5; border-radius:50%; background:#fff; color:#b6aaa1; }
+      .checkout-progress__step.is-active .checkout-progress__dot { border-color:transparent; background:linear-gradient(135deg,#ff85d0,#ffc8a2); color:#46352a; box-shadow:0 5px 14px rgba(255,133,208,.22); }
+      .checkout-progress__line { flex:1; height:1px; margin:0 14px; background:#e7ddd5; }
+      .checkout-progress__line.is-active { background:#e8609a; }
+      .checkout-layout { display:grid; grid-template-columns:minmax(0, 1fr) 350px; gap:24px; align-items:start; }
+      .checkout-card, .checkout-summary { border:1px solid #eadfd8; border-radius:24px; background:rgba(255,255,255,.91); box-shadow:0 16px 50px rgba(86,42,28,.07); }
+      .checkout-card { padding:32px; }
+      .checkout-card__header { display:flex; align-items:flex-start; gap:14px; padding-bottom:25px; border-bottom:1px solid #eee5df; margin-bottom:25px; }
+      .checkout-card__icon { display:grid; place-items:center; flex:0 0 auto; width:42px; height:42px; border-radius:13px; background:#fff0f7; color:#e8609a; }
+      .checkout-card__header h2 { margin:3px 0 5px; color:#46352a; font-family:var(--serif); font-size:25px; font-weight:700; }
+      .checkout-card__header > div:last-child > p:last-child { color:#786a61; font-size:13px; line-height:1.5; }
+      .checkout-form { display:grid; grid-template-columns:1fr 1fr; gap:18px 14px; }
+      .checkout-field--wide { grid-column:1 / -1; }
+      .checkout-field label { display:block; margin-bottom:7px; color:#46352a; font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; }
+      .checkout-field label span { color:#e8609a; }
+      .checkout-field input { display:block; width:100%; height:46px; padding:0 14px; border:1px solid #e2d7d0; border-radius:11px; outline:none; background:#fffdfa; color:#46352a; font:inherit; font-size:14px; transition:border-color .2s, box-shadow .2s, background .2s; }
+      .checkout-field input::placeholder { color:#b6aaa1; }
+      .checkout-field input:focus { border-color:#e8609a; background:#fff; box-shadow:0 0 0 3px rgba(232,96,154,.12); }
+      .checkout-field input.has-error { border-color:#d65f69; }
+      .checkout-field__error { display:block; margin-top:5px; color:#c24b57; font-size:11px; }
+      .checkout-note { display:flex; align-items:center; gap:12px; margin-top:25px; padding:14px 16px; border:1px solid #f0dfbd; border-radius:13px; background:#fffaf0; color:#b56a45; }
+      .checkout-note > div { display:flex; flex-direction:column; gap:2px; }
+      .checkout-note strong { color:#46352a; font-size:12px; }
+      .checkout-note span { color:#786a61; font-size:12px; }
+      .checkout-button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:46px; padding:0 19px; border-radius:11px; font-size:13px; font-weight:700; transition:transform .2s, box-shadow .2s, opacity .2s; }
+      .checkout-button:hover:not(:disabled) { transform:translateY(-1px); }
+      .checkout-button:disabled { cursor:not-allowed; opacity:.65; }
+      .checkout-button--primary { background:linear-gradient(135deg,#ff85d0,#ffc8a2 68%,#ffe680); color:#46352a; box-shadow:0 8px 20px rgba(255,133,208,.22); }
+      .checkout-button--primary:hover:not(:disabled) { box-shadow:0 11px 26px rgba(255,133,208,.32); }
+      .checkout-button--secondary { border:1px solid #e3d8d1; background:#fff; color:#786a61; }
+      .checkout-button--full { width:100%; margin-top:23px; }
+      .checkout-actions { display:flex; gap:10px; margin-top:24px; }
+      .checkout-actions .checkout-button:first-child { flex:0 0 110px; }
+      .checkout-actions .checkout-button:last-child { flex:1; }
+      .checkout-review-block { padding:16px; border:1px solid #eadfd8; border-radius:14px; background:#fffdfa; }
+      .checkout-review-block__heading { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+      .checkout-review-block h3 { margin-top:4px; color:#46352a; font-family:var(--sans); font-size:14px; font-weight:700; }
+      .checkout-review-block > p { margin-top:8px; color:#786a61; font-size:13px; line-height:1.65; }
+      .checkout-edit { display:inline-flex; align-items:center; gap:5px; color:#b56a45; font-size:12px; font-weight:700; }
+      .checkout-edit:hover { color:#e8609a; }
+      .checkout-items { margin-top:26px; }
+      .checkout-section-label { margin-bottom:10px; color:#786a61; }
+      .checkout-item { display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid #f0e9e4; }
+      .checkout-item:last-child { border-bottom:0; }
+      .checkout-item__image { display:grid; place-items:center; flex:0 0 auto; width:60px; height:60px; overflow:hidden; border-radius:11px; background:#f6efe7; color:#b56a45; font-size:22px; }
+      .checkout-item__image img { width:100%; height:100%; object-fit:cover; }
+      .checkout-item__details { flex:1; min-width:0; }
+      .checkout-item__details h3 { overflow:hidden; color:#46352a; font-family:var(--sans); font-size:13px; font-weight:700; text-overflow:ellipsis; white-space:nowrap; }
+      .checkout-item__details p { margin-top:4px; color:#786a61; font-size:12px; }
+      .checkout-item > strong { color:#46352a; font-size:13px; white-space:nowrap; }
+      .checkout-cod { display:flex; align-items:center; gap:12px; margin-top:23px; padding:15px; border:1px solid #cfe2d1; border-radius:14px; background:#f5fbf5; }
+      .checkout-cod__icon { display:grid; place-items:center; flex:0 0 auto; width:38px; height:38px; border-radius:11px; background:#e0f1e1; color:#719477; }
+      .checkout-cod > div:nth-child(2) { flex:1; }
+      .checkout-cod strong { color:#46694b; font-size:13px; }
+      .checkout-cod p { margin-top:3px; color:#719477; font-size:11px; line-height:1.45; }
+      .checkout-cod__check { display:grid; place-items:center; flex:0 0 auto; width:23px; height:23px; border-radius:50%; background:#91a57a; color:#fff; }
+      .checkout-submit-error { margin-top:15px; padding:11px 13px; border-radius:10px; background:#fff0f0; color:#b33f4b; font-size:12px; }
+      .checkout-summary { position:sticky; top:24px; padding:23px; }
+      .checkout-summary__header { display:flex; align-items:center; justify-content:space-between; padding-bottom:17px; border-bottom:1px solid #eee5df; }
+      .checkout-summary__header h2 { color:#46352a; font-family:var(--serif); font-size:21px; font-weight:700; }
+      .checkout-summary__header span { color:#b56a45; font-size:11px; font-weight:700; }
+      .checkout-summary__items { padding:14px 0 6px; }
+      .checkout-summary__item { display:grid; grid-template-columns:45px minmax(0,1fr) auto; gap:10px; align-items:center; margin-bottom:14px; }
+      .checkout-summary__image { position:relative; display:grid; place-items:center; width:45px; height:45px; overflow:visible; border-radius:9px; background:#f6efe7; color:#b56a45; }
+      .checkout-summary__image img { width:100%; height:100%; overflow:hidden; border-radius:9px; object-fit:cover; }
+      .checkout-summary__image b { position:absolute; top:-6px; right:-6px; display:grid; place-items:center; width:18px; height:18px; border:2px solid #fff; border-radius:50%; background:#e8609a; color:#fff; font-size:9px; }
+      .checkout-summary__item p { overflow:hidden; color:#46352a; font-size:12px; font-weight:700; text-overflow:ellipsis; white-space:nowrap; }
+      .checkout-summary__item small { display:block; overflow:hidden; margin-top:2px; color:#9b8f87; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
+      .checkout-summary__item > strong { color:#46352a; font-size:12px; white-space:nowrap; }
+      .checkout-summary__rows { padding:15px 0 5px; border-top:1px solid #eee5df; }
+      .checkout-summary__rows > div, .checkout-summary__total { display:flex; justify-content:space-between; align-items:center; }
+      .checkout-summary__rows > div { margin-bottom:9px; color:#786a61; font-size:12px; }
+      .checkout-summary__rows strong { color:#46352a; font-size:12px; }
+      .checkout-summary__total { padding-top:13px; border-top:1px solid #eee5df; }
+      .checkout-summary__total span { color:#46352a; font-family:var(--serif); font-size:17px; font-weight:700; }
+      .checkout-summary__total strong { color:#b56a45; font-family:var(--serif); font-size:22px; }
+      .checkout-summary__cod { display:flex; align-items:center; gap:9px; margin-top:20px; padding:12px; border-radius:11px; background:#fff5e9; }
+      .checkout-summary__cod > span { display:grid; place-items:center; width:21px; height:21px; border-radius:50%; background:#f0c16c; color:#fff; font-size:12px; }
+      .checkout-summary__cod div { display:flex; flex-direction:column; gap:1px; }
+      .checkout-summary__cod strong { color:#8f6732; font-size:11px; }
+      .checkout-summary__cod small { color:#b58d57; font-size:10px; }
+      .checkout-spinner { width:15px; height:15px; border:2px solid rgba(70,53,42,.25); border-top-color:#46352a; border-radius:50%; animation:checkout-spin .7s linear infinite; }
+      .checkout-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:55vh; text-align:center; }
+      .checkout-empty__icon { display:grid; place-items:center; width:64px; height:64px; margin-bottom:17px; border-radius:50%; background:#fff0f7; color:#e8609a; }
+      .checkout-empty h1 { margin:8px 0; color:#46352a; font-family:var(--serif); font-size:36px; font-weight:700; }
+      .checkout-empty > p:not(.checkout-eyebrow) { margin-bottom:22px; color:#786a61; font-size:14px; }
+      @keyframes checkout-spin { to { transform:rotate(360deg); } }
+      @media (max-width: 1024px) {
+        .checkout-layout { grid-template-columns:1fr; }
+        .checkout-summary { position:static; order:-1; }
+      }
+      @media (max-width: 640px) {
+        .checkout-page { padding-top:26px; padding-bottom:55px; }
+        .checkout-topbar { margin-bottom:32px; }
+        .checkout-secure { display:none; }
+        .checkout-heading { margin-bottom:26px; }
+        .checkout-heading h1 { font-size:38px; }
+        .checkout-progress { justify-content:space-between; }
+        .checkout-progress__step { gap:6px; font-size:10px; }
+        .checkout-progress__dot { width:28px; height:28px; }
+        .checkout-progress__line { margin:0 8px; }
+        .checkout-card { padding:22px 17px; border-radius:18px; }
+        .checkout-card__header { margin-bottom:21px; padding-bottom:20px; }
+        .checkout-card__header h2 { font-size:22px; }
+        .checkout-form { grid-template-columns:1fr; gap:16px; }
+        .checkout-field--wide { grid-column:auto; }
+        .checkout-summary { padding:18px; border-radius:18px; }
+        .checkout-actions { flex-direction:column-reverse; }
+        .checkout-actions .checkout-button:first-child, .checkout-actions .checkout-button:last-child { flex:auto; width:100%; }
+      }
+    `}</style>
   )
 }

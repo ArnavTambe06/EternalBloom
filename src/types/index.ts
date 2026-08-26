@@ -21,6 +21,7 @@ export interface Product {
   dimensions?: string
   care_instructions?: string
   color_variants?: ColorVariant[]
+  variants?: ProductVariant[]
   is_available: boolean
   is_featured: boolean
   stock_count: number
@@ -32,9 +33,17 @@ export interface ColorVariant {
   hex: string
 }
 
+export interface ProductVariant {
+  id: string
+  name: string
+  images: string[]
+  color?: string
+}
+
 export interface CartItem {
   product: Product
   quantity: number
+  selected_variant?: ProductVariant
   selected_color?: ColorVariant
 }
 
@@ -83,6 +92,7 @@ export interface OrderItem {
   product_image: string
   price: number
   quantity: number
+  selected_variant?: ProductVariant
   selected_color?: ColorVariant
 }
 

@@ -21,7 +21,7 @@ export function AdminOrders() {
   async function load() {
     const { data } = await supabase
       .from('orders')
-      .select('*')
+      .select('*, order_items(*)')
       .order('created_at', { ascending: false })
     setOrders(data || [])
     setLoading(false)
@@ -196,6 +196,28 @@ export function AdminOrders() {
                 </div>
               ))}
             </div>
+
+            {/* Items to fulfil */}
+            {selected.order_items?.length > 0 && (
+              <div style={{ marginBottom: 20 }}>
+                <p className="label-caps" style={{ marginBottom: 8, color: 'var(--on-surface-muted)' }}>Items to fulfil</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {selected.order_items.map((item: any) => (
+                    <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
+                      <div style={{ width: 42, height: 42, borderRadius: 7, overflow: 'hidden', backgroundColor: 'var(--surface)', flexShrink: 0 }}>
+                        {item.product_image && <img src={item.product_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 600, color: 'var(--on-surface)' }}>{item.product_name}</p>
+                        <p style={{ fontFamily: 'var(--font-body)', fontSize: 11, color: 'var(--on-surface-muted)' }}>
+                          Qty: {item.quantity}{item.selected_variant ? ` · ${item.selected_variant.name}` : item.selected_color ? ` · ${item.selected_color.name}` : ''}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Update status */}
             <div style={{ marginBottom: 12 }}>

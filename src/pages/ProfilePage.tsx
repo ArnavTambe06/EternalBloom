@@ -558,7 +558,9 @@ export function ProfilePage() {
                                       fontSize: 11, color: 'var(--on-surface-muted)',
                                     }}>
                                       Qty: {item.quantity}
-                                      {item.selected_color
+                                      {item.selected_variant
+                                        ? ` · ${item.selected_variant.name}`
+                                        : item.selected_color
                                         ? ` · ${item.selected_color.name}`
                                         : ''}
                                     </p>

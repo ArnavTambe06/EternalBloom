@@ -14,10 +14,15 @@ export function ProductCard({ product, onViewDetails }: Props) {
   const discount = product.compare_price
     ? Math.round(((product.compare_price - product.price) / product.compare_price) * 100)
     : null
+  const hasVariants = Boolean(product.variants?.length || product.color_variants?.length)
 
   const handleAdd = (e: React.MouseEvent) => {
     e.stopPropagation()
     if (!product.is_available) return
+    if (hasVariants) {
+      onViewDetails(product)
+      return
+    }
     addItem(product)
     setAdded(true)
     setTimeout(() => setAdded(false), 1800)
@@ -126,7 +131,7 @@ export function ProductCard({ product, onViewDetails }: Props) {
           }}
         >
           <ShoppingBag size={13} strokeWidth={2} />
-          {added ? 'Added to bag!' : 'Add to bag'}
+          {added ? 'Added to bag!' : hasVariants ? 'Choose options' : 'Add to bag'}
         </motion.button>
       </div>
 

@@ -29,6 +29,15 @@
 - Category Management
 - Order Management
 - Customer Management
+- Shipping charge and free-shipping threshold settings
+
+### Shipping settings setup
+
+Shipping settings are stored in Supabase so an admin can update them from `/admin/settings`. Apply the SQL migration in `supabase/migrations/20260826000000_create_store_settings.sql` to the project before using the Save changes button. Anyone can read the settings for checkout, while only users with `role = 'admin'` in `user_profiles` can update them.
+
+### Product variants
+
+In Admin > Products, add each sellable form, style, size, or colour under Product Variants. Add the variant name, optionally paste image URLs, then upload additional images on the saved variant. Customers choose the variant in the product modal; its selected name and images are saved with the cart and order.
 
 ---
 

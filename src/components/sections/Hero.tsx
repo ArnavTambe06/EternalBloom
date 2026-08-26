@@ -12,7 +12,7 @@ export function Hero() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getProducts({ limit: 10 }).then(items => {
+    getProducts({ featured: true }).then(items => {
       setProducts(items)
       setLoading(false)
     })

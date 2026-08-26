@@ -39,9 +39,10 @@ export async function createOrder(payload: CreateOrderPayload) {
     order_id: order.id,
     product_id: item.product.id,
     product_name: item.product.name,
-    product_image: item.product.images?.[0] || null,
+    product_image: item.selected_variant?.images?.[0] || item.product.images?.[0] || null,
     price: item.product.price,
     quantity: item.quantity,
+    selected_variant: item.selected_variant || null,
     selected_color: item.selected_color || null,
   }))
 

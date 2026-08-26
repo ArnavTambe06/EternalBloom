@@ -16,12 +16,6 @@ const navLinks = [
   { label: 'Contact', href: '/contact' },
 ]
 
-const announcements = [
-  'Free shipping on orders above ₹999',
-  'Handmade to order — every piece is unique',
-  'Cash on delivery available across India',
-]
-
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -31,10 +25,15 @@ export function Navbar() {
   const [searching, setSearching] = useState(false)
   const [annIdx, setAnnIdx] = useState(0)
   const searchRef = useRef<HTMLInputElement>(null)
-  const { itemCount, toggleCart } = useCartStore()
+  const { itemCount, toggleCart, freeShippingAbove } = useCartStore()
   const { isLoggedIn } = useAuth()
   const count = itemCount()
   const location = useLocation()
+  const announcements = [
+    freeShippingAbove > 0 ? `Free shipping on orders above ₹${freeShippingAbove}` : 'Free shipping on all orders',
+    'Handmade to order — every piece is unique',
+    'Cash on delivery available across India',
+  ]
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 10)

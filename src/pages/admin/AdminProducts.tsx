@@ -6,7 +6,7 @@ import {
   Image as ImageIcon,
 } from 'lucide-react'
 import { supabase } from '@/services/supabase'
-import type { Product, Category } from '@/types'
+import type { Product, Category, ProductVariant } from '@/types'
 
 /* ── Shared styles ── */
 const palette = {
@@ -54,6 +54,7 @@ const emptyForm = {
   is_available: true, is_featured: false,
   images: [] as string[],
   color_variants: [] as { name: string; hex: string }[],
+  variants: [] as ProductVariant[],
 }
 
 type FormMode = 'closed' | 'create' | 'edit'
@@ -70,7 +71,8 @@ export function AdminProducts() {
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
-  const [colorInput, setColorInput] = useState({ name: '', hex: palette.rose })
+  const [uploadingVariant, setUploadingVariant] = useState<number | null>(null)
+  const [variantInput, setVariantInput] = useState({ name: '', images: '', color: '' })
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => { load() }, [])
@@ -90,11 +92,24 @@ export function AdminProducts() {
   const openCreate = () => {
     setEditing(null)
     setForm({ ...emptyForm })
+    setVariantInput({ name: '', images: '', color: '' })
     setMode('create')
   }
 
   const openEdit = (p: Product) => {
     setEditing(p)
+    const variants = p.variants?.length
+      ? p.variants.map((variant, index) => ({
+          ...variant,
+          id: variant.id || `variant-${index}-${variant.name}`,
+          images: variant.images || [],
+        }))
+      : (p.color_variants || []).map((color, index) => ({
+          id: `legacy-color-${index}-${color.name}`,
+          name: color.name,
+          color: color.hex,
+          images: p.images || [],
+        }))
     setForm({
       name: p.name, slug: p.slug, description: p.description,
       price: String(p.price), compare_price: String(p.compare_price || ''),
@@ -103,7 +118,9 @@ export function AdminProducts() {
       stock_count: String(p.stock_count), is_available: p.is_available,
       is_featured: p.is_featured, images: p.images || [],
       color_variants: (p.color_variants as any) || [],
+      variants,
     })
+    setVariantInput({ name: '', images: '', color: '' })
     setMode('edit')
   }
 
@@ -123,7 +140,13 @@ export function AdminProducts() {
       care_instructions: form.care_instructions,
       stock_count: parseInt(form.stock_count),
       is_available: form.is_available, is_featured: form.is_featured,
-      images: form.images, color_variants: form.color_variants,
+      images: form.images.length
+        ? form.images
+        : form.variants.flatMap(variant => variant.images).slice(0, 2),
+      color_variants: form.variants
+        .filter(variant => variant.color)
+        .map(variant => ({ name: variant.name, hex: variant.color })),
+      variants: form.variants,
     }
     if (editing) {
       const { error } = await supabase.from('products').update(payload).eq('id', editing.id)
@@ -149,28 +172,81 @@ export function AdminProducts() {
     setDeleting(null)
   }
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.length) return
-    setUploadingImage(true)
+  const uploadImages = async (files: File[]) => {
     const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
     const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
-    for (const file of Array.from(e.target.files)) {
+    const urls: string[] = []
+
+    for (const file of files) {
       const fd = new FormData()
       fd.append('file', file)
       fd.append('upload_preset', preset)
       fd.append('folder', 'eternal-bloom/products')
       const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: 'POST', body: fd })
       const data = await res.json()
-      if (data.secure_url) set('images', [...form.images, data.secure_url])
+      if (data.secure_url) urls.push(data.secure_url)
     }
-    setUploadingImage(false)
+    return urls
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return
+    setUploadingImage(true)
+    try {
+      const urls = await uploadImages(Array.from(e.target.files))
+      setForm(current => ({ ...current, images: [...current.images, ...urls] }))
+    } finally {
+      setUploadingImage(false)
+    }
     if (fileRef.current) fileRef.current.value = ''
   }
 
-  const addColor = () => {
-    if (!colorInput.name) return
-    set('color_variants', [...form.color_variants, { ...colorInput }])
-    setColorInput({ name: '', hex: palette.rose })
+  const handleVariantImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, variantIndex: number) => {
+    if (!e.target.files?.length) return
+    setUploadingVariant(variantIndex)
+    try {
+      const urls = await uploadImages(Array.from(e.target.files))
+      setForm(current => ({
+        ...current,
+        variants: current.variants.map((variant, index) =>
+          index === variantIndex
+            ? { ...variant, images: [...variant.images, ...urls] }
+            : variant
+        ),
+      }))
+    } finally {
+      setUploadingVariant(null)
+    }
+    e.target.value = ''
+  }
+
+  const addVariant = () => {
+    const name = variantInput.name.trim()
+    if (!name) return
+    const images = variantInput.images
+      .split(/[\n,]/)
+      .map(url => url.trim())
+      .filter(Boolean)
+
+    set('variants', [...form.variants, {
+      id: globalThis.crypto.randomUUID(),
+      name,
+      images,
+      ...(variantInput.color ? { color: variantInput.color } : {}),
+    }])
+    setVariantInput({ name: '', images: '', color: '' })
+  }
+
+  const removeVariant = (variantId: string) => {
+    set('variants', form.variants.filter(variant => variant.id !== variantId))
+  }
+
+  const removeVariantImage = (variantIndex: number, imageIndex: number) => {
+    set('variants', form.variants.map((variant, index) =>
+      index === variantIndex
+        ? { ...variant, images: variant.images.filter((_, i) => i !== imageIndex) }
+        : variant
+    ))
   }
 
   const filtered = products
@@ -709,74 +785,107 @@ export function AdminProducts() {
                   </div>
                 </div>
 
-                {/* Section: Colour variants */}
+                {/* Section: Sellable variants */}
                 <div style={{
                   backgroundColor: '#FFFFFF', borderRadius: 8,
                   padding: '24px', marginBottom: 20,
                   border: '1px solid rgba(23,17,13,0.11)',
                 }}>
-                  <p style={{ ...LBL, marginBottom: 16, fontSize: 12 }}>Colour Variants</p>
+                  <p style={{ ...LBL, marginBottom: 7, fontSize: 12 }}>Product Variants</p>
+                  <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: palette.muted, marginBottom: 16 }}>
+                    Add each sellable style, colour, size, or form with its own images. Customers must choose one before adding it to their bag.
+                  </p>
 
-                  {/* Existing colours */}
-                  {form.color_variants.length > 0 && (
-                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
-                      {form.color_variants.map((c, i) => (
-                        <div key={i} style={{
-                          display: 'flex', alignItems: 'center', gap: 6,
-                          padding: '5px 10px 5px 6px',
-                          border: `1px solid ${palette.line}`,
-                          borderRadius: 6, backgroundColor: '#FFFFFF',
+                  {form.variants.length > 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 18 }}>
+                      {form.variants.map((variant, variantIndex) => (
+                        <div key={variant.id} style={{
+                          padding: 12, border: `1px solid ${palette.line}`,
+                          borderRadius: 7, backgroundColor: palette.paper,
                         }}>
-                          <div style={{
-                            width: 14, height: 14, borderRadius: '50%',
-                            backgroundColor: c.hex, flexShrink: 0,
-                            border: '1px solid rgba(0,0,0,0.1)',
-                          }} />
-                          <span style={{
-                            fontFamily: 'DM Sans, sans-serif',
-                            fontSize: 12, color: palette.ink,
-                          }}>{c.name}</span>
-                          <button
-                            onClick={() => set('color_variants', form.color_variants.filter((_, idx) => idx !== i))}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: palette.muted, display: 'flex', padding: 0 }}
-                          ><X size={11} /></button>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            {variant.color && <span style={{
+                              width: 18, height: 18, borderRadius: '50%', flexShrink: 0,
+                              backgroundColor: variant.color, border: '1px solid rgba(0,0,0,0.12)',
+                            }} />}
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: palette.ink }}>
+                                {variant.name}
+                              </p>
+                              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: palette.muted, marginTop: 2 }}>
+                                {variant.images.length} image{variant.images.length === 1 ? '' : 's'}
+                              </p>
+                            </div>
+                            <label style={{
+                              display: 'inline-flex', alignItems: 'center', gap: 5,
+                              padding: '7px 9px', border: `1px solid ${palette.line}`,
+                              borderRadius: 5, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif',
+                              fontSize: 11, color: palette.ink,
+                            }}>
+                              <Upload size={12} />
+                              {uploadingVariant === variantIndex ? 'Uploading...' : 'Upload images'}
+                              <input
+                                type="file" multiple accept="image/*" style={{ display: 'none' }}
+                                onChange={e => handleVariantImageUpload(e, variantIndex)}
+                                disabled={uploadingVariant !== null}
+                              />
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => removeVariant(variant.id)}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: palette.muted, display: 'flex', padding: 4 }}
+                              aria-label={`Remove ${variant.name}`}
+                            ><X size={14} /></button>
+                          </div>
+                          {variant.images.length > 0 && (
+                            <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginTop: 10 }}>
+                              {variant.images.map((image, imageIndex) => (
+                                <div key={image} style={{ position: 'relative', width: 54, height: 54 }}>
+                                  <img src={image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 5 }} />
+                                  <button
+                                    type="button"
+                                    onClick={() => removeVariantImage(variantIndex, imageIndex)}
+                                    style={{ position: 'absolute', top: -5, right: -5, width: 17, height: 17, borderRadius: '50%', background: palette.ink, color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+                                    aria-label="Remove variant image"
+                                  ><X size={10} /></button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
                   )}
 
-                  {/* Add colour */}
-                  <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px', gap: 10, marginBottom: 10 }}>
                     <input
-                      placeholder="Colour name e.g. Blush Pink"
-                      value={colorInput.name}
-                      onChange={e => setColorInput(c => ({ ...c, name: e.target.value }))}
-                      style={{ ...F, flex: 1 }}
-                      onFocus={focusF} onBlur={blurF}
-                      onKeyDown={e => e.key === 'Enter' && addColor()}
+                      placeholder="Variant name e.g. Blue flower / Large"
+                      value={variantInput.name}
+                      onChange={e => setVariantInput(current => ({ ...current, name: e.target.value }))}
+                      style={F} onFocus={focusF} onBlur={blurF}
+                      onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addVariant())}
                     />
-                    <input
-                      type="color"
-                      value={colorInput.hex}
-                      onChange={e => setColorInput(c => ({ ...c, hex: e.target.value }))}
-                      style={{
-                        width: 44, height: 40, borderRadius: 6,
-                        border: `1px solid ${palette.line}`,
-                        cursor: 'pointer', padding: 2,
-                      }}
-                    />
-                    <button
-                      onClick={addColor}
-                      style={{
-                        padding: '10px 18px', borderRadius: 6,
-                        background: palette.ink,
-                        border: `1px solid ${palette.ink}`, cursor: 'pointer',
-                        fontFamily: 'DM Sans, sans-serif',
-                        fontSize: 13, fontWeight: 700, color: '#FFFFFF',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >Add</button>
+                    <label style={{ ...F, display: 'flex', alignItems: 'center', gap: 7, cursor: 'pointer', color: palette.muted, fontSize: 11 }}>
+                      <input
+                        type="color" value={variantInput.color || palette.rose}
+                        onChange={e => setVariantInput(current => ({ ...current, color: e.target.value }))}
+                        style={{ width: 25, height: 25, padding: 0, border: 0, cursor: 'pointer' }}
+                      />
+                      Colour
+                    </label>
                   </div>
+                  <textarea
+                    rows={2} placeholder="Optional image URLs, one per line (uploads can be added after creating the variant)"
+                    value={variantInput.images}
+                    onChange={e => setVariantInput(current => ({ ...current, images: e.target.value }))}
+                    style={{ ...F, resize: 'vertical', marginBottom: 10 }}
+                    onFocus={focusF} onBlur={blurF}
+                  />
+                  <button
+                    type="button"
+                    onClick={addVariant}
+                    style={{ padding: '10px 18px', borderRadius: 6, background: palette.ink, border: `1px solid ${palette.ink}`, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#FFFFFF' }}
+                  >Add variant</button>
                 </div>
 
                 {/* Section: Visibility */}

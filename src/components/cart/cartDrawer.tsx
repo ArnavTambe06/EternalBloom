@@ -1,11 +1,10 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ShoppingBag, Plus, Minus, Trash2, ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { useCartStore } from '@/store/cartStore'
-import { SHIPPING } from '@/lib/constants'
+import { getCartVariantKey, useCartStore } from '@/store/cartStore'
 
 export function CartDrawer() {
-  const { items, isOpen, closeCart, removeItem, updateQuantity, subtotal, shipping, total } = useCartStore()
+  const { items, isOpen, closeCart, removeItem, updateQuantity, subtotal, shipping, total, freeShippingAbove } = useCartStore()
   const sub = subtotal()
   const ship = shipping()
   const tot = total()
@@ -109,7 +108,7 @@ export function CartDrawer() {
                 <div>
                   {items.map((item, i) => (
                     <motion.div
-                      key={item.product.id}
+                      key={`${item.product.id}-${getCartVariantKey(item)}`}
                       layout
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -126,9 +125,9 @@ export function CartDrawer() {
                         overflow: 'hidden',
                         border: '1px solid var(--line)',
                       }}>
-                        {item.product.images?.[0] && (
+                        {(item.selected_variant?.images?.[0] || item.product.images?.[0]) && (
                           <img
-                            src={item.product.images[0]}
+                            src={item.selected_variant?.images?.[0] || item.product.images[0]}
                             alt={item.product.name}
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                           />
@@ -152,12 +151,12 @@ export function CartDrawer() {
                           whiteSpace: 'nowrap',
                         }}>{item.product.name}</p>
 
-                        {item.selected_color && (
+                        {(item.selected_variant || item.selected_color) && (
                           <p style={{
                             fontFamily: 'var(--sans)',
                             fontSize: 11, color: 'var(--ink-3)', marginBottom: 10,
                           }}>
-                            Colour: {item.selected_color.name}
+                            Variant: {item.selected_variant?.name || item.selected_color?.name}
                           </p>
                         )}
 
@@ -168,9 +167,9 @@ export function CartDrawer() {
                           {/* Qty */}
                           <div style={{ display: 'inline-flex', alignItems: 'center' }}>
                             {[
-                              { Icon: Minus, action: () => updateQuantity(item.product.id, item.quantity - 1) },
+                              { Icon: Minus, action: () => updateQuantity(item.product.id, item.quantity - 1, getCartVariantKey(item)) },
                               null,
-                              { Icon: Plus, action: () => updateQuantity(item.product.id, item.quantity + 1) },
+                              { Icon: Plus, action: () => updateQuantity(item.product.id, item.quantity + 1, getCartVariantKey(item)) },
                             ].map((btn, j) =>
                               btn === null ? (
                                 <span key="v" style={{
@@ -204,7 +203,7 @@ export function CartDrawer() {
                               fontSize: 14, fontWeight: 600, color: 'var(--ink)',
                             }}>₹{item.product.price * item.quantity}</span>
                             <button
-                              onClick={() => removeItem(item.product.id)}
+                              onClick={() => removeItem(item.product.id, getCartVariantKey(item))}
                               style={{
                                 background: 'none', border: 'none',
                                 cursor: 'pointer', color: 'var(--ink-3)',
@@ -232,19 +231,19 @@ export function CartDrawer() {
                 borderTop: '1px solid var(--line)',
               }}>
                 {/* Free shipping progress */}
-                {sub < SHIPPING.freeAbove && (
+                {freeShippingAbove > 0 && sub < freeShippingAbove && (
                   <div style={{ marginBottom: 16 }}>
                     <div style={{
                       display: 'flex', justifyContent: 'space-between', marginBottom: 6,
                     }}>
                       <span style={{ fontFamily: 'var(--sans)', fontSize: 11, color: 'var(--ink-3)' }}>
-                        ₹{SHIPPING.freeAbove - sub} away from free shipping
+                        ₹{freeShippingAbove - sub} away from free shipping
                       </span>
                     </div>
                     <div style={{ height: 2, backgroundColor: 'var(--line)' }}>
                       <motion.div
                         initial={{ width: 0 }}
-                        animate={{ width: `${Math.min(100, (sub / SHIPPING.freeAbove) * 100)}%` }}
+                        animate={{ width: `${Math.min(100, (sub / freeShippingAbove) * 100)}%` }}
                         style={{ height: '100%', background: 'var(--grad)' }}
                       />
                     </div>
@@ -302,7 +301,7 @@ export function CartDrawer() {
                   fontFamily: 'var(--sans)', fontSize: 11,
                   color: 'var(--ink-3)',
                 }}>
-                  Cash on Delivery · Free shipping above ₹999
+                  Cash on Delivery · {freeShippingAbove > 0 ? `Free shipping above ₹${freeShippingAbove}` : 'Free shipping on all orders'}
                 </p>
               </div>
             )}

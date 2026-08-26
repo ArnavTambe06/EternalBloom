@@ -1,20 +1,30 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { CartItem, Product, ColorVariant } from '@/types'
+import type { CartItem, Product, ProductVariant } from '@/types'
 import { SHIPPING } from '@/lib/constants'
+
+export function getCartVariantKey(item: CartItem) {
+  return item.selected_variant?.id
+    || item.selected_variant?.name
+    || item.selected_color?.name
+    || ''
+}
 
 interface CartState {
   items: CartItem[]
   isOpen: boolean
+  shippingFlat: number
+  freeShippingAbove: number
 
   // Actions
-  addItem: (product: Product, quantity?: number, color?: ColorVariant) => void
-  removeItem: (productId: string) => void
-  updateQuantity: (productId: string, quantity: number) => void
+  addItem: (product: Product, quantity?: number, variant?: ProductVariant) => void
+  removeItem: (productId: string, variantKey?: string) => void
+  updateQuantity: (productId: string, quantity: number, variantKey?: string) => void
   clearCart: () => void
   openCart: () => void
   closeCart: () => void
   toggleCart: () => void
+  setShippingSettings: (settings: { flat: number; freeAbove: number }) => void
 
   // Computed
   itemCount: () => number
@@ -28,40 +38,52 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
       isOpen: false,
+      shippingFlat: SHIPPING.flat,
+      freeShippingAbove: SHIPPING.freeAbove,
 
-      addItem: (product, quantity = 1, color) => {
+      addItem: (product, quantity = 1, variant) => {
+        const variantKey = variant?.id || variant?.name || ''
         set((state) => {
           const existing = state.items.find(
-            (i) => i.product.id === product.id && i.selected_color?.name === color?.name
+            (i) => i.product.id === product.id && getCartVariantKey(i) === variantKey
           )
           if (existing) {
             return {
               items: state.items.map((i) =>
-                i.product.id === product.id && i.selected_color?.name === color?.name
+                i.product.id === product.id && getCartVariantKey(i) === variantKey
                   ? { ...i, quantity: Math.min(i.quantity + quantity, i.product.stock_count) }
                   : i
               ),
             }
           }
           return {
-            items: [...state.items, { product, quantity, selected_color: color }],
+            items: [...state.items, { product, quantity, selected_variant: variant }],
           }
         })
         get().openCart()
       },
 
-      removeItem: (productId) =>
+      removeItem: (productId, variantKey) =>
         set((state) => ({
-          items: state.items.filter((i) => i.product.id !== productId),
+          items: state.items.filter((i) =>
+            i.product.id !== productId ||
+            (variantKey !== undefined && getCartVariantKey(i) !== variantKey)
+          ),
         })),
 
-      updateQuantity: (productId, quantity) =>
+      updateQuantity: (productId, quantity, variantKey) =>
         set((state) => ({
           items:
             quantity <= 0
-              ? state.items.filter((i) => i.product.id !== productId)
+              ? state.items.filter((i) =>
+                  i.product.id !== productId ||
+                  (variantKey !== undefined && getCartVariantKey(i) !== variantKey)
+                )
               : state.items.map((i) =>
-                  i.product.id === productId ? { ...i, quantity } : i
+                  i.product.id === productId &&
+                  (variantKey === undefined || getCartVariantKey(i) === variantKey)
+                    ? { ...i, quantity }
+                    : i
                 ),
         })),
 
@@ -70,6 +92,10 @@ export const useCartStore = create<CartState>()(
       openCart: () => set({ isOpen: true }),
       closeCart: () => set({ isOpen: false }),
       toggleCart: () => set((s) => ({ isOpen: !s.isOpen })),
+      setShippingSettings: ({ flat, freeAbove }) => set({
+        shippingFlat: flat,
+        freeShippingAbove: freeAbove,
+      }),
 
       itemCount: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
 
@@ -78,7 +104,7 @@ export const useCartStore = create<CartState>()(
 
       shipping: () => {
         const sub = get().subtotal()
-        return sub >= SHIPPING.freeAbove ? 0 : SHIPPING.flat
+        return sub >= get().freeShippingAbove ? 0 : get().shippingFlat
       },
 
       total: () => get().subtotal() + get().shipping(),
