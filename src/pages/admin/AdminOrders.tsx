@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { supabase } from '@/services/supabase'
-import { Eye, ChevronDown } from 'lucide-react'
+import { Eye} from 'lucide-react'
 
 const statusOptions = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled']
 const statusColor: Record<string, string> = {

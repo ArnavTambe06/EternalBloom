@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { Eye, EyeOff, CheckCircle, ArrowRight } from 'lucide-react'
 import { signUpWithEmail, signInWithGoogle } from '@/services/auth'
 
@@ -11,7 +11,7 @@ export function RegisterPage() {
   const [success, setSuccess] = useState(false)
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
-  const navigate = useNavigate()
+
 
   const strength = form.password.length === 0 ? 0 : form.password.length < 6 ? 1 : form.password.length < 8 ? 2 : 3
   const strengthLabel = ['', 'Too short', 'Almost there', 'Strong'][strength]

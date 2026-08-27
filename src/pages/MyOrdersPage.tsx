@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Package, ChevronRight } from 'lucide-react'
+import { Package} from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { getUserOrders } from '@/services/orders'

@@ -5,7 +5,6 @@ import {
   Sparkles, ExternalLink, Upload,
   Link as LinkIcon, Plus,
 } from 'lucide-react'
-import { Link } from 'react-router-dom'
 import { CATEGORIES } from '@/lib/constants'
 import { submitCustomOrder } from '@/services/customOrders'
 import { uploadMultipleImages } from '@/services/cloudinary'

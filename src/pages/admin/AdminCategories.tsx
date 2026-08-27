@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Edit2, Trash2, X, GripVertical, ImageIcon } from 'lucide-react'
+import { Plus, Edit2, Trash2, X, ImageIcon } from 'lucide-react'
 import { supabase } from '@/services/supabase'
 import type { Category } from '@/types'
 
