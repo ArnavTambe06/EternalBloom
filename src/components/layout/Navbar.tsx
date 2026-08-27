@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, ShoppingBag, User, Menu, X } from 'lucide-react'
+import { Search, ShoppingBag, User, Menu, X, LogOut } from 'lucide-react'
 import { useCartStore } from '@/store/cartStore'
 import { useAuth } from '@/hooks/useAuth'
+import { signOut } from '@/services/auth'
 import { BRAND } from '@/lib/constants'
 import { getProducts } from '@/services/products'
 import type { Product } from '@/types'
@@ -61,6 +62,11 @@ export function Navbar() {
     }, 300)
     return () => clearTimeout(t)
   }, [searchQuery])
+
+  const handleMobileSignOut = async () => {
+    await signOut()
+    setMenuOpen(false)
+  }
 
   const iconBtn = (onClick: () => void, children: React.ReactNode, label: string) => (
     <motion.button
@@ -376,20 +382,39 @@ export function Navbar() {
                   borderBottom: '1px solid var(--line)',
                 }}>{link.label}</Link>
               ))}
-              <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-                <Link to="/login" style={{
-                  flex: 1, textAlign: 'center', padding: '11px',
-                  border: '1.5px solid var(--ink-2)',
-                  fontFamily: 'var(--sans)', fontSize: 13,
-                  fontWeight: 500, color: 'var(--ink)', borderRadius: 999,
-                }}>Login</Link>
-                <Link to="/register" style={{
-                  flex: 1, textAlign: 'center', padding: '11px',
-                  background: 'var(--grad)', borderRadius: 999,
-                  fontFamily: 'var(--sans)', fontSize: 13,
-                  fontWeight: 600, color: 'var(--ink)',
-                }}>Sign Up</Link>
-              </div>
+              {isLoggedIn() ? (
+                <button
+                  type="button"
+                  onClick={handleMobileSignOut}
+                  style={{
+                    width: '100%', textAlign: 'center', padding: '11px',
+                    marginTop: 16,
+                    border: '1.5px solid var(--ink-2)',
+                    background: 'transparent',
+                    fontFamily: 'var(--sans)', fontSize: 13,
+                    fontWeight: 500, color: 'var(--ink)', borderRadius: 999,
+                    cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                  }}
+                >
+                  <LogOut size={14} /> Logout
+                </button>
+              ) : (
+                <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+                  <Link to="/login" style={{
+                    flex: 1, textAlign: 'center', padding: '11px',
+                    border: '1.5px solid var(--ink-2)',
+                    fontFamily: 'var(--sans)', fontSize: 13,
+                    fontWeight: 500, color: 'var(--ink)', borderRadius: 999,
+                  }}>Login</Link>
+                  <Link to="/register" style={{
+                    flex: 1, textAlign: 'center', padding: '11px',
+                    background: 'var(--grad)', borderRadius: 999,
+                    fontFamily: 'var(--sans)', fontSize: 13,
+                    fontWeight: 600, color: 'var(--ink)',
+                  }}>Sign Up</Link>
+                </div>
+              )}
             </div>
           </motion.div>
         )}

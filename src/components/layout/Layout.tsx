@@ -2,7 +2,6 @@ import { Outlet } from 'react-router-dom'
 import { Navbar } from './Navbar'
 import { Footer } from './Footer'
 import { CartDrawer } from '@/components/cart/CartDrawer'
-import { WelcomePopup } from '@/components/ui/WelcomePopup'
 import { AuroraBg } from '@/components/AurorBg'
 import { PeekingCard } from '@/components/ui/PeekingCard'
 
@@ -19,7 +18,6 @@ export function Layout() {
       </div>
       <PeekingCard />
       <CartDrawer />
-      <WelcomePopup />
     </div>
   )
 }
