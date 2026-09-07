@@ -54,7 +54,12 @@ export function ContactPage() {
                     {item.label}
                   </p>
                   {item.href ? (
-                    <a href={item.href} style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#46352A', textDecoration: 'none' }}>
+                    <a
+                      href={item.href}
+                      target={item.href.startsWith('http') ? '_blank' : undefined}
+                      rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                      style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#46352A', textDecoration: 'none' }}
+                    >
                       {item.value}
                     </a>
                   ) : (

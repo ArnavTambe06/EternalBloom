@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { signOut } from '@/services/auth'
+import { BrandLogo } from '@/components/ui/BrandLogo'
 
 const navItems = [
   { label: 'Dashboard',     href: '/admin',               icon: LayoutDashboard },
@@ -65,15 +66,7 @@ export function AdminLayout() {
           borderBottom: '1px solid rgba(255,133,208,0.12)',
           flexShrink: 0,
         }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: '50%',
-            background: 'linear-gradient(135deg,#FF85D0,#FFA6E0,#FFC8A2,#FFE680)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontFamily: 'Playfair Display, serif',
-            fontWeight: 700, fontSize: 13, color: '#1C0F0A',
-            flexShrink: 0,
-            boxShadow: '0 0 0 2px rgba(255,133,208,0.25)',
-          }}>EB</div>
+          <BrandLogo size={40} style={{ boxShadow: '0 0 0 2px rgba(255,133,208,0.25)' }} />
 
           <AnimatePresence>
             {!collapsed && (

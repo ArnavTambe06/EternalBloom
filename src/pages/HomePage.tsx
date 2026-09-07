@@ -8,7 +8,7 @@ import { CategoriesSection } from '@/components/sections/CategoriesSection'
 const faqs = [
   { q: 'How long does delivery take?', a: 'Every piece is made to order. We dispatch within 3–5 business days, with 2–5 additional days for delivery.' },
   { q: 'Can I customise a product?', a: 'Yes — use our Custom Order page to describe your vision. We\'ll create something tailored entirely to you.' },
-  { q: 'Do your flowers last forever?', a: 'Yes. Our crochet pieces never wilt or fade — they\'re keepsakes made to last a lifetime.' },
+  { q: 'Do your flowers last forever?', a: 'Yes. Our pipe cleaner pieces never wilt or fade — they\'re keepsakes made to last a lifetime.' },
   { q: 'Do you offer Cash on Delivery?', a: 'Yes, all orders are Cash on Delivery. No online payment required.' },
   { q: 'What if my order arrives damaged?', a: 'Reach out within 24 hours with an unboxing video and we\'ll make it right.' },
 ]

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Mail } from 'lucide-react'
 import { BRAND, CATEGORIES } from '@/lib/constants'
+import { BrandLogo } from '@/components/ui/BrandLogo'
 
 const linkStyle: React.CSSProperties = {
   fontFamily: 'var(--sans)', fontSize: 13,
@@ -33,14 +34,7 @@ export function Footer() {
         {/* Brand */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-            <div style={{
-              width: 34, height: 34, borderRadius: '50%',
-              background: 'var(--grad)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'var(--serif)', fontWeight: 700, fontSize: 13,
-              color: 'var(--ink)',
-              boxShadow: '0 4px 12px rgba(255,133,208,0.3)',
-            }}>EB</div>
+            <BrandLogo size={40} style={{ boxShadow: '0 4px 12px rgba(255,133,208,0.24)' }} />
             <span style={{
               fontFamily: 'var(--serif)', fontSize: 16,
               fontWeight: 700, color: 'var(--ink)',
@@ -51,7 +45,7 @@ export function Footer() {
             color: 'var(--ink-2)', lineHeight: 1.6,
             maxWidth: 220, marginBottom: 24,
           }}>
-            Handcrafted crochet pieces — designed with patience, packed with emotions.
+            Handcrafted pipe cleaner pieces — designed with patience, packed with emotions.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <a

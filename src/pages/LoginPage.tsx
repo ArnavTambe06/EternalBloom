@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, AlertCircle, ArrowRight } from 'lucide-react'
 import { signInWithEmail, signInWithGoogle } from '@/services/auth'
+import { BrandLogo } from '@/components/ui/BrandLogo'
 
 export function LoginPage() {
   const [show, setShow] = useState(false)
@@ -44,13 +45,7 @@ export function LoginPage() {
           justifyContent: 'space-between',
         }} className="auth-side-panel">
           <div>
-            <div style={{
-              width: 48, height: 48, borderRadius: '50%',
-              backgroundColor: 'rgba(255,255,255,0.3)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'var(--serif)', fontWeight: 700, fontSize: 18,
-              color: 'var(--ink)', marginBottom: 40,
-            }}>EB</div>
+            <BrandLogo size={58} style={{ marginBottom: 40 }} />
             <h2 style={{
               fontFamily: 'var(--serif)', fontSize: 36,
               fontWeight: 700, color: 'var(--ink)',

@@ -18,7 +18,7 @@ export function Hero() {
           </h1>
 
           <p className="landing-hero__description">
-            Handcrafted crochet keychains, desk buddies, bouquets & more — made slowly, meant to stay.
+            Handcrafted pipe cleaner keychains, desk buddies, bouquets & more — made slowly, meant to stay.
           </p>
 
           <div className="landing-hero__actions">

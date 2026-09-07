@@ -8,6 +8,7 @@ import { signOut } from '@/services/auth'
 import { BRAND } from '@/lib/constants'
 import { getProducts } from '@/services/products'
 import type { Product } from '@/types'
+import { BrandLogo } from '@/components/ui/BrandLogo'
 
 const navLinks = [
   { label: 'Shop All', href: '/#products' },
@@ -134,14 +135,7 @@ export function Navbar() {
 
           {/* Logo */}
           <Link to="/" className="navbar-brand" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{
-              width: 36, height: 36, borderRadius: '50%',
-              background: 'var(--grad)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'var(--serif)', fontWeight: 700, fontSize: 14,
-              color: 'var(--ink)',
-              boxShadow: '0 4px 14px rgba(255,133,208,0.4)',
-            }}>EB</div>
+            <BrandLogo size={42} style={{ boxShadow: '0 4px 14px rgba(255,133,208,0.28)' }} />
             <div className="navbar-brand-copy">
                <p style={{
                 fontFamily: 'var(--serif)', fontSize: 17,
