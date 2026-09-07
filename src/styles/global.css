@@ -691,21 +691,6 @@ input, textarea, select { font-family: var(--sans); }
   text-transform: uppercase;
 }
 
-.landing-hero__scroll {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  margin-top: 68px;
-  color: #9c7b6e;
-  font-family: var(--sans);
-  font-size: 11px;
-  text-align: left;
-  transition: color 0.2s ease;
-}
-
-.landing-hero__scroll:hover { color: #1c0f0a; }
-.landing-hero__scroll svg { color: #e8609a; }
-
 .product-ribbon {
   position: relative;
   min-width: 0;
@@ -935,7 +920,6 @@ input, textarea, select { font-family: var(--sans); }
   .landing-hero__inner { min-height: 0; padding-top: 72px; padding-bottom: 82px; }
   .landing-hero__copy { max-width: 700px; }
   .landing-hero__copy h1 { max-width: 700px; }
-  .landing-hero__scroll { margin-top: 54px; }
 }
 
 @media (max-width: 640px) {
@@ -964,10 +948,6 @@ input, textarea, select { font-family: var(--sans); }
   }
   .landing-hero__note { font-size: 9px; }
   .landing-hero__actions { align-items: center; flex-direction: column; gap: 11px; }
-  .landing-hero__scroll {
-    margin-top: 46px;
-    font-size: 10px;
-  }
 }
 
 /* -- Collections page responsive layout -- */

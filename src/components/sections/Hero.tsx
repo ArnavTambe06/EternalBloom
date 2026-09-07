@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowRight } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
 export function Hero() {
   const scrollToProducts = () => {
@@ -28,10 +28,6 @@ export function Hero() {
             <span className="landing-hero__note">Made to order / one of one</span>
           </div>
 
-          <button className="landing-hero__scroll" type="button" onClick={scrollToProducts}>
-            <span>Scroll to browse</span>
-            <ArrowDown size={15} />
-          </button>
         </div>
       </div>
     </section>
