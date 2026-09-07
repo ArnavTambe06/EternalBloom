@@ -14,6 +14,8 @@ const hoverOut = (e: React.MouseEvent<HTMLAnchorElement>) =>
   (e.currentTarget.style.color = 'rgba(28,15,10,0.6)')
 
 export function Footer() {
+  const displayPhone = BRAND.phone.replace(/^\+91\s*/, '')
+
   return (
     <footer style={{
       background: 'linear-gradient(160deg, rgba(255,133,208,0.15) 0%, rgba(255,200,162,0.12) 50%, rgba(255,230,128,0.10) 100%)',
@@ -22,7 +24,7 @@ export function Footer() {
     }}>
       {/* CTA strip */}
       <div className="wrap footer-grid" style={{
-        padding: '64px 0 48px',
+        padding: '64px var(--px) 48px',
         display: 'grid',
         gridTemplateColumns: '1.8fr 1fr 1fr 1fr',
         gap: 48,
@@ -51,7 +53,33 @@ export function Footer() {
           }}>
             Handcrafted crochet pieces — designed with patience, packed with emotions.
           </p>
-          <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <a
+              href={`tel:${BRAND.phone}`}
+              aria-label={`Call ${displayPhone}`}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 10,
+                width: 'fit-content', color: 'var(--ink-2)',
+                fontFamily: 'var(--sans)', fontSize: 13,
+                textDecoration: 'none', transition: 'color 0.2s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent)' }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--ink-2)' }}
+            >
+              <span style={{
+                width: 36, height: 36, borderRadius: '50%',
+                border: '1px solid var(--line-2)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.8a19.79 19.79 0 01-3.07-8.7A2 2 0 012.18 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 9.91a16 16 0 006.16 6.16l1.27-.53a2 2 0 012.11.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+                </svg>
+              </span>
+              {displayPhone}
+            </a>
+
+            <div style={{ display: 'flex', gap: 10 }}>
             {[
               {
                 href: BRAND.instagram, label: 'Instagram',
@@ -65,16 +93,6 @@ export function Footer() {
               {
                 href: `mailto:${BRAND.email}`, label: 'Email',
                 icon: <Mail size={14} strokeWidth={1.6} />,
-              },
-              {
-                
-  href: `tel:${BRAND.phone}`, label: 'Phone',
-  icon: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.8a19.79 19.79 0 01-3.07-8.7A2 2 0 012.18 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 9.91a16 16 0 006.16 6.16l1.27-.53a2 2 0 012.11.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
-    </svg>
-  ),
               },
             ].map(s => (
               <a key={s.label} href={s.href}
@@ -100,6 +118,7 @@ export function Footer() {
                 {s.icon}
               </a>
             ))}
+            </div>
           </div>
         </div>
 

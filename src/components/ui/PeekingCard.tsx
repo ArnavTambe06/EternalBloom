@@ -29,9 +29,10 @@ export function PeekingCard() {
       transition={{ type: 'spring', stiffness: 200, damping: 24 }}
       style={{
         position: 'fixed',
-        left: isMobile ? 16 : 0,
+        left: isMobile ? 'auto' : 0,
+        right: isMobile ? 'max(14px, env(safe-area-inset-right))' : 'auto',
         top: isMobile ? 'auto' : '43%',
-        bottom: isMobile ? 16 : 'auto',
+        bottom: isMobile ? 'calc(16px + env(safe-area-inset-bottom))' : 'auto',
         // Keep the vertical offset in Framer Motion's transform pipeline.
         y: isMobile ? 0 : '-50%',
         zIndex: 80,

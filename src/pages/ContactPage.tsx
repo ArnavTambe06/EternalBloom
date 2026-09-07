@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Mail, Clock, Send } from 'lucide-react'
+import { Mail, Phone, Clock, Send } from 'lucide-react'
 import { BRAND } from '@/lib/constants'
 
 export function ContactPage() {
   const [sent, setSent] = useState(false)
   const [form, setForm] = useState({ name: '', email: '', message: '' })
+  const displayPhone = BRAND.phone.replace(/^\+91\s*/, '')
 
   return (
     <div style={{ backgroundColor: '#FFF9F2', minHeight: '100vh' }}>
@@ -36,6 +37,7 @@ export function ContactPage() {
           {/* Info */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {[
+              { icon: <Phone size={18} color="#B56A45" />, label: 'Phone', value: displayPhone, href: `tel:${BRAND.phone}` },
               { icon: <Mail size={18} color="#B56A45" />, label: 'Email', value: BRAND.email, href: `mailto:${BRAND.email}` },
               { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B56A45" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="#B56A45"/></svg>, label: 'Instagram', value: '@eternalbloom', href: BRAND.instagram },
               { icon: <Clock size={18} color="#B56A45" />, label: 'Response time', value: 'Within 24 hours', href: null },
