@@ -95,7 +95,7 @@ export function ProductsSection() {
         )}
       </div>
 
-      {/* Product grid — pipecleanerflorals style */}
+      {/* Product grid */}
       {loading ? (
         <div style={{
           display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 18,

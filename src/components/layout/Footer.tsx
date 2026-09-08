@@ -45,7 +45,7 @@ export function Footer() {
             color: 'var(--ink-2)', lineHeight: 1.6,
             maxWidth: 220, marginBottom: 24,
           }}>
-            Handcrafted pipe cleaner pieces — designed with patience, packed with emotions.
+            Handcrafted Chenille pieces — designed with patience, packed with emotions.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <a

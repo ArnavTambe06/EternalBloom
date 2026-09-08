@@ -4,7 +4,7 @@ export const BRAND = {
   subtitle: 'Designed with patience, packed with emotions',
   email: 'hello@eternalbloom.in',
   phone: '+91 9321064387',
-  instagram: 'https://www.instagram.com/p/DUNLB3YAY8G',
+  instagram: 'https://www.instagram.com/its.eternalbloom?stkn=MXpxdHR6ZmtmMWxw',
 }
 
 export const CATEGORIES = [

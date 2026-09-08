@@ -40,7 +40,7 @@ export function ProductCard({ product, onViewDetails }: Props) {
         overflow: 'hidden',
       }}
     >
-      {/* Image — square crop like pipecleanerflorals */}
+      {/* Image — square crop for the Chenille collection */}
       <div style={{
         position: 'relative',
         aspectRatio: '1/1',
@@ -135,7 +135,7 @@ export function ProductCard({ product, onViewDetails }: Props) {
         </motion.button>
       </div>
 
-      {/* Info — clean like pipecleanerflorals */}
+      {/* Info — clean and editorial */}
       <div style={{ padding: '14px 16px 18px' }}>
         <p style={{
           fontFamily: 'DM Sans, sans-serif',

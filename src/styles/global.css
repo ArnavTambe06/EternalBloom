@@ -116,6 +116,83 @@ input, textarea, select { font-family: var(--sans); }
   --px-mob: 20px;
 }
 
+/* â”€â”€ Eternal Bloom landing hero overrides â”€â”€ */
+.landing-hero.landing-hero {
+  min-height: 650px;
+  border-bottom: 1px solid rgba(255, 133, 208, 0.16);
+  background:
+    radial-gradient(circle at 0% 38%, rgba(255, 133, 208, 0.18), transparent 30%),
+    radial-gradient(circle at 100% 72%, rgba(255, 230, 128, 0.25), transparent 33%),
+    linear-gradient(115deg, #fff5fb 0%, #ffedf6 38%, #fff0e7 68%, #fff9de 100%);
+}
+
+.landing-hero.landing-hero::before { inset: 0 50% 0 0; opacity: 0.48; }
+.landing-hero.landing-hero::after { right: -2vw; bottom: -0.1em; font-size: clamp(180px, 24vw, 380px); }
+
+.landing-hero .landing-hero__inner {
+  justify-content: space-between;
+  min-height: 650px;
+  padding-top: 68px;
+  padding-bottom: 76px;
+}
+
+.landing-hero .landing-hero__copy { width: min(58%, 720px); max-width: none; padding-left: clamp(54px, 7vw, 105px); text-align: left; }
+.landing-hero .landing-hero__copy h1 { max-width: 690px; margin: 24px 0 0; font-size: clamp(56px, 7vw, 100px); line-height: 0.9; }
+.landing-hero .landing-hero__description { max-width: 510px; margin: 28px 0 0; font-size: 17px; line-height: 1.6; }
+.landing-hero .landing-hero__actions { justify-content: flex-start; }
+.landing-hero .landing-hero__primary { padding: 14px 22px; font-size: 14px; }
+
+.landing-hero__benefits { display: flex; align-items: stretch; margin-top: 38px; }
+.hero-benefit { display: flex; min-width: 150px; align-items: center; gap: 12px; color: #5c4033; }
+.hero-benefit > svg { color: #5c4033; }
+.hero-benefit p { display: flex; flex-direction: column; gap: 1px; font-family: var(--sans); font-size: 14px; line-height: 1.25; }
+.hero-benefit strong { font-weight: 600; color: #1c0f0a; }
+.hero-benefit span { font-size: 13px; }
+.hero-benefit i { width: 1px; height: 58px; margin: 0 26px 0 22px; background: rgba(92, 64, 51, 0.22); }
+
+.landing-hero__art { position: relative; width: 46%; min-height: 520px; margin-right: -3%; }
+.hero-botanical { position: absolute; inset: -13% -9% -4% -3%; color: rgba(232, 96, 154, 0.2); transform: rotate(1deg); }
+.hero-botanical svg { width: 100%; height: 100%; overflow: visible; }
+.hero-botanical__flower--top { color: rgba(232, 96, 154, 0.24); }
+.hero-botanical__flower--middle { color: rgba(255, 133, 208, 0.22); }
+.hero-botanical__flower--bottom { color: rgba(255, 200, 162, 0.28); }
+.hero-botanical__leaves { color: rgba(255, 200, 162, 0.2); }
+.hero-art-note { position: absolute; top: 31%; left: 8%; color: rgba(120, 69, 66, 0.68); font-family: var(--serif); font-size: clamp(18px, 2.2vw, 31px); font-style: italic; line-height: 1.3; transform: rotate(-12deg); }
+.hero-art-note span { display: block; margin-top: 5px; text-align: center; font-size: 34px; font-style: normal; }
+
+@media (max-width: 1024px) {
+  .landing-hero.landing-hero { min-height: 0; }
+  .landing-hero .landing-hero__inner { min-height: 0; padding-top: 64px; padding-bottom: 72px; }
+  .landing-hero .landing-hero__copy { width: 62%; padding-left: 45px; }
+  .landing-hero .landing-hero__copy h1 { font-size: clamp(52px, 7vw, 78px); }
+  .landing-hero__art { width: 43%; min-height: 450px; }
+  .hero-benefit { min-width: 0; }
+  .hero-benefit i { margin-right: 16px; margin-left: 12px; }
+}
+
+@media (max-width: 640px) {
+  .landing-hero.landing-hero::before { inset: 0 50% 0 0; }
+  .landing-hero.landing-hero::after { right: -14vw; bottom: -0.08em; font-size: 53vw; }
+  .landing-hero .landing-hero__inner { display: block; padding-top: 48px; padding-bottom: 34px; }
+  .landing-hero .landing-hero__copy { width: 100%; padding-left: 28px; padding-right: 10px; text-align: left; }
+  .landing-hero__eyebrow { font-size: 9px; letter-spacing: 0.13em; }
+  .landing-hero .landing-hero__copy h1 { max-width: 340px; margin-top: 20px; font-size: clamp(45px, 13vw, 62px); letter-spacing: -0.065em; line-height: 0.96; }
+  .landing-hero .landing-hero__description { max-width: 310px; margin-top: 20px; font-size: 13px; line-height: 1.55; }
+  .landing-hero .landing-hero__actions { align-items: flex-start; flex-direction: column; gap: 10px; margin-top: 25px; }
+  .landing-hero .landing-hero__primary { padding: 12px 18px; font-size: 12px; }
+  .landing-hero__note { font-size: 9px; }
+  .landing-hero .landing-hero__benefits { position: relative; z-index: 2; gap: 8px; margin-top: 30px; }
+  .hero-benefit { flex: 1; flex-direction: column; align-items: flex-start; gap: 7px; }
+  .hero-benefit > svg { width: 22px; height: 22px; }
+  .hero-benefit p { font-size: 11px; }
+  .hero-benefit span { font-size: 10px; }
+  .hero-benefit i { height: 48px; margin: 0 5px; }
+  .landing-hero__art { width: 100%; min-height: 270px; margin-top: -4px; margin-right: 0; }
+  .hero-botanical { inset: -12% -25% -22% 25%; }
+  .hero-art-note { top: 32%; left: 20%; font-size: 20px; }
+  .hero-art-note span { font-size: 27px; }
+}
+
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; font-size: 16px; }

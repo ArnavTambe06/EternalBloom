@@ -110,7 +110,7 @@ export const useCartStore = create<CartState>()(
       total: () => get().subtotal() + get().shipping(),
     }),
     {
-      name: 'pipe-cleaner-cart',
+      name: 'chenille-cart',
       partialize: (state) => ({ items: state.items }),
     }
   )

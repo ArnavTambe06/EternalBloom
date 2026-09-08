@@ -50,7 +50,7 @@ export function CategoriesSection() {
           </Link>
         </div>
 
-        {/* Wide cards — landscape ratio like pipecleanerflorals */}
+        {/* Wide cards — landscape ratio for the Chenille collection */}
         <div className="category-grid" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(3, 1fr)',
@@ -82,7 +82,7 @@ export function CategoriesSection() {
                     e.currentTarget.style.transform = 'translateY(0)'
                   }}
                 >
-                  {/* Image — square like pipecleanerflorals */}
+                  {/* Image — square collection cover */}
                   <div style={{
                     aspectRatio: '1/1',
                     overflow: 'hidden',

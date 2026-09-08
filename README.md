@@ -1,6 +1,6 @@
-# Eternal Bloom - Pipe Cleaner Florals
+# Eternal Bloom - Chenille Florals
 
-> A premium boutique e-commerce platform for handcrafted pipe cleaner flowers and keepsakes, designed to deliver a beautiful shopping experience with elegant UI, smooth animations, and secure online payments.
+> A premium boutique e-commerce platform for handcrafted Chenille creations and keepsakes, designed to deliver a beautiful shopping experience with elegant UI, smooth animations, and secure online payments.
 
 **Status:** 🚧 Active Development
 
