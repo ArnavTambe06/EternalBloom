@@ -34,7 +34,7 @@ export function LoginPage() {
         display: 'grid', gridTemplateColumns: '1fr 1fr',
         maxWidth: 900, width: '100%', gap: 0,
         borderRadius: 28, overflow: 'hidden',
-        boxShadow: '0 24px 80px rgba(255,133,208,0.2)',
+        boxShadow: '0 24px 80px rgba(232,163,185,0.2)',
       }} className="hero-grid">
 
         {/* Left — brand panel */}
@@ -218,7 +218,7 @@ export function LoginPage() {
           </div>
 
           <motion.button
-            whileHover={{ scale: 1.01, boxShadow: '0 8px 24px rgba(255,133,208,0.35)' }}
+            whileHover={{ scale: 1.01, boxShadow: '0 8px 24px rgba(232,163,185,0.35)' }}
             whileTap={{ scale: 0.97 }}
             onClick={handleSubmit}
             disabled={loading}

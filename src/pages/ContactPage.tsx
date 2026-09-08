@@ -9,21 +9,21 @@ export function ContactPage() {
   const displayPhone = BRAND.phone.replace(/^\+91\s*/, '')
 
   return (
-    <div style={{ backgroundColor: '#FFF9F2', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: '#FFF9E8', minHeight: '100vh' }}>
       <div style={{
-        background: 'linear-gradient(135deg, #F6EFE7 0%, #FFF9F2 100%)',
+        background: 'linear-gradient(135deg, #FFF0E8 0%, #FFF9E8 100%)',
         padding: '64px 24px 48px', textAlign: 'center',
-        borderBottom: '1px solid #E7DDD5',
+        borderBottom: '1px solid #EAD9D2',
       }}>
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
           <h1 style={{
             fontFamily: 'Playfair Display, serif',
             fontSize: 'clamp(32px, 4vw, 48px)',
-            fontWeight: 700, color: '#46352A', marginBottom: 12,
+            fontWeight: 700, color: '#5C4033', marginBottom: 12,
           }}>Get in Touch</h1>
           <p style={{
             fontFamily: 'Inter, sans-serif', fontSize: 15,
-            color: '#786A61', maxWidth: 420, margin: '0 auto', lineHeight: 1.6,
+            color: '#8C665D', maxWidth: 420, margin: '0 auto', lineHeight: 1.6,
           }}>
             Have a question, special request, or just want to say hello?
             We'd love to hear from you.
@@ -37,20 +37,20 @@ export function ContactPage() {
           {/* Info */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {[
-              { icon: <Phone size={18} color="#B56A45" />, label: 'Phone', value: displayPhone, href: `tel:${BRAND.phone}` },
-              { icon: <Mail size={18} color="#B56A45" />, label: 'Email', value: BRAND.email, href: `mailto:${BRAND.email}` },
-              { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B56A45" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="#B56A45"/></svg>, label: 'Instagram', value: '@eternalbloom', href: BRAND.instagram },
-              { icon: <Clock size={18} color="#B56A45" />, label: 'Response time', value: 'Within 24 hours', href: null },
+              { icon: <Phone size={18} color="#9E5E73" />, label: 'Phone', value: displayPhone, href: `tel:${BRAND.phone}` },
+              { icon: <Mail size={18} color="#9E5E73" />, label: 'Email', value: BRAND.email, href: `mailto:${BRAND.email}` },
+              { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9E5E73" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="#9E5E73"/></svg>, label: 'Instagram', value: '@eternalbloom', href: BRAND.instagram },
+              { icon: <Clock size={18} color="#9E5E73" />, label: 'Response time', value: 'Within 24 hours', href: null },
             ].map(item => (
               <div key={item.label} style={{
                 backgroundColor: 'white', borderRadius: 16,
-                padding: '18px 20px', border: '1px solid #E7DDD5',
+                padding: '18px 20px', border: '1px solid #EAD9D2',
                 display: 'flex', alignItems: 'center', gap: 14,
                 boxShadow: '0 2px 8px rgba(70,53,42,0.05)',
               }}>
                 {item.icon}
                 <div>
-                  <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: 11, fontWeight: 600, color: '#786A61', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                  <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: 11, fontWeight: 600, color: '#8C665D', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                     {item.label}
                   </p>
                   {item.href ? (
@@ -58,12 +58,12 @@ export function ContactPage() {
                       href={item.href}
                       target={item.href.startsWith('http') ? '_blank' : undefined}
                       rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                      style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#46352A', textDecoration: 'none' }}
+                      style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#5C4033', textDecoration: 'none' }}
                     >
                       {item.value}
                     </a>
                   ) : (
-                    <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#46352A' }}>{item.value}</p>
+                    <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#5C4033' }}>{item.value}</p>
                   )}
                 </div>
               </div>
@@ -78,12 +78,12 @@ export function ContactPage() {
               style={{
                 backgroundColor: 'white', borderRadius: 20,
                 padding: '40px', textAlign: 'center',
-                border: '1px solid #E7DDD5',
+                border: '1px solid #EAD9D2',
               }}
             >
               <div style={{ fontSize: 48, marginBottom: 12 }}>🌸</div>
-              <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, color: '#46352A', marginBottom: 8 }}>Message Sent!</h3>
-              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#786A61' }}>
+              <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, color: '#5C4033', marginBottom: 8 }}>Message Sent!</h3>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: '#8C665D' }}>
                 We'll get back to you within 24 hours.
               </p>
             </motion.div>
@@ -93,7 +93,7 @@ export function ContactPage() {
               animate={{ opacity: 1, y: 0 }}
               style={{
                 backgroundColor: 'white', borderRadius: 20,
-                padding: '28px 24px', border: '1px solid #E7DDD5',
+                padding: '28px 24px', border: '1px solid #EAD9D2',
                 boxShadow: '0 2px 12px rgba(70,53,42,0.06)',
               }}
             >
@@ -103,7 +103,7 @@ export function ContactPage() {
                   { label: 'Email', key: 'email', type: 'email', placeholder: 'your@email.com' },
                 ].map(f => (
                   <div key={f.key}>
-                    <label style={{ display: 'block', fontFamily: 'Poppins, sans-serif', fontSize: 12, fontWeight: 600, color: '#46352A', marginBottom: 6 }}>{f.label}</label>
+                    <label style={{ display: 'block', fontFamily: 'Poppins, sans-serif', fontSize: 12, fontWeight: 600, color: '#5C4033', marginBottom: 6 }}>{f.label}</label>
                     <input
                       type={f.type}
                       placeholder={f.placeholder}
@@ -111,16 +111,16 @@ export function ContactPage() {
                       onChange={e => setForm(frm => ({ ...frm, [f.key]: e.target.value }))}
                       style={{
                         width: '100%', padding: '11px 14px',
-                        border: '1.5px solid #E7DDD5', borderRadius: 10,
+                        border: '1.5px solid #EAD9D2', borderRadius: 10,
                         fontFamily: 'Inter, sans-serif', fontSize: 14,
-                        color: '#46352A', backgroundColor: '#FFF9F2',
+                        color: '#5C4033', backgroundColor: '#FFF9E8',
                         outline: 'none', boxSizing: 'border-box',
                       }}
                     />
                   </div>
                 ))}
                 <div>
-                  <label style={{ display: 'block', fontFamily: 'Poppins, sans-serif', fontSize: 12, fontWeight: 600, color: '#46352A', marginBottom: 6 }}>Message</label>
+                  <label style={{ display: 'block', fontFamily: 'Poppins, sans-serif', fontSize: 12, fontWeight: 600, color: '#5C4033', marginBottom: 6 }}>Message</label>
                   <textarea
                     rows={4}
                     placeholder="What's on your mind?"
@@ -128,9 +128,9 @@ export function ContactPage() {
                     onChange={e => setForm(frm => ({ ...frm, message: e.target.value }))}
                     style={{
                       width: '100%', padding: '11px 14px',
-                      border: '1.5px solid #E7DDD5', borderRadius: 10,
+                      border: '1.5px solid #EAD9D2', borderRadius: 10,
                       fontFamily: 'Inter, sans-serif', fontSize: 14,
-                      color: '#46352A', backgroundColor: '#FFF9F2',
+                      color: '#5C4033', backgroundColor: '#FFF9E8',
                       outline: 'none', resize: 'vertical',
                       boxSizing: 'border-box', lineHeight: 1.6,
                     }}

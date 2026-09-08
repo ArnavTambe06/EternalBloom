@@ -46,7 +46,7 @@ export function RegisterPage() {
               background: 'var(--grad)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               margin: '0 auto 20px',
-              boxShadow: '0 8px 24px rgba(255,133,208,0.4)',
+              boxShadow: '0 8px 24px rgba(232,163,185,0.4)',
             }}
           >
             <CheckCircle size={32} color="var(--ink)" />
@@ -77,12 +77,12 @@ export function RegisterPage() {
         display: 'grid', gridTemplateColumns: '1fr 1fr',
         maxWidth: 900, width: '100%', gap: 0,
         borderRadius: 28, overflow: 'hidden',
-        boxShadow: '0 24px 80px rgba(255,133,208,0.2)',
+        boxShadow: '0 24px 80px rgba(232,163,185,0.2)',
       }} className="hero-grid">
 
         {/* Left — brand */}
         <div style={{
-          background: 'linear-gradient(160deg, #FFC8A2 0%, #FFE680 40%, #FFA6E0 100%)',
+          background: 'linear-gradient(160deg, #F4C6A8 0%, #F4DF9A 40%, #EDB4C8 100%)',
           padding: '60px 48px',
           display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 32,
         }} className="auth-side-panel">

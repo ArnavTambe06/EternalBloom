@@ -11,12 +11,12 @@ import { useCartStore } from '@/store/cartStore'
 const inputStyle: React.CSSProperties = {
   width: '100%',
   padding: '12px 14px',
-  border: '1.5px solid rgba(255,133,208,0.25)',
+  border: '1.5px solid rgba(232,163,185,0.25)',
   borderRadius: 10,
   fontFamily: 'DM Sans, sans-serif',
   fontSize: 15,
-  color: '#1C0F0A',
-  backgroundColor: '#FFF8F5',
+  color: '#241B20',
+  backgroundColor: '#FFF0E8',
   outline: 'none',
   boxSizing: 'border-box',
 }
@@ -29,7 +29,7 @@ const labelStyle: React.CSSProperties = {
   fontWeight: 700,
   letterSpacing: '0.1em',
   textTransform: 'uppercase',
-  color: '#9C7B6E',
+  color: '#8C665D',
 }
 
 const toForm = (settings: typeof DEFAULT_SHIPPING_SETTINGS) => ({
@@ -112,16 +112,16 @@ export function AdminSettings() {
           <div style={{
             width: 42, height: 42, borderRadius: 12,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'linear-gradient(135deg,rgba(255,133,208,0.2),rgba(255,230,128,0.35))',
-            color: '#E8609A',
+            background: 'linear-gradient(135deg,rgba(232,163,185,0.2),rgba(244,223,154,0.35))',
+            color: '#9E5E73',
           }}>
             <Settings2 size={21} />
           </div>
           <div>
-            <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 26, fontWeight: 700, color: '#1C0F0A' }}>
+            <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 26, fontWeight: 700, color: '#241B20' }}>
               Store Settings
             </h1>
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9C7B6E', marginTop: 4 }}>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#8C665D', marginTop: 4 }}>
               Control what customers pay for delivery.
             </p>
           </div>
@@ -131,18 +131,18 @@ export function AdminSettings() {
       <form onSubmit={handleSave}>
         <section style={{
           backgroundColor: '#FFFFFF',
-          border: '1px solid rgba(255,133,208,0.18)',
+          border: '1px solid rgba(232,163,185,0.18)',
           borderRadius: 18,
           padding: '28px 30px',
           boxShadow: '0 4px 18px rgba(28,15,10,0.04)',
         }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 26 }}>
-            <Truck size={20} color="#E8609A" style={{ marginTop: 2, flexShrink: 0 }} />
+            <Truck size={20} color="#9E5E73" style={{ marginTop: 2, flexShrink: 0 }} />
             <div>
-              <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, fontWeight: 700, color: '#1C0F0A' }}>
+              <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, fontWeight: 700, color: '#241B20' }}>
                 Shipping charges
               </h2>
-              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#9C7B6E', marginTop: 5 }}>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#8C665D', marginTop: 5 }}>
                 These values apply to new carts and orders across the store.
               </p>
             </div>
@@ -161,7 +161,7 @@ export function AdminSettings() {
                 style={inputStyle}
                 aria-describedby="flat-help"
               />
-              <span id="flat-help" style={{ display: 'block', marginTop: 7, fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#9C7B6E' }}>
+              <span id="flat-help" style={{ display: 'block', marginTop: 7, fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#8C665D' }}>
                 Charged below the free-shipping threshold.
               </span>
             </label>
@@ -178,7 +178,7 @@ export function AdminSettings() {
                 style={inputStyle}
                 aria-describedby="free-above-help"
               />
-              <span id="free-above-help" style={{ display: 'block', marginTop: 7, fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#9C7B6E' }}>
+              <span id="free-above-help" style={{ display: 'block', marginTop: 7, fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#8C665D' }}>
                 Use 0 to make shipping free on every order.
               </span>
             </label>
@@ -186,7 +186,7 @@ export function AdminSettings() {
 
           <div style={{
             marginTop: 24, padding: '15px 16px', borderRadius: 12,
-            backgroundColor: '#FFF8F5', border: '1px solid rgba(255,133,208,0.14)',
+            backgroundColor: '#FFF0E8', border: '1px solid rgba(232,163,185,0.14)',
             fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#5C4033',
           }}>
             Preview: orders below <strong>&#8377;{freeAbove.toLocaleString('en-IN')}</strong> show a shipping charge of <strong>&#8377;{flat.toLocaleString('en-IN')}</strong>. Orders at or above that amount are free.
@@ -215,10 +215,10 @@ export function AdminSettings() {
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8,
                 padding: '12px 22px', borderRadius: 999,
-                background: loading || saving ? '#E7DDD5' : 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+                background: loading || saving ? '#EAD9D2' : 'linear-gradient(135deg,#E8A3B9,#F4C6A8,#F4DF9A)',
                 border: 'none', cursor: loading || saving ? 'not-allowed' : 'pointer',
                 fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700,
-                color: '#1C0F0A',
+                color: '#241B20',
               }}
             >
               <Save size={16} />
@@ -228,7 +228,7 @@ export function AdminSettings() {
         </section>
       </form>
 
-      <p style={{ marginTop: 16, fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#9C7B6E' }}>
+      <p style={{ marginTop: 16, fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#8C665D' }}>
         Existing orders keep the shipping amount that was recorded when they were placed.
       </p>
     </div>

@@ -35,7 +35,7 @@ export function CategoryPage() {
 
       {/* Banner */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(255,133,208,0.12) 0%, rgba(255,230,128,0.12) 100%)',
+        background: 'linear-gradient(135deg, rgba(232,163,185,0.12) 0%, rgba(244,223,154,0.12) 100%)',
         padding: '48px 24px 40px',
         borderBottom: '1px solid var(--border)',
       }}>

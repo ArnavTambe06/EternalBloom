@@ -6,25 +6,25 @@ import type { Category } from '@/types'
 
 const F: React.CSSProperties = {
   width: '100%', padding: '11px 14px',
-  border: '1.5px solid rgba(255,133,208,0.25)',
+  border: '1.5px solid rgba(232,163,185,0.25)',
   borderRadius: 10,
   fontFamily: 'DM Sans, sans-serif', fontSize: 14,
-  color: '#1C0F0A', backgroundColor: '#FFF8F5',
+  color: '#241B20', backgroundColor: '#FFF0E8',
   outline: 'none', boxSizing: 'border-box',
   transition: 'border-color 0.2s, box-shadow 0.2s',
 }
 const focusF = (e: React.FocusEvent<any>) => {
-  e.target.style.borderColor = '#FF85D0'
-  e.target.style.boxShadow = '0 0 0 3px rgba(255,133,208,0.12)'
+  e.target.style.borderColor = '#E8A3B9'
+  e.target.style.boxShadow = '0 0 0 3px rgba(232,163,185,0.12)'
 }
 const blurF = (e: React.FocusEvent<any>) => {
-  e.target.style.borderColor = 'rgba(255,133,208,0.25)'
+  e.target.style.borderColor = 'rgba(232,163,185,0.25)'
   e.target.style.boxShadow = 'none'
 }
 const LBL: React.CSSProperties = {
   display: 'block', fontFamily: 'DM Sans, sans-serif',
   fontSize: 11, fontWeight: 700, letterSpacing: '0.1em',
-  textTransform: 'uppercase', color: '#9C7B6E', marginBottom: 8,
+  textTransform: 'uppercase', color: '#8C665D', marginBottom: 8,
 }
 
 const emptyForm = { name: '', slug: '', description: '', image_url: '' }
@@ -94,10 +94,10 @@ export function AdminCategories() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
         <div>
-          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 26, fontWeight: 700, color: '#1C0F0A' }}>
+          <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: 26, fontWeight: 700, color: '#241B20' }}>
             Categories
           </h1>
-          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9C7B6E', marginTop: 4 }}>
+          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#8C665D', marginTop: 4 }}>
             {categories.length} categories
           </p>
         </div>
@@ -107,10 +107,10 @@ export function AdminCategories() {
           style={{
             display: 'flex', alignItems: 'center', gap: 8,
             padding: '12px 22px', borderRadius: 999,
-            background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+            background: 'linear-gradient(135deg,#E8A3B9,#F4C6A8,#F4DF9A)',
             border: 'none', cursor: 'pointer',
             fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 700,
-            color: '#1C0F0A', boxShadow: '0 4px 16px rgba(255,133,208,0.3)',
+            color: '#241B20', boxShadow: '0 4px 16px rgba(232,163,185,0.3)',
           }}
         >
           <Plus size={16} /> Add Category
@@ -119,29 +119,29 @@ export function AdminCategories() {
 
       {/* Categories grid */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '60px 0', color: '#9C7B6E', fontFamily: 'DM Sans, sans-serif' }}>
+        <div style={{ textAlign: 'center', padding: '60px 0', color: '#8C665D', fontFamily: 'DM Sans, sans-serif' }}>
           Loading...
         </div>
       ) : categories.length === 0 ? (
         <div style={{
           textAlign: 'center', padding: '80px 0',
           backgroundColor: 'white', borderRadius: 16,
-          border: '1px solid rgba(255,133,208,0.15)',
+          border: '1px solid rgba(232,163,185,0.15)',
         }}>
-          <p style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, color: '#1C0F0A', marginBottom: 8 }}>
+          <p style={{ fontFamily: 'Playfair Display, serif', fontSize: 20, color: '#241B20', marginBottom: 8 }}>
             No categories yet
           </p>
-          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9C7B6E', marginBottom: 24 }}>
+          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#8C665D', marginBottom: 24 }}>
             Add your first category to start organizing products.
           </p>
           <button
             onClick={openCreate}
             style={{
               padding: '11px 24px', borderRadius: 999,
-              background: 'linear-gradient(135deg,#FF85D0,#FFC8A2)',
+              background: 'linear-gradient(135deg,#E8A3B9,#F4C6A8)',
               border: 'none', cursor: 'pointer',
               fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700,
-              color: '#1C0F0A',
+              color: '#241B20',
             }}
           >Add First Category</button>
         </div>
@@ -159,15 +159,15 @@ export function AdminCategories() {
               transition={{ delay: i * 0.05 }}
               style={{
                 backgroundColor: 'white',
-                border: '1px solid rgba(255,133,208,0.18)',
+                border: '1px solid rgba(232,163,185,0.18)',
                 borderRadius: 16, overflow: 'hidden',
-                boxShadow: '0 2px 12px rgba(255,133,208,0.06)',
+                boxShadow: '0 2px 12px rgba(232,163,185,0.06)',
               }}
             >
               {/* Category image */}
               <div style={{
                 width: '100%', aspectRatio: '16/9',
-                backgroundColor: 'rgba(255,200,162,0.08)',
+                backgroundColor: 'rgba(244,198,168,0.08)',
                 overflow: 'hidden',
               }}>
                 {cat.image_url ? (
@@ -177,7 +177,7 @@ export function AdminCategories() {
                   <div style={{
                     width: '100%', height: '100%',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: 'linear-gradient(135deg,rgba(255,133,208,0.1),rgba(255,200,162,0.1))',
+                    background: 'linear-gradient(135deg,rgba(232,163,185,0.1),rgba(244,198,168,0.1))',
                   }}>
                     <ImageIcon size={24} color="rgba(156,123,110,0.3)" />
                   </div>
@@ -187,11 +187,11 @@ export function AdminCategories() {
               <div style={{ padding: '16px' }}>
                 <p style={{
                   fontFamily: 'Playfair Display, serif',
-                  fontSize: 16, fontWeight: 600, color: '#1C0F0A', marginBottom: 4,
+                  fontSize: 16, fontWeight: 600, color: '#241B20', marginBottom: 4,
                 }}>{cat.name}</p>
                 <p style={{
                   fontFamily: 'DM Sans, sans-serif',
-                  fontSize: 12, color: '#9C7B6E', marginBottom: 4,
+                  fontSize: 12, color: '#8C665D', marginBottom: 4,
                 }}>/{cat.slug}</p>
                 {cat.description && (
                   <p style={{
@@ -209,11 +209,11 @@ export function AdminCategories() {
                     style={{
                       flex: 1, padding: '9px',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                      background: 'linear-gradient(135deg,rgba(255,133,208,0.12),rgba(255,200,162,0.12))',
-                      border: '1.5px solid rgba(255,133,208,0.25)',
+                      background: 'linear-gradient(135deg,rgba(232,163,185,0.12),rgba(244,198,168,0.12))',
+                      border: '1.5px solid rgba(232,163,185,0.25)',
                       borderRadius: 10, cursor: 'pointer',
                       fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600,
-                      color: '#1C0F0A',
+                      color: '#241B20',
                     }}
                   >
                     <Edit2 size={13} /> Edit
@@ -263,24 +263,24 @@ export function AdminCategories() {
                 zIndex: 1001,
                 width: '90vw', maxWidth: 560,
                 maxHeight: '90vh', overflowY: 'auto',
-                backgroundColor: '#FFF8F5',
+                backgroundColor: '#FFF0E8',
                 borderRadius: 24,
-                boxShadow: '0 32px 80px rgba(255,133,208,0.2)',
-                border: '1px solid rgba(255,133,208,0.2)',
+                boxShadow: '0 32px 80px rgba(232,163,185,0.2)',
+                border: '1px solid rgba(232,163,185,0.2)',
               }}
             >
               {/* Header */}
               <div style={{
                 position: 'sticky', top: 0, zIndex: 10,
-                backgroundColor: '#FFF8F5',
+                backgroundColor: '#FFF0E8',
                 padding: '20px 28px',
-                borderBottom: '1px solid rgba(255,133,208,0.15)',
+                borderBottom: '1px solid rgba(232,163,185,0.15)',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 borderRadius: '24px 24px 0 0',
               }}>
                 <h2 style={{
                   fontFamily: 'Playfair Display, serif',
-                  fontSize: 20, fontWeight: 700, color: '#1C0F0A',
+                  fontSize: 20, fontWeight: 700, color: '#241B20',
                 }}>
                   {mode === 'edit' ? `Edit: ${editing?.name}` : 'Add New Category'}
                 </h2>
@@ -288,12 +288,12 @@ export function AdminCategories() {
                   onClick={closeForm}
                   style={{
                     width: 34, height: 34, borderRadius: '50%',
-                    backgroundColor: 'rgba(255,133,208,0.12)',
+                    backgroundColor: 'rgba(232,163,185,0.12)',
                     border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}
                 >
-                  <X size={15} color="#1C0F0A" />
+                  <X size={15} color="#241B20" />
                 </button>
               </div>
 
@@ -305,7 +305,7 @@ export function AdminCategories() {
                     width: '100%', aspectRatio: '16/9',
                     borderRadius: 14, overflow: 'hidden',
                     marginBottom: 24,
-                    border: '1px solid rgba(255,133,208,0.2)',
+                    border: '1px solid rgba(232,163,185,0.2)',
                   }}>
                     <img src={form.image_url} alt=""
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
@@ -330,7 +330,7 @@ export function AdminCategories() {
                   <div>
                     <label style={LBL}>Slug (auto-generated)</label>
                     <input
-                      style={{ ...F, color: '#9C7B6E' }} value={form.slug}
+                      style={{ ...F, color: '#8C665D' }} value={form.slug}
                       placeholder="keychains"
                       onChange={e => set('slug', e.target.value)}
                       onFocus={focusF} onBlur={blurF}
@@ -355,7 +355,7 @@ export function AdminCategories() {
                     />
                     <p style={{
                       fontFamily: 'DM Sans, sans-serif', fontSize: 11,
-                      color: '#9C7B6E', marginTop: 6,
+                      color: '#8C665D', marginTop: 6,
                     }}>
                       Upload image to Cloudinary first → copy the URL → paste here
                     </p>
@@ -367,7 +367,7 @@ export function AdminCategories() {
                     onClick={closeForm}
                     style={{
                       padding: '12px 24px', borderRadius: 999,
-                      border: '1.5px solid rgba(255,133,208,0.3)',
+                      border: '1.5px solid rgba(232,163,185,0.3)',
                       background: 'transparent',
                       fontFamily: 'DM Sans, sans-serif',
                       fontSize: 14, fontWeight: 500, color: '#5C4033', cursor: 'pointer',
@@ -379,12 +379,12 @@ export function AdminCategories() {
                     disabled={saving || !form.name}
                     style={{
                       padding: '12px 32px', borderRadius: 999,
-                      background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+                      background: 'linear-gradient(135deg,#E8A3B9,#F4C6A8,#F4DF9A)',
                       border: 'none', cursor: saving ? 'not-allowed' : 'pointer',
                       fontFamily: 'DM Sans, sans-serif',
-                      fontSize: 14, fontWeight: 700, color: '#1C0F0A',
+                      fontSize: 14, fontWeight: 700, color: '#241B20',
                       opacity: saving || !form.name ? 0.6 : 1,
-                      boxShadow: '0 4px 16px rgba(255,133,208,0.3)',
+                      boxShadow: '0 4px 16px rgba(232,163,185,0.3)',
                       display: 'flex', alignItems: 'center', gap: 8,
                     }}
                   >
@@ -392,7 +392,7 @@ export function AdminCategories() {
                       <div style={{
                         width: 14, height: 14, borderRadius: '50%',
                         border: '2px solid rgba(28,15,10,0.3)',
-                        borderTopColor: '#1C0F0A',
+                        borderTopColor: '#241B20',
                         animation: 'spin 0.7s linear infinite',
                       }} />
                     )}

@@ -5,21 +5,21 @@ import { BrandLogo } from '@/components/ui/BrandLogo'
 
 const linkStyle: React.CSSProperties = {
   fontFamily: 'var(--sans)', fontSize: 13,
-  color: 'rgba(28,15,10,0.6)', transition: 'color 0.2s',
+  color: 'var(--ink-2)', transition: 'color 0.2s',
   display: 'block', marginBottom: 10,
 }
 
 const hoverIn = (e: React.MouseEvent<HTMLAnchorElement>) =>
   (e.currentTarget.style.color = 'var(--ink)')
 const hoverOut = (e: React.MouseEvent<HTMLAnchorElement>) =>
-  (e.currentTarget.style.color = 'rgba(28,15,10,0.6)')
+  (e.currentTarget.style.color = 'var(--ink-2)')
 
 export function Footer() {
   const displayPhone = BRAND.phone.replace(/^\+91\s*/, '')
 
   return (
     <footer style={{
-      background: 'linear-gradient(160deg, rgba(255,133,208,0.15) 0%, rgba(255,200,162,0.12) 50%, rgba(255,230,128,0.10) 100%)',
+      background: 'var(--grad-soft)',
       borderTop: '1px solid var(--line-2)',
       position: 'relative',
     }}>
@@ -34,7 +34,7 @@ export function Footer() {
         {/* Brand */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-            <BrandLogo size={40} style={{ boxShadow: '0 4px 12px rgba(255,133,208,0.24)' }} />
+            <BrandLogo size={40} style={{ boxShadow: '0 4px 12px rgba(232,163,185,0.24)' }} />
             <span style={{
               fontFamily: 'var(--serif)', fontSize: 16,
               fontWeight: 700, color: 'var(--ink)',
@@ -99,7 +99,7 @@ export function Footer() {
                   color: 'var(--ink-2)', transition: 'all 0.2s',
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255,133,208,0.15)'
+                  e.currentTarget.style.backgroundColor = 'rgba(232,163,185,0.15)'
                   e.currentTarget.style.borderColor = 'var(--accent)'
                   e.currentTarget.style.color = 'var(--accent)'
                 }}

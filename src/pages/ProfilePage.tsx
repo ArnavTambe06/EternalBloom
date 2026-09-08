@@ -156,7 +156,7 @@ export function ProfilePage() {
                   margin: '0 auto 12px',
                   fontFamily: 'var(--font-display)',
                   color: 'var(--on-surface)', fontWeight: 700, fontSize: 26,
-                  boxShadow: '0 4px 16px rgba(255,133,208,0.35)',
+                  boxShadow: '0 4px 16px rgba(232,163,185,0.35)',
                 }}>{initial}</div>
               )}
               <p style={{
@@ -260,7 +260,7 @@ export function ProfilePage() {
                           fontFamily: 'var(--font-body)',
                           fontSize: 13, fontWeight: 600,
                           color: 'var(--on-surface)', cursor: 'pointer',
-                          boxShadow: '0 3px 12px rgba(255,133,208,0.3)',
+                          boxShadow: '0 3px 12px rgba(232,163,185,0.3)',
                         }}
                       >
                         <Edit2 size={13} /> Edit Profile
@@ -448,7 +448,7 @@ export function ProfilePage() {
                             fontFamily: 'var(--font-body)',
                             fontSize: 14, fontWeight: 600,
                             color: 'var(--on-surface)', cursor: 'pointer',
-                            boxShadow: '0 4px 16px rgba(255,133,208,0.3)',
+                            boxShadow: '0 4px 16px rgba(232,163,185,0.3)',
                           }}
                         >
                           Start Shopping
@@ -667,25 +667,25 @@ function CustomOrdersTab({ userId }: { userId?: string }) {
 
   return (
     <>
-      <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 700, color: '#1C0F0A', marginBottom: 24 }}>
+      <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: 22, fontWeight: 700, color: '#241B20', marginBottom: 24 }}>
         My Custom Requests
       </h2>
 
       {loading ? (
-        <p style={{ fontFamily: 'DM Sans, sans-serif', color: '#9C7B6E' }}>Loading...</p>
+        <p style={{ fontFamily: 'DM Sans, sans-serif', color: '#8C665D' }}>Loading...</p>
       ) : orders.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '48px 0' }}>
-          <p style={{ fontFamily: 'Playfair Display, serif', fontSize: 18, color: '#1C0F0A', marginBottom: 8 }}>
+          <p style={{ fontFamily: 'Playfair Display, serif', fontSize: 18, color: '#241B20', marginBottom: 8 }}>
             No custom requests yet
           </p>
-          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#9C7B6E', marginBottom: 20 }}>
+          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#8C665D', marginBottom: 20 }}>
             Have something in mind? Let us create it for you.
           </p>
           <Link to="/custom-order" style={{
             display: 'inline-block', padding: '11px 24px', borderRadius: 999,
-            background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+            background: 'linear-gradient(135deg,#E8A3B9,#F4C6A8,#F4DF9A)',
             fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700,
-            color: '#1C0F0A',
+            color: '#241B20',
           }}>Place Custom Order</Link>
         </div>
       ) : (
@@ -697,13 +697,13 @@ function CustomOrdersTab({ userId }: { userId?: string }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.06 }}
               style={{
-                border: '1px solid rgba(255,133,208,0.2)',
+                border: '1px solid rgba(232,163,185,0.2)',
                 borderRadius: 14, padding: '18px 20px',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
                 <div>
-                  <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#9C7B6E', marginBottom: 4 }}>
+                  <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#8C665D', marginBottom: 4 }}>
                     {new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
                   </p>
                   <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#5C4033', fontWeight: 500 }}>
@@ -721,16 +721,16 @@ function CustomOrdersTab({ userId }: { userId?: string }) {
               </div>
               <p style={{
                 fontFamily: 'DM Sans, sans-serif', fontSize: 14,
-                color: '#1C0F0A', lineHeight: 1.55,
+                color: '#241B20', lineHeight: 1.55,
               }}>{order.description}</p>
               {order.admin_notes && (
                 <div style={{
                   marginTop: 12, padding: '10px 14px',
-                  backgroundColor: 'rgba(255,133,208,0.06)',
-                  border: '1px solid rgba(255,133,208,0.15)',
+                  backgroundColor: 'rgba(232,163,185,0.06)',
+                  border: '1px solid rgba(232,163,185,0.15)',
                   borderRadius: 10,
                 }}>
-                  <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#9C7B6E', marginBottom: 4, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, fontWeight: 700, color: '#8C665D', marginBottom: 4, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
                     Note from Eternal Bloom
                   </p>
                   <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#5C4033' }}>
@@ -847,7 +847,7 @@ function AddressesTab({ userId }: { userId?: string }) {
             fontFamily: 'var(--font-body)',
             fontSize: 13, fontWeight: 600,
             color: 'var(--on-surface)', cursor: 'pointer',
-            boxShadow: '0 3px 12px rgba(255,133,208,0.3)',
+            boxShadow: '0 3px 12px rgba(232,163,185,0.3)',
           }}
         >
           <Plus size={14} />
@@ -912,7 +912,7 @@ function AddressesTab({ userId }: { userId?: string }) {
                     fontWeight: 600, color: 'var(--on-surface)',
                     cursor: savingAddress ? 'not-allowed' : 'pointer',
                     opacity: savingAddress ? 0.7 : 1,
-                    boxShadow: '0 3px 12px rgba(255,133,208,0.3)',
+                    boxShadow: '0 3px 12px rgba(232,163,185,0.3)',
                   }}
                 >
                   {savingAddress ? 'Saving...' : 'Save Address'}

@@ -46,7 +46,7 @@ export function AdminLayout() {
         animate={{ width: collapsed ? 64 : 230 }}
         transition={{ duration: 0.22, ease: 'easeInOut' }}
         style={{
-          backgroundColor: '#1C0F0A',
+          backgroundColor: '#241B20',
           display: 'flex',
           flexDirection: 'column',
           position: 'fixed',
@@ -63,10 +63,10 @@ export function AdminLayout() {
           alignItems: 'center',
           gap: 10,
           padding: collapsed ? '0 14px' : '0 18px',
-          borderBottom: '1px solid rgba(255,133,208,0.12)',
+          borderBottom: '1px solid rgba(232,163,185,0.12)',
           flexShrink: 0,
         }}>
-          <BrandLogo size={40} style={{ boxShadow: '0 0 0 2px rgba(255,133,208,0.25)' }} />
+          <BrandLogo size={40} style={{ boxShadow: '0 0 0 2px rgba(232,163,185,0.25)' }} />
 
           <AnimatePresence>
             {!collapsed && (
@@ -106,7 +106,7 @@ export function AdminLayout() {
             return (
               <Link key={href} to={href} style={{ display: 'block', marginBottom: 2 }}>
                 <motion.div
-                  whileHover={{ backgroundColor: 'rgba(255,133,208,0.1)' }}
+                  whileHover={{ backgroundColor: 'rgba(232,163,185,0.1)' }}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -114,7 +114,7 @@ export function AdminLayout() {
                     padding: collapsed ? '10px 15px' : '10px 12px',
                     borderRadius: 10,
                     backgroundColor: active
-                      ? 'rgba(255,133,208,0.15)'
+                      ? 'rgba(232,163,185,0.15)'
                       : 'transparent',
                     transition: 'background 0.2s',
                     cursor: 'pointer',
@@ -124,7 +124,7 @@ export function AdminLayout() {
                   <Icon
                     size={18}
                     strokeWidth={active ? 2 : 1.6}
-                    color={active ? '#FF85D0' : 'rgba(255,190,160,0.45)'}
+                    color={active ? '#E8A3B9' : 'rgba(255,190,160,0.45)'}
                     style={{ flexShrink: 0 }}
                   />
                   <AnimatePresence>
@@ -156,7 +156,7 @@ export function AdminLayout() {
 
         {/* Bottom — user + collapse */}
         <div style={{
-          borderTop: '1px solid rgba(255,133,208,0.1)',
+          borderTop: '1px solid rgba(232,163,185,0.1)',
           padding: '10px 8px',
           flexShrink: 0,
         }}>
@@ -168,10 +168,10 @@ export function AdminLayout() {
             }}>
               <div style={{
                 width: 30, height: 30, borderRadius: '50%',
-                background: 'linear-gradient(135deg,#FF85D0,#FFC8A2)',
+                background: 'linear-gradient(135deg,#E8A3B9,#F4C6A8)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontFamily: 'DM Sans, sans-serif',
-                fontSize: 12, fontWeight: 700, color: '#1C0F0A',
+                fontSize: 12, fontWeight: 700, color: '#241B20',
                 flexShrink: 0,
               }}>{initial}</div>
               <div style={{ minWidth: 0 }}>
@@ -265,17 +265,17 @@ export function AdminLayout() {
         {/* Top bar */}
         <div style={{
           height: 64, backgroundColor: '#FFFFFF',
-          borderBottom: '1px solid rgba(255,133,208,0.15)',
+          borderBottom: '1px solid rgba(232,163,185,0.15)',
           display: 'flex', alignItems: 'center',
           padding: '0 32px',
           justifyContent: 'space-between',
           position: 'sticky', top: 0, zIndex: 40,
-          boxShadow: '0 1px 12px rgba(255,133,208,0.08)',
+          boxShadow: '0 1px 12px rgba(232,163,185,0.08)',
         }}>
           <div>
             <p style={{
               fontFamily: 'Playfair Display, serif',
-              fontSize: 18, fontWeight: 700, color: '#1C0F0A',
+              fontSize: 18, fontWeight: 700, color: '#241B20',
             }}>
               {navItems.find(n =>
                 n.href === '/admin'
@@ -290,16 +290,16 @@ export function AdminLayout() {
               fontFamily: 'DM Sans, sans-serif',
               fontSize: 12, fontWeight: 500,
               color: 'rgba(28,15,10,0.4)',
-              border: '1px solid rgba(255,133,208,0.25)',
+              border: '1px solid rgba(232,163,185,0.25)',
               padding: '6px 14px', borderRadius: 999,
               transition: 'all 0.2s',
             }}
               onMouseEnter={e => {
-                e.currentTarget.style.borderColor = 'rgba(255,133,208,0.6)'
-                e.currentTarget.style.color = '#E8609A'
+                e.currentTarget.style.borderColor = 'rgba(232,163,185,0.6)'
+                e.currentTarget.style.color = '#9E5E73'
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.borderColor = 'rgba(255,133,208,0.25)'
+                e.currentTarget.style.borderColor = 'rgba(232,163,185,0.25)'
                 e.currentTarget.style.color = 'rgba(28,15,10,0.4)'
               }}
             >
@@ -308,10 +308,10 @@ export function AdminLayout() {
 
             <div style={{
               width: 34, height: 34, borderRadius: '50%',
-              background: 'linear-gradient(135deg,#FF85D0,#FFC8A2)',
+              background: 'linear-gradient(135deg,#E8A3B9,#F4C6A8)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontFamily: 'DM Sans, sans-serif',
-              fontSize: 12, fontWeight: 700, color: '#1C0F0A',
+              fontSize: 12, fontWeight: 700, color: '#241B20',
             }}>{initial}</div>
           </div>
         </div>

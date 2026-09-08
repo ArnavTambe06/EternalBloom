@@ -173,7 +173,7 @@ export function AdminCustomOrders() {
             {selected.phone && (
   <div style={{
     padding: '12px 0',
-    borderBottom: '1px solid rgba(255,133,208,0.1)',
+    borderBottom: '1px solid rgba(232,163,185,0.1)',
   }}>
     <p style={{
       fontFamily: 'var(--font-body)',
@@ -181,7 +181,7 @@ export function AdminCustomOrders() {
       fontWeight: 700,
       letterSpacing: '0.1em',
       textTransform: 'uppercase',
-      color: '#9C7B6E',
+      color: '#8C665D',
       marginBottom: 10,
     }}>
       Quick Contact
@@ -223,13 +223,13 @@ export function AdminCustomOrders() {
         style={{
           flex: 1,
           padding: '10px',
-          backgroundColor: 'rgba(255,133,208,0.12)',
-          border: '1.5px solid rgba(255,133,208,0.3)',
+          backgroundColor: 'rgba(232,163,185,0.12)',
+          border: '1.5px solid rgba(232,163,185,0.3)',
           borderRadius: 10,
           fontFamily: 'var(--font-body)',
           fontSize: 13,
           fontWeight: 600,
-          color: '#1C0F0A',
+          color: '#241B20',
           textDecoration: 'none',
           display: 'flex',
           alignItems: 'center',

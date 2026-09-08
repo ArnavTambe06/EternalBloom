@@ -43,7 +43,7 @@ export function PeekingCard() {
       {/* The card itself */}
       <div className="peek-card__panel" style={{
         width: 258,
-        background: 'linear-gradient(145deg, #2A1723 0%, #4B203D 58%, #66354B 100%)',
+        background: 'linear-gradient(145deg, var(--ink) 0%, #4b2e3b 58%, #654454 100%)',
         border: '1px solid rgba(255,255,255,0.16)',
         borderLeft: 'none',
         borderRadius: '0 24px 24px 0',
@@ -67,7 +67,7 @@ export function PeekingCard() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}
         >
-          <X size={11} color="#FFF8F5" />
+          <X size={11} color="#FFF0E8" />
         </button>
 
         <div className="peek-card__intro" style={{ marginBottom: 16 }}>
@@ -77,14 +77,14 @@ export function PeekingCard() {
             backgroundColor: 'rgba(255,255,255,0.12)',
             border: '1px solid rgba(255,255,255,0.16)',
             marginBottom: 14,
-            color: '#FFE680',
+          color: 'var(--yellow)',
             fontFamily: 'DM Sans, sans-serif', fontSize: 9,
             fontWeight: 700, letterSpacing: '0.14em',
             textTransform: 'uppercase',
           }}>
             <span style={{
               width: 24, height: 24, borderRadius: '50%',
-              background: 'var(--grad)', color: '#2A1723',
+              background: 'var(--grad)', color: 'var(--ink)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
               <Sparkles size={13} />
@@ -93,13 +93,13 @@ export function PeekingCard() {
           </div>
           <p className="peek-card__title" style={{
             fontFamily: 'Playfair Display, serif',
-            fontSize: 21, fontWeight: 700, color: '#FFF8F5',
+            fontSize: 21, fontWeight: 700, color: 'var(--surface-warm)',
             lineHeight: 1.12, marginBottom: 9,
             maxWidth: 190,
           }}>Your idea, made to last.</p>
           <p className="peek-card__description" style={{
             fontFamily: 'DM Sans, sans-serif',
-            fontSize: 12, color: 'rgba(255,248,245,0.72)',
+            fontSize: 12, color: 'rgba(255,250,243,0.72)',
             lineHeight: 1.55,
           }}>
             Tell us your vision — colours, flowers, a feeling. We'll craft it just for you.
@@ -116,7 +116,7 @@ export function PeekingCard() {
               borderRadius: 999,
               backgroundColor: 'rgba(255,255,255,0.1)',
               border: '1px solid rgba(255,255,255,0.14)',
-              color: i === 2 ? '#FFE680' : 'rgba(255,248,245,0.78)',
+              color: i === 2 ? 'var(--yellow)' : 'rgba(255,250,243,0.78)',
               fontFamily: 'DM Sans, sans-serif', fontSize: 9,
               fontWeight: 600, letterSpacing: '0.02em',
             }}>{step}</span>
@@ -131,12 +131,12 @@ export function PeekingCard() {
           style={{
             width: '100%', padding: '12px 14px',
             background: 'var(--grad)',
-            color: '#2A1723', border: 'none', borderRadius: 12,
+            color: 'var(--ink)', border: 'none', borderRadius: 12,
             fontFamily: 'DM Sans, sans-serif',
             fontSize: 12, fontWeight: 800,
             cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-            boxShadow: '0 8px 20px rgba(255,133,208,0.2)',
+            boxShadow: '0 8px 20px rgba(232,163,185,0.2)',
           }}
         >
           Start a custom piece <ArrowRight size={14} />
@@ -156,7 +156,7 @@ export function PeekingCard() {
         whileHover={{ scale: 1.05 }}
         style={{
           width: 38,
-          background: 'linear-gradient(180deg, #FF85D0 0%, #FFC8A2 52%, #FFE680 100%)',
+          background: 'var(--grad)',
           borderRadius: '0 14px 14px 0',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           gap: 9,
@@ -169,11 +169,11 @@ export function PeekingCard() {
         aria-expanded={open}
         aria-label={open ? 'Close custom studio' : 'Open custom studio'}
       >
-        <Sparkles size={13} color="#2A1723" />
+        <Sparkles size={13} color="var(--ink)" />
         <p style={{
           fontFamily: 'DM Sans, sans-serif',
           fontSize: 9, fontWeight: 800,
-          color: '#2A1723',
+          color: 'var(--ink)',
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
           writingMode: 'vertical-rl',

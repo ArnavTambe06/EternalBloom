@@ -25,27 +25,16 @@ export function Navbar() {
   const [searchQuery, setSearchQuery] = useState('')
   const [results, setResults] = useState<Product[]>([])
   const [searching, setSearching] = useState(false)
-  const [annIdx, setAnnIdx] = useState(0)
   const searchRef = useRef<HTMLInputElement>(null)
-  const { itemCount, toggleCart, freeShippingAbove } = useCartStore()
+  const { itemCount, toggleCart } = useCartStore()
   const { isLoggedIn } = useAuth()
   const count = itemCount()
   const location = useLocation()
-  const announcements = [
-    freeShippingAbove > 0 ? `Free shipping on orders above ₹${freeShippingAbove}` : 'Free shipping on all orders',
-    'Handmade to order — every piece is unique',
-    'Cash on delivery available across India',
-  ]
-
+  const isHome = location.pathname === '/'
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 10)
     window.addEventListener('scroll', fn)
     return () => window.removeEventListener('scroll', fn)
-  }, [])
-
-  useEffect(() => {
-    const t = setInterval(() => setAnnIdx(i => (i + 1) % announcements.length), 3500)
-    return () => clearInterval(t)
   }, [])
 
   useEffect(() => { setMenuOpen(false); setSearchOpen(false) }, [location])
@@ -81,7 +70,7 @@ export function Navbar() {
         borderRadius: '50%', transition: 'background 0.2s',
         backgroundColor: 'transparent',
       }}
-      onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255,133,208,0.12)'}
+      onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--accent-bg)'}
       onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
     >
       {children}
@@ -90,42 +79,17 @@ export function Navbar() {
 
   return (
     <>
-      {/* Announcement bar */}
-      <div style={{
-        height: 36, overflow: 'hidden',
-        background: 'linear-gradient(90deg, rgba(255,133,208,0.25) 0%, rgba(255,200,162,0.25) 50%, rgba(255,230,128,0.25) 100%)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        borderBottom: '1px solid var(--line)',
-        backdropFilter: 'blur(8px)',
-      }}>
-        <AnimatePresence mode="wait">
-          <motion.p
-            key={annIdx}
-            initial={{ y: 12, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -12, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            style={{
-              fontFamily: 'var(--sans)',
-              fontSize: 12, fontWeight: 500,
-              color: 'var(--ink-2)',
-              letterSpacing: '0.04em',
-            }}
-          >{announcements[annIdx]}</motion.p>
-        </AnimatePresence>
-      </div>
-
       {/* Main nav */}
-      <nav className="site-nav" style={{
-        position: 'sticky', top: 0, zIndex: 100,
-        background: scrolled
-          ? 'rgba(255,252,250,0.88)'
-          : 'rgba(255,252,250,0.72)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderBottom: `1px solid ${scrolled ? 'var(--line-2)' : 'var(--line)'}`,
+      <nav className={`site-nav${isHome ? ' home-nav' : ''}`} style={{
+        position: isHome ? 'absolute' : 'sticky', top: 0, left: 0, right: 0, zIndex: 100,
+        background: isHome ? 'transparent' : scrolled
+          ? 'var(--surface-glass-strong)'
+          : 'var(--surface-glass)',
+        backdropFilter: isHome ? 'none' : 'blur(20px)',
+        WebkitBackdropFilter: isHome ? 'none' : 'blur(20px)',
+        borderBottom: isHome ? 'none' : `1px solid ${scrolled ? 'var(--line-2)' : 'var(--line)'}`,
         transition: 'all 0.3s ease',
-        boxShadow: scrolled ? '0 2px 24px rgba(255,133,208,0.1)' : 'none',
+        boxShadow: isHome || !scrolled ? 'none' : '0 2px 24px rgba(158,94,115,0.1)',
       }}>
         <div className="wrap navbar-inner" style={{
           height: 68,
@@ -135,7 +99,7 @@ export function Navbar() {
 
           {/* Logo */}
           <Link to="/" className="navbar-brand" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <BrandLogo size={42} style={{ boxShadow: '0 4px 14px rgba(255,133,208,0.28)' }} />
+            <BrandLogo size={42} style={{ boxShadow: '0 4px 14px rgba(158,94,115,0.18)' }} />
             <div className="navbar-brand-copy">
                <p style={{
                 fontFamily: 'var(--serif)', fontSize: 17,
@@ -163,39 +127,27 @@ export function Navbar() {
           style={{
             padding: '7px 16px',
             borderRadius: 999,
-            background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+            background: 'var(--grad)',
             backgroundSize: '200% 100%',
             fontFamily: 'var(--sans)',
             fontSize: 13,
             fontWeight: 700,
-            color: '#1C0F0A',
+            color: 'var(--ink)',
             cursor: 'pointer',
             whiteSpace: 'nowrap',
-            boxShadow: '0 3px 12px rgba(255,133,208,0.3)',
-          }}
-          animate={{
-            boxShadow: [
-              '0 3px 12px rgba(255,133,208,0.3)',
-              '0 6px 20px rgba(255,133,208,0.5)',
-              '0 3px 12px rgba(255,133,208,0.3)',
-            ],
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: 2.5,
-            ease: 'easeInOut',
+            boxShadow: '0 3px 12px rgba(158,94,115,0.18)',
           }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          ✦ Custom Order
+          Custom Order
         </motion.div>
       </Link>
     ) : (
       <Link key={link.href} to={link.href}>
         <motion.div
           whileHover={{
-            backgroundColor: 'rgba(255,133,208,0.1)',
+            backgroundColor: 'var(--accent-bg)',
           }}
           style={{
             padding: '7px 16px',
@@ -224,11 +176,15 @@ export function Navbar() {
 
           {/* Actions */}
           <div className="navbar-actions" style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {iconBtn(() => setSearchOpen(true), <Search size={18} strokeWidth={1.8} />, 'Search')}
+            <div className="navbar-optional-action">
+              {iconBtn(() => setSearchOpen(true), <Search size={18} strokeWidth={1.8} />, 'Search')}
+            </div>
 
-            <Link to={isLoggedIn() ? '/profile' : '/login'}>
-              {iconBtn(() => {}, <User size={18} strokeWidth={1.8} />, 'Account')}
-            </Link>
+            <div className="navbar-optional-action">
+              <Link to={isLoggedIn() ? '/profile' : '/login'}>
+                {iconBtn(() => {}, <User size={18} strokeWidth={1.8} />, 'Account')}
+              </Link>
+            </div>
 
             <div style={{ position: 'relative' }}>
               {iconBtn(toggleCart, <ShoppingBag size={18} strokeWidth={1.8} />, 'Cart')}
@@ -274,11 +230,11 @@ export function Navbar() {
               exit={{ opacity: 0, y: -20 }}
               style={{
                 position: 'fixed', top: 0, left: 0, right: 0, zIndex: 201,
-                background: 'rgba(255,252,250,0.95)',
+                background: 'var(--surface-glass-strong)',
                 backdropFilter: 'blur(24px)',
                 borderBottom: '1px solid var(--line-2)',
                 padding: '24px 0',
-                boxShadow: '0 8px 40px rgba(255,133,208,0.15)',
+                boxShadow: '0 8px 40px rgba(158,94,115,0.12)',
               }}
             >
               <div className="wrap">
@@ -362,7 +318,7 @@ export function Navbar() {
             exit={{ opacity: 0, height: 0 }}
             style={{
               position: 'sticky', top: 68, zIndex: 99, overflow: 'hidden',
-              background: 'rgba(255,252,250,0.95)',
+              background: 'var(--surface-glass-strong)',
               backdropFilter: 'blur(20px)',
               borderBottom: '1px solid var(--line-2)',
             }}

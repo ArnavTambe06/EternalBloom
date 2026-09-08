@@ -23,20 +23,20 @@ function Testimonials() {
   return (
     <section style={{
       padding: '72px 0',
-      borderTop: '1px solid rgba(255,133,208,0.12)',
-      position: 'relative', zIndex: 1, backgroundColor: '#FAFAFA',
+      borderTop: '1px solid var(--line)',
+      position: 'relative', zIndex: 1, backgroundColor: 'var(--surface-soft)',
     }}>
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 var(--px)' }}>
         <div style={{ marginBottom: 40 }}>
           <p style={{
             fontFamily: 'DM Sans, sans-serif', fontSize: 11,
             fontWeight: 700, letterSpacing: '0.15em',
-            textTransform: 'uppercase', color: '#9C7B6E', marginBottom: 6,
+            textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6,
           }}>Reviews</p>
           <h2 style={{
             fontFamily: 'Playfair Display, serif',
             fontSize: 'clamp(24px,3vw,34px)',
-            fontWeight: 700, color: '#1C0F0A', letterSpacing: '-0.02em',
+            fontWeight: 700, color: 'var(--ink)', letterSpacing: '-0.02em',
           }}>What customers say</h2>
         </div>
         <div className="testimonials-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
@@ -49,25 +49,25 @@ function Testimonials() {
               transition={{ delay: i * 0.08 }}
               style={{
                 backgroundColor: 'white',
-                border: '1px solid rgba(28,15,10,0.06)',
+                border: '1px solid var(--line)',
                 borderRadius: 4, padding: '24px 22px',
               }}
             >
               <div style={{ display: 'flex', gap: 3, marginBottom: 14 }}>
                 {Array.from({ length: t.rating }).map((_, j) => (
-                  <Star key={j} size={13} color="#E8609A" fill="#E8609A" />
+                  <Star key={j} size={13} color="var(--accent)" fill="var(--accent)" />
                 ))}
               </div>
               <p style={{
                 fontFamily: 'Playfair Display, serif',
-                fontSize: 15, color: '#1C0F0A',
+                fontSize: 15, color: 'var(--ink)',
                 lineHeight: 1.6, marginBottom: 18, fontStyle: 'italic',
               }}>"{t.text}"</p>
               <div>
-                <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#1C0F0A' }}>
+                <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>
                   {t.name}
                 </p>
-                <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#9C7B6E' }}>{t.city}</p>
+                <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--ink-3)' }}>{t.city}</p>
               </div>
             </motion.div>
           ))}
@@ -82,7 +82,7 @@ function FAQ() {
   return (
     <section style={{
       padding: '72px 0',
-      borderTop: '1px solid rgba(28,15,10,0.06)',
+      borderTop: '1px solid var(--line)',
       position: 'relative', zIndex: 1, backgroundColor: 'white',
     }}>
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 var(--px)' }}>
@@ -90,17 +90,17 @@ function FAQ() {
           <p style={{
             fontFamily: 'DM Sans, sans-serif', fontSize: 11,
             fontWeight: 700, letterSpacing: '0.15em',
-            textTransform: 'uppercase', color: '#9C7B6E', marginBottom: 6,
+            textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6,
           }}>FAQ</p>
           <h2 style={{
             fontFamily: 'Playfair Display, serif',
             fontSize: 'clamp(24px,3vw,34px)',
-            fontWeight: 700, color: '#1C0F0A', letterSpacing: '-0.02em',
+            fontWeight: 700, color: 'var(--ink)', letterSpacing: '-0.02em',
           }}>Common Questions</h2>
         </div>
 
         {faqs.map((faq, i) => (
-          <div key={i} style={{ borderBottom: '1px solid rgba(28,15,10,0.08)' }}>
+          <div key={i} style={{ borderBottom: '1px solid var(--line)' }}>
             <button
               onClick={() => setOpen(open === i ? null : i)}
               style={{
@@ -113,14 +113,14 @@ function FAQ() {
             >
               <span style={{
                 fontFamily: 'DM Sans, sans-serif',
-                fontSize: 15, fontWeight: 500, color: '#1C0F0A',
+                fontSize: 15, fontWeight: 500, color: 'var(--ink)',
               }}>{faq.q}</span>
               <motion.div
                 animate={{ rotate: open === i ? 180 : 0 }}
                 transition={{ duration: 0.2 }}
                 style={{ flexShrink: 0 }}
               >
-                <ChevronDown size={16} strokeWidth={1.5} color="#9C7B6E" />
+                <ChevronDown size={16} strokeWidth={1.5} color="var(--ink-3)" />
               </motion.div>
             </button>
             <AnimatePresence>
@@ -134,7 +134,7 @@ function FAQ() {
                 >
                   <p style={{
                     fontFamily: 'DM Sans, sans-serif', fontSize: 14,
-                    color: '#5C4033', lineHeight: 1.65, paddingBottom: 18,
+                    color: 'var(--ink-2)', lineHeight: 1.65, paddingBottom: 18,
                   }}>{faq.a}</p>
                 </motion.div>
               )}

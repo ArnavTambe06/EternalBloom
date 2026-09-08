@@ -26,7 +26,7 @@ export function ForgotPasswordPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'radial-gradient(ellipse at 50% 30%, rgba(255,133,208,0.12) 0%, transparent 60%), var(--surface)',
+      background: 'radial-gradient(ellipse at 50% 30%, rgba(232,163,185,0.12) 0%, transparent 60%), var(--surface)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: 24,
     }}>
@@ -133,7 +133,7 @@ export function ForgotPasswordPage() {
                 fontFamily: 'var(--font-body)',
                 fontSize: 15, fontWeight: 700,
                 color: 'var(--on-surface)', cursor: 'pointer',
-                boxShadow: '0 4px 20px rgba(255,133,208,0.35)',
+                boxShadow: '0 4px 20px rgba(232,163,185,0.35)',
               }}
             >
               {loading ? 'Sending...' : 'Send Reset Link'}

@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { Navbar } from './Navbar'
 import { Footer } from './Footer'
 import { CartDrawer } from '@/components/cart/cartDrawer'
@@ -6,9 +6,13 @@ import { AuroraBg } from '@/components/AurorBg'
 import { PeekingCard } from '@/components/ui/PeekingCard'
 
 export function Layout() {
+  const location = useLocation()
+  const isHome = location.pathname === '/'
+  const isCustomOrder = location.pathname === '/custom-order'
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      <AuroraBg />
+      {!isHome && <AuroraBg />}
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1 }}>
         <Navbar />
         <main style={{ flex: 1 }}>
@@ -16,7 +20,7 @@ export function Layout() {
         </main>
         <Footer />
       </div>
-      <PeekingCard />
+      {!isCustomOrder && <PeekingCard />}
       <CartDrawer />
     </div>
   )

@@ -63,9 +63,9 @@ export function AdminDashboard() {
   }, [])
 
   const statCards = [
-    { label: 'Total Products', value: stats.products, icon: <Package size={20} />, color: '#FF85D0', href: '/admin/products' },
-    { label: 'Total Orders', value: stats.orders, icon: <ShoppingBag size={20} />, color: '#FFC8A2', href: '/admin/orders' },
-    { label: 'Pending Orders', value: stats.pendingOrders, icon: <Clock size={20} />, color: '#FFE680', href: '/admin/orders' },
+    { label: 'Total Products', value: stats.products, icon: <Package size={20} />, color: '#E8A3B9', href: '/admin/products' },
+    { label: 'Total Orders', value: stats.orders, icon: <ShoppingBag size={20} />, color: '#F4C6A8', href: '/admin/orders' },
+    { label: 'Pending Orders', value: stats.pendingOrders, icon: <Clock size={20} />, color: '#F4DF9A', href: '/admin/orders' },
     { label: 'Custom Orders', value: stats.customOrders, icon: <Sparkles size={20} />, color: '#C8A2FF', href: '/admin/custom-orders' },
     { label: 'Revenue (Paid)', value: `₹${stats.revenue.toLocaleString('en-IN')}`, icon: <TrendingUp size={20} />, color: '#A2FFC8', href: '/admin/orders' },
     { label: 'Categories', value: stats.categories, icon: <CheckCircle size={20} />, color: '#A2C8FF', href: '/admin/categories' },

@@ -27,7 +27,7 @@ export function ResetPasswordPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'radial-gradient(ellipse at 50% 20%, rgba(255,133,208,0.12) 0%, transparent 60%), var(--surface)',
+      background: 'radial-gradient(ellipse at 50% 20%, rgba(232,163,185,0.12) 0%, transparent 60%), var(--surface)',
       display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
     }}>
       <motion.div
@@ -127,7 +127,7 @@ export function ResetPasswordPage() {
                 fontFamily: 'var(--font-body)', fontSize: 15, fontWeight: 700,
                 color: 'var(--on-surface)', cursor: loading ? 'not-allowed' : 'pointer',
                 opacity: loading ? 0.7 : 1,
-                boxShadow: '0 4px 20px rgba(255,133,208,0.35)',
+                boxShadow: '0 4px 20px rgba(232,163,185,0.35)',
               }}
             >
               {loading ? 'Updating...' : 'Update Password'}

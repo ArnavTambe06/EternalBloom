@@ -18,7 +18,7 @@ export function CategoriesSection() {
   return (
     <section id="categories" style={{
       padding: '56px 0',
-      borderTop: '1px solid rgba(255,133,208,0.12)',
+      borderTop: '1px solid var(--line)',
       position: 'relative', zIndex: 1,
       backgroundColor: 'white',
     }}>
@@ -32,19 +32,19 @@ export function CategoriesSection() {
             <p style={{
               fontFamily: 'DM Sans, sans-serif', fontSize: 11,
               fontWeight: 700, letterSpacing: '0.15em',
-              textTransform: 'uppercase', color: '#9C7B6E', marginBottom: 6,
+              textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6,
             }}>Browse</p>
             <h2 style={{
               fontFamily: 'Playfair Display, serif',
               fontSize: 'clamp(22px,2.5vw,30px)',
-              fontWeight: 700, color: '#1C0F0A',
+              fontWeight: 700, color: 'var(--ink)',
               letterSpacing: '-0.02em',
             }}>Shop by Collection</h2>
           </div>
           <Link to="/categories" style={{
             display: 'flex', alignItems: 'center', gap: 6,
             fontFamily: 'DM Sans, sans-serif', fontSize: 13,
-            fontWeight: 600, color: '#E8609A',
+            fontWeight: 600, color: 'var(--accent)',
           }}>
             View all <ArrowRight size={14} />
           </Link>
@@ -69,12 +69,12 @@ export function CategoriesSection() {
                   style={{
                     borderRadius: 4,
                     overflow: 'hidden',
-                    border: '1px solid rgba(28,15,10,0.08)',
+                    border: '1px solid var(--line)',
                     cursor: 'pointer',
                     transition: 'box-shadow 0.3s ease, transform 0.3s ease',
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(255,133,208,0.2)'
+                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(158,94,115,0.14)'
                     e.currentTarget.style.transform = 'translateY(-3px)'
                   }}
                   onMouseLeave={e => {
@@ -103,12 +103,12 @@ export function CategoriesSection() {
                     ) : (
                       <div style={{
                         width: '100%', height: '100%',
-                        background: 'linear-gradient(135deg,rgba(255,133,208,0.1),rgba(255,200,162,0.1))',
+                        background: 'var(--grad-soft)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
                         <p style={{
                           fontFamily: 'Playfair Display, serif',
-                          fontSize: 16, color: '#9C7B6E', fontStyle: 'italic',
+                          fontSize: 16, color: 'var(--ink-3)', fontStyle: 'italic',
                         }}>{cat.name}</p>
                       </div>
                     )}
@@ -122,12 +122,12 @@ export function CategoriesSection() {
                     <p style={{
                       fontFamily: 'DM Sans, sans-serif',
                       fontSize: 14, fontWeight: 400,
-                      color: '#1C0F0A', marginBottom: 4,
+                      color: 'var(--ink)', marginBottom: 4,
                     }}>{cat.name}</p>
                     {cat.description && (
                       <p style={{
                         fontFamily: 'DM Sans, sans-serif',
-                        fontSize: 12, color: '#9C7B6E',
+                        fontSize: 12, color: 'var(--ink-3)',
                       }}>{cat.description}</p>
                     )}
                   </div>

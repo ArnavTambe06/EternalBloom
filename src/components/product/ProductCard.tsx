@@ -101,10 +101,10 @@ export function ProductCard({ product, onViewDetails }: Props) {
         {discount && product.is_available && (
           <div style={{
             position: 'absolute', top: 10, left: 10,
-            background: 'linear-gradient(135deg,#FF85D0,#FFC8A2)',
+            background: 'var(--grad)',
             padding: '3px 10px', borderRadius: 4,
             fontFamily: 'DM Sans, sans-serif',
-            fontSize: 10, fontWeight: 800, color: '#1C0F0A',
+            fontSize: 10, fontWeight: 800, color: 'var(--ink)',
           }}>{discount}% OFF</div>
         )}
 
@@ -118,12 +118,12 @@ export function ProductCard({ product, onViewDetails }: Props) {
             padding: '10px',
             background: added
               ? 'rgba(45,122,79,0.92)'
-              : 'rgba(255,255,255,0.92)',
+              : 'rgba(255,250,243,0.94)',
             backdropFilter: 'blur(10px)',
             border: 'none', borderRadius: 8,
             fontFamily: 'DM Sans, sans-serif',
             fontSize: 12, fontWeight: 700,
-            color: added ? 'white' : '#1C0F0A',
+            color: added ? 'white' : 'var(--ink)',
             cursor: 'pointer',
             display: 'flex', alignItems: 'center',
             justifyContent: 'center', gap: 6,
@@ -140,7 +140,7 @@ export function ProductCard({ product, onViewDetails }: Props) {
         <p style={{
           fontFamily: 'DM Sans, sans-serif',
           fontSize: 14, fontWeight: 400,
-          color: '#1C0F0A', marginBottom: 5,
+          color: 'var(--ink)', marginBottom: 5,
           lineHeight: 1.3,
         }}>{product.name}</p>
 
@@ -148,14 +148,14 @@ export function ProductCard({ product, onViewDetails }: Props) {
           <span style={{
             fontFamily: 'DM Sans, sans-serif',
             fontSize: 14, fontWeight: 600,
-            color: '#1C0F0A',
+            color: 'var(--ink)',
           }}>
             {product.compare_price ? 'From ' : ''}₹{product.price}
           </span>
           {product.compare_price && (
             <span style={{
               fontFamily: 'DM Sans, sans-serif',
-              fontSize: 13, color: '#9C7B6E',
+            fontSize: 13, color: 'var(--ink-3)',
               textDecoration: 'line-through',
             }}>₹{product.compare_price}</span>
           )}

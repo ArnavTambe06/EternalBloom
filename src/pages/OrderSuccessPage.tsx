@@ -7,7 +7,7 @@ export function OrderSuccessPage() {
 
   return (
     <div style={{
-      minHeight: '100vh', backgroundColor: '#FFF9F2',
+      minHeight: '100vh', backgroundColor: '#FFF9E8',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: 24,
     }}>
@@ -20,7 +20,7 @@ export function OrderSuccessPage() {
           padding: '48px 40px', maxWidth: 480,
           width: '100%', textAlign: 'center',
           boxShadow: '0 12px 60px rgba(70,53,42,0.12)',
-          border: '1px solid #E7DDD5',
+          border: '1px solid #EAD9D2',
         }}
       >
         <motion.div
@@ -43,7 +43,7 @@ export function OrderSuccessPage() {
 
         <h1 style={{
           fontFamily: 'Playfair Display, serif',
-          fontSize: 28, fontWeight: 700, color: '#46352A', marginBottom: 10,
+          fontSize: 28, fontWeight: 700, color: '#5C4033', marginBottom: 10,
         }}>Order Placed!</h1>
 
        <p style={{
@@ -57,16 +57,16 @@ export function OrderSuccessPage() {
 </p>
 
         <div style={{
-          backgroundColor: '#F6EFE7', borderRadius: 14,
+          backgroundColor: '#FFF0E8', borderRadius: 14,
           padding: '16px 20px', marginBottom: 28,
           display: 'flex', alignItems: 'center', gap: 12,
         }}>
-          <Package size={20} color="#B56A45" />
+          <Package size={20} color="#9E5E73" />
           <div style={{ textAlign: 'left' }}>
-            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: 12, fontWeight: 600, color: '#46352A' }}>
+            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: 12, fontWeight: 600, color: '#5C4033' }}>
               Order ID
             </p>
-            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#786A61', marginTop: 2 }}>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#8C665D', marginTop: 2 }}>
               #{orderId?.toUpperCase()}
             </p>
           </div>
@@ -79,7 +79,7 @@ export function OrderSuccessPage() {
               whileTap={{ scale: 0.97 }}
               style={{
                 width: '100%', padding: '13px',
-                backgroundColor: '#B56A45', color: 'white',
+                backgroundColor: '#9E5E73', color: 'white',
                 border: 'none', borderRadius: 12,
                 fontFamily: 'Poppins, sans-serif',
                 fontSize: 14, fontWeight: 600, cursor: 'pointer',
@@ -93,8 +93,8 @@ export function OrderSuccessPage() {
           <Link to="/" style={{ textDecoration: 'none' }}>
             <button style={{
               width: '100%', padding: '13px',
-              border: '1.5px solid #E7DDD5', borderRadius: 12,
-              backgroundColor: 'white', color: '#46352A',
+              border: '1.5px solid #EAD9D2', borderRadius: 12,
+              backgroundColor: 'white', color: '#5C4033',
               fontFamily: 'Poppins, sans-serif', fontSize: 14, cursor: 'pointer',
             }}>
               Continue Shopping

@@ -31,10 +31,10 @@ const steps = ['Your details', 'Style & images', 'Review & send']
 const field: React.CSSProperties = {
   width: '100%',
   padding: '13px 16px',
-  border: '1.5px solid rgba(255,133,208,0.22)',
+  border: '1.5px solid rgba(232,163,185,0.22)',
   borderRadius: 12,
   fontFamily: 'DM Sans, sans-serif',
-  fontSize: 15, color: '#1C0F0A',
+  fontSize: 15, color: '#241B20',
   backgroundColor: 'rgba(255,255,255,0.9)',
   outline: 'none',
   boxSizing: 'border-box',
@@ -42,11 +42,11 @@ const field: React.CSSProperties = {
 }
 
 const focusField = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-  e.target.style.borderColor = '#FF85D0'
-  e.target.style.boxShadow = '0 0 0 3px rgba(255,133,208,0.12)'
+  e.target.style.borderColor = '#E8A3B9'
+  e.target.style.boxShadow = '0 0 0 3px rgba(232,163,185,0.12)'
 }
 const blurField = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-  e.target.style.borderColor = 'rgba(255,133,208,0.22)'
+  e.target.style.borderColor = 'rgba(232,163,185,0.22)'
   e.target.style.boxShadow = 'none'
 }
 
@@ -55,7 +55,7 @@ const lbl: React.CSSProperties = {
   fontFamily: 'DM Sans, sans-serif',
   fontSize: 11, fontWeight: 700,
   letterSpacing: '0.12em', textTransform: 'uppercase',
-  color: '#9C7B6E', marginBottom: 8,
+  color: '#8C665D', marginBottom: 8,
 }
 
 export function CustomOrderPage() {
@@ -162,9 +162,9 @@ export function CustomOrderPage() {
             maxWidth: 480, width: '100%', textAlign: 'center',
             background: 'rgba(255,255,255,0.85)',
             backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255,133,208,0.2)',
+            border: '1px solid rgba(232,163,185,0.2)',
             borderRadius: 32, padding: '64px 52px',
-            boxShadow: '0 24px 64px rgba(255,133,208,0.15)',
+            boxShadow: '0 24px 64px rgba(232,163,185,0.15)',
           }}
         >
           <motion.div
@@ -173,24 +173,24 @@ export function CustomOrderPage() {
             transition={{ delay: 0.15, type: 'spring', stiffness: 240 }}
             style={{
               width: 80, height: 80,
-              background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+              background: 'linear-gradient(135deg,#E8A3B9,#F4C6A8,#F4DF9A)',
               borderRadius: '50%', margin: '0 auto 24px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 12px 32px rgba(255,133,208,0.4)',
+              boxShadow: '0 12px 32px rgba(232,163,185,0.4)',
             }}
           >
-            <CheckCircle size={36} color="#1C0F0A" strokeWidth={2} />
+            <CheckCircle size={36} color="#241B20" strokeWidth={2} />
           </motion.div>
 
           <p style={{
             fontFamily: 'DM Sans, sans-serif', fontSize: 11,
             fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase',
-            color: '#9C7B6E', marginBottom: 12,
+            color: '#8C665D', marginBottom: 12,
           }}>Request Received</p>
 
           <h2 style={{
             fontFamily: 'Playfair Display, serif',
-            fontSize: 32, fontWeight: 700, color: '#1C0F0A',
+            fontSize: 32, fontWeight: 700, color: '#241B20',
             letterSpacing: '-0.02em', marginBottom: 16,
           }}>We'll be in touch!</h2>
 
@@ -199,10 +199,10 @@ export function CustomOrderPage() {
   fontFamily: 'DM Sans, sans-serif',
   fontSize: 15, color: '#5C4033', lineHeight: 1.7, marginBottom: 32,
 }}>
-  Thank you, <strong style={{ color: '#1C0F0A' }}>{form.name}</strong>!
+  Thank you, <strong style={{ color: '#241B20' }}>{form.name}</strong>!
   We've received your request and will{' '}
   <strong style={{ color: '#25D366' }}>contact you on WhatsApp</strong>{' '}
-  on <strong style={{ color: '#1C0F0A' }}>{form.phone || 'the number you provided'}</strong>{' '}
+  on <strong style={{ color: '#241B20' }}>{form.phone || 'the number you provided'}</strong>{' '}
   within 24 hours with a personalised quote.
 </p>
 
@@ -226,7 +226,7 @@ export function CustomOrderPage() {
     </svg>
   </div>
   <div>
-    <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#1C0F0A', marginBottom: 2 }}>
+    <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, color: '#241B20', marginBottom: 2 }}>
       We'll WhatsApp you
     </p>
     <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: '#5C4033' }}>
@@ -237,11 +237,11 @@ export function CustomOrderPage() {
 
           <button onClick={reset} style={{
             padding: '13px 32px', borderRadius: 999,
-            background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+            background: 'linear-gradient(135deg,#E8A3B9,#F4C6A8,#F4DF9A)',
             border: 'none', cursor: 'pointer',
             fontFamily: 'DM Sans, sans-serif',
-            fontSize: 14, fontWeight: 700, color: '#1C0F0A',
-            boxShadow: '0 4px 16px rgba(255,133,208,0.3)',
+            fontSize: 14, fontWeight: 700, color: '#241B20',
+            boxShadow: '0 4px 16px rgba(232,163,185,0.3)',
           }}>Submit Another</button>
         </motion.div>
       </div>
@@ -250,11 +250,11 @@ export function CustomOrderPage() {
 
   /* ── Main ── */
   return (
-    <div style={{ position: 'relative', zIndex: 1 }}>
+    <div className="custom-order-page" style={{ position: 'relative', zIndex: 1 }}>
 
       {/* ── Hero ── */}
-      <div style={{ padding: '80px 0 56px', textAlign: 'center' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 48px' }}>
+      <div className="custom-order-hero" style={{ padding: '80px 0 56px', textAlign: 'center' }}>
+        <div className="custom-order-hero__inner" style={{ maxWidth: 1200, margin: '0 auto', padding: '0 48px' }}>
           <motion.span
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -263,9 +263,9 @@ export function CustomOrderPage() {
               padding: '6px 18px', borderRadius: 999,
               background: 'rgba(255,255,255,0.75)',
               backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255,133,208,0.25)',
+              border: '1px solid rgba(232,163,185,0.25)',
               fontFamily: 'DM Sans, sans-serif', fontSize: 12,
-              fontWeight: 600, color: '#E8609A',
+              fontWeight: 600, color: '#9E5E73',
               marginBottom: 20, letterSpacing: '0.04em',
             }}
           >
@@ -279,14 +279,14 @@ export function CustomOrderPage() {
             style={{
               fontFamily: 'Playfair Display, serif',
               fontSize: 'clamp(42px,6vw,80px)',
-              fontWeight: 700, color: '#1C0F0A',
+              fontWeight: 700, color: '#241B20',
               letterSpacing: '-0.03em', lineHeight: 1.05, marginBottom: 18,
             }}
           >
             Your Vision,{' '}
             <em style={{
               fontStyle: 'italic',
-              background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+              background: 'linear-gradient(135deg,#E8A3B9,#F4C6A8,#F4DF9A)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
@@ -310,44 +310,44 @@ export function CustomOrderPage() {
       </div>
 
       {/* ── Step indicator ── */}
-      <div style={{ maxWidth: 740, margin: '0 auto', padding: '0 24px 40px' }}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div className="custom-order-steps" style={{ maxWidth: 740, margin: '0 auto', padding: '0 24px 40px' }}>
+        <div className="custom-order-steps__track" style={{ display: 'flex', alignItems: 'center' }}>
           {steps.map((s, i) => (
-            <div key={s} style={{
+            <div key={s} className="custom-order-step" style={{
               display: 'flex', alignItems: 'center',
               flex: i < steps.length - 1 ? 1 : 'none',
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+              <div className="custom-order-step__content" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                 <div style={{
                   width: 32, height: 32,
                   background: i <= step
-                    ? 'linear-gradient(135deg,#FF85D0,#FFC8A2)'
+                    ? 'linear-gradient(135deg,#E8A3B9,#F4C6A8)'
                     : 'rgba(255,255,255,0.7)',
-                  border: i <= step ? 'none' : '1.5px solid rgba(255,133,208,0.3)',
+                  border: i <= step ? 'none' : '1.5px solid rgba(232,163,185,0.3)',
                   borderRadius: '50%',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontFamily: 'DM Sans, sans-serif',
                   fontSize: 13, fontWeight: 700,
-                  color: i <= step ? '#1C0F0A' : '#9C7B6E',
+                  color: i <= step ? '#241B20' : '#8C665D',
                   transition: 'all 0.3s',
-                  boxShadow: i <= step ? '0 4px 14px rgba(255,133,208,0.35)' : 'none',
+                  boxShadow: i <= step ? '0 4px 14px rgba(232,163,185,0.35)' : 'none',
                 }}>
                   {i < step ? '✓' : i + 1}
                 </div>
-                <span style={{
+                <span className="custom-order-step__label" style={{
                   fontFamily: 'DM Sans, sans-serif',
                   fontSize: 11, fontWeight: 700,
                   letterSpacing: '0.1em', textTransform: 'uppercase',
-                  color: i <= step ? '#1C0F0A' : '#9C7B6E',
+                  color: i <= step ? '#241B20' : '#8C665D',
                   whiteSpace: 'nowrap', transition: 'color 0.3s',
                 }}>{s}</span>
               </div>
               {i < steps.length - 1 && (
-                <div style={{
+                <div className="custom-order-step__connector" style={{
                   flex: 1, height: 1.5, margin: '0 16px',
                   background: i < step
-                    ? 'linear-gradient(90deg,#FF85D0,#FFC8A2)'
-                    : 'rgba(255,133,208,0.2)',
+                    ? 'linear-gradient(90deg,#E8A3B9,#F4C6A8)'
+                    : 'rgba(232,163,185,0.2)',
                   transition: 'all 0.3s',
                 }} />
               )}
@@ -357,7 +357,7 @@ export function CustomOrderPage() {
       </div>
 
       {/* ── Form ── */}
-      <div style={{ maxWidth: 740, margin: '0 auto', padding: '0 24px 96px' }}>
+      <div className="custom-order-form" style={{ maxWidth: 740, margin: '0 auto', padding: '0 24px 96px' }}>
         <AnimatePresence mode="wait">
 
           {/* STEP 0 — Details */}
@@ -368,33 +368,34 @@ export function CustomOrderPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.22 }}
+              className="custom-order-card"
               style={{
                 background: 'rgba(255,255,255,0.82)',
-                border: '1px solid rgba(255,133,208,0.18)',
+                border: '1px solid rgba(232,163,185,0.18)',
                 borderRadius: 24,
                 overflow: 'hidden',
-                boxShadow: '0 8px 40px rgba(255,133,208,0.1)',
+                boxShadow: '0 8px 40px rgba(232,163,185,0.1)',
               }}
             >
               {/* Card header stripe */}
               <div style={{
                 height: 4,
-                background: 'linear-gradient(90deg,#FF85D0,#FFC8A2,#FFE680)',
+                background: 'linear-gradient(90deg,#E8A3B9,#F4C6A8,#F4DF9A)',
               }} />
 
-              <div style={{ padding: '36px 40px' }}>
+              <div className="custom-order-card__body" style={{ padding: '36px 40px' }}>
                 <h2 style={{
                   fontFamily: 'Playfair Display, serif',
-                  fontSize: 24, fontWeight: 600, color: '#1C0F0A',
+                  fontSize: 24, fontWeight: 600, color: '#241B20',
                   letterSpacing: '-0.02em', marginBottom: 6,
                 }}>Tell us about yourself</h2>
                 <p style={{
                   fontFamily: 'DM Sans, sans-serif',
-                  fontSize: 14, color: '#9C7B6E', marginBottom: 32,
+                  fontSize: 14, color: '#8C665D', marginBottom: 32,
                 }}>We'll reach out to you with a personalised quote.</p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div className="custom-order-field-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                     {[
                       { label: 'Full Name *', key: 'name', type: 'text', ph: 'Priya Sharma' },
                       { label: 'Email *', key: 'email', type: 'email', ph: 'priya@email.com' },
@@ -412,7 +413,7 @@ export function CustomOrderPage() {
                     ))}
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div className="custom-order-field-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                     <div>
                       <label style={lbl}>Phone</label>
                       <input
@@ -427,7 +428,7 @@ export function CustomOrderPage() {
                       <select
                         value={form.category}
                         onChange={e => set('category', e.target.value)}
-                        style={{ ...field, cursor: 'pointer', color: form.category ? '#1C0F0A' : '#9C7B6E' }}
+                        style={{ ...field, cursor: 'pointer', color: form.category ? '#241B20' : '#8C665D' }}
                         onFocus={focusField} onBlur={blurField}
                       >
                         <option value="">Select a category</option>
@@ -465,12 +466,12 @@ export function CustomOrderPage() {
                     style={{
                       display: 'inline-flex', alignItems: 'center', gap: 10,
                       padding: '14px 32px', borderRadius: 999,
-                      background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+                      background: 'linear-gradient(135deg,#E8A3B9,#F4C6A8,#F4DF9A)',
                       border: 'none', cursor: 'pointer',
                       fontFamily: 'DM Sans, sans-serif',
-                      fontSize: 13, fontWeight: 700, color: '#1C0F0A',
+                      fontSize: 13, fontWeight: 700, color: '#241B20',
                       letterSpacing: '0.06em', textTransform: 'uppercase',
-                      boxShadow: '0 4px 18px rgba(255,133,208,0.3)',
+                      boxShadow: '0 4px 18px rgba(232,163,185,0.3)',
                     }}
                   >Continue <ArrowRight size={15} /></motion.button>
                 </div>
@@ -486,23 +487,24 @@ export function CustomOrderPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.22 }}
+              className="custom-order-form-stack"
               style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
             >
               {/* Budget card */}
-              <div style={{
+              <div className="custom-order-card" style={{
                 background: 'rgba(255,255,255,0.82)',
-                border: '1px solid rgba(255,133,208,0.18)',
+                border: '1px solid rgba(232,163,185,0.18)',
                 borderRadius: 24, overflow: 'hidden',
-                boxShadow: '0 8px 40px rgba(255,133,208,0.08)',
+                boxShadow: '0 8px 40px rgba(232,163,185,0.08)',
               }}>
-                <div style={{ height: 4, background: 'linear-gradient(90deg,#FF85D0,#FFC8A2,#FFE680)' }} />
-                <div style={{ padding: '32px 40px' }}>
+                <div style={{ height: 4, background: 'linear-gradient(90deg,#E8A3B9,#F4C6A8,#F4DF9A)' }} />
+                <div className="custom-order-card__body" style={{ padding: '32px 40px' }}>
                   <h3 style={{
                     fontFamily: 'Playfair Display, serif',
-                    fontSize: 20, fontWeight: 600, color: '#1C0F0A',
+                    fontSize: 20, fontWeight: 600, color: '#241B20',
                     marginBottom: 20,
                   }}>Budget Range</h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  <div className="custom-order-budget-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                     {budgetOptions.map(b => (
                       <motion.button
                         key={b.label}
@@ -511,26 +513,26 @@ export function CustomOrderPage() {
                         style={{
                           padding: '14px 18px',
                           background: form.budget === b.label
-                            ? 'linear-gradient(135deg,rgba(255,133,208,0.15),rgba(255,200,162,0.15))'
+                            ? 'linear-gradient(135deg,rgba(232,163,185,0.15),rgba(244,198,168,0.15))'
                             : 'rgba(255,255,255,0.6)',
                           border: `1.5px solid ${form.budget === b.label
-                            ? '#FF85D0' : 'rgba(255,133,208,0.18)'}`,
+                            ? '#E8A3B9' : 'rgba(232,163,185,0.18)'}`,
                           borderRadius: 14,
                           cursor: 'pointer', textAlign: 'left',
                           transition: 'all 0.2s',
                           boxShadow: form.budget === b.label
-                            ? '0 4px 16px rgba(255,133,208,0.2)' : 'none',
+                            ? '0 4px 16px rgba(232,163,185,0.2)' : 'none',
                         }}
                       >
                         <p style={{
                           fontFamily: 'DM Sans, sans-serif',
                           fontSize: 14, fontWeight: 700,
-                          color: form.budget === b.label ? '#E8609A' : '#1C0F0A',
+                          color: form.budget === b.label ? '#9E5E73' : '#241B20',
                           marginBottom: 3,
                         }}>{b.label}</p>
                         <p style={{
                           fontFamily: 'DM Sans, sans-serif',
-                          fontSize: 12, color: '#9C7B6E',
+                          fontSize: 12, color: '#8C665D',
                         }}>{b.sub}</p>
                       </motion.button>
                     ))}
@@ -539,17 +541,17 @@ export function CustomOrderPage() {
               </div>
 
               {/* Occasion card */}
-              <div style={{
+              <div className="custom-order-card" style={{
                 background: 'rgba(255,255,255,0.82)',
-                border: '1px solid rgba(255,133,208,0.18)',
+                border: '1px solid rgba(232,163,185,0.18)',
                 borderRadius: 24, overflow: 'hidden',
-                boxShadow: '0 4px 20px rgba(255,133,208,0.06)',
+                boxShadow: '0 4px 20px rgba(232,163,185,0.06)',
               }}>
-                <div style={{ padding: '28px 40px' }}>
+                <div className="custom-order-card__body" style={{ padding: '28px 40px' }}>
                   <h3 style={{
                     fontFamily: 'Playfair Display, serif',
-                    fontSize: 18, fontWeight: 600, color: '#1C0F0A', marginBottom: 16,
-                  }}>Occasion <span style={{ fontSize: 13, fontWeight: 400, color: '#9C7B6E' }}>optional</span></h3>
+                    fontSize: 18, fontWeight: 600, color: '#241B20', marginBottom: 16,
+                  }}>Occasion <span style={{ fontSize: 13, fontWeight: 400, color: '#8C665D' }}>optional</span></h3>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                     {occasions.map(o => (
                       <button
@@ -558,13 +560,13 @@ export function CustomOrderPage() {
                         style={{
                           padding: '8px 18px', borderRadius: 999,
                           background: form.occasion === o
-                            ? 'linear-gradient(135deg,#FF85D0,#FFC8A2)'
+                            ? 'linear-gradient(135deg,#E8A3B9,#F4C6A8)'
                             : 'transparent',
                           border: `1.5px solid ${form.occasion === o
-                            ? 'transparent' : 'rgba(255,133,208,0.25)'}`,
+                            ? 'transparent' : 'rgba(232,163,185,0.25)'}`,
                           fontFamily: 'DM Sans, sans-serif',
                           fontSize: 13, fontWeight: form.occasion === o ? 700 : 400,
-                          color: form.occasion === o ? '#1C0F0A' : '#5C4033',
+                          color: form.occasion === o ? '#241B20' : '#5C4033',
                           cursor: 'pointer', transition: 'all 0.2s',
                         }}
                       >{o}</button>
@@ -574,21 +576,21 @@ export function CustomOrderPage() {
               </div>
 
               {/* ── Pinterest + images card — LUXURY ── */}
-              <div style={{
+              <div className="custom-order-card" style={{
                 background: 'rgba(255,255,255,0.82)',
-                border: '1px solid rgba(255,133,208,0.18)',
+                border: '1px solid rgba(232,163,185,0.18)',
                 borderRadius: 24, overflow: 'hidden',
-                boxShadow: '0 4px 20px rgba(255,133,208,0.06)',
+                boxShadow: '0 4px 20px rgba(232,163,185,0.06)',
               }}>
-                <div style={{ padding: '32px 40px' }}>
+                <div className="custom-order-card__body" style={{ padding: '32px 40px' }}>
                   <h3 style={{
                     fontFamily: 'Playfair Display, serif',
-                    fontSize: 20, fontWeight: 600, color: '#1C0F0A',
+                    fontSize: 20, fontWeight: 600, color: '#241B20',
                     marginBottom: 6,
                   }}>Reference Images</h3>
                   <p style={{
                     fontFamily: 'DM Sans, sans-serif',
-                    fontSize: 14, color: '#9C7B6E', marginBottom: 28,
+                    fontSize: 14, color: '#8C665D', marginBottom: 28,
                   }}>Optional but helpful — share anything that inspires your vision.</p>
 
                   {/* ── Pinterest section ── */}
@@ -621,11 +623,11 @@ export function CustomOrderPage() {
                         <div>
                           <p style={{
                             fontFamily: 'DM Sans, sans-serif',
-                            fontSize: 14, fontWeight: 700, color: '#1C0F0A',
+                            fontSize: 14, fontWeight: 700, color: '#241B20',
                           }}>Browse our Pinterest board for inspiration</p>
                           <p style={{
                             fontFamily: 'DM Sans, sans-serif',
-                            fontSize: 12, color: '#9C7B6E',
+                            fontSize: 12, color: '#8C665D',
                           }}>Right-click any image → Copy image address → paste below</p>
                         </div>
                       </div>
@@ -656,7 +658,7 @@ export function CustomOrderPage() {
                         fontFamily: 'DM Sans, sans-serif',
                         fontSize: 11, fontWeight: 700,
                         letterSpacing: '0.1em', textTransform: 'uppercase',
-                        color: '#9C7B6E', marginBottom: 10,
+                        color: '#8C665D', marginBottom: 10,
                         display: 'flex', alignItems: 'center', gap: 6,
                       }}>
                         <LinkIcon size={12} /> Paste image URL from Pinterest
@@ -680,12 +682,12 @@ export function CustomOrderPage() {
                           onClick={addPastedUrl}
                           style={{
                             padding: '11px 20px', borderRadius: 10,
-                            background: 'linear-gradient(135deg,#FF85D0,#FFC8A2)',
+                            background: 'linear-gradient(135deg,#E8A3B9,#F4C6A8)',
                             border: 'none', cursor: 'pointer',
                             fontFamily: 'DM Sans, sans-serif',
-                            fontSize: 13, fontWeight: 700, color: '#1C0F0A',
+                            fontSize: 13, fontWeight: 700, color: '#241B20',
                             whiteSpace: 'nowrap', flexShrink: 0,
-                            boxShadow: '0 3px 10px rgba(255,133,208,0.3)',
+                            boxShadow: '0 3px 10px rgba(232,163,185,0.3)',
                             display: 'flex', alignItems: 'center', gap: 5,
                           }}
                         >
@@ -717,7 +719,7 @@ export function CustomOrderPage() {
                                 style={{
                                   width: '100%', height: '100%',
                                   objectFit: 'cover', borderRadius: 12,
-                                  border: '2px solid rgba(255,133,208,0.4)',
+                                  border: '2px solid rgba(232,163,185,0.4)',
                                 }}
                                 onError={e => {
                                   const el = e.target as HTMLImageElement
@@ -727,7 +729,7 @@ export function CustomOrderPage() {
                                     el.parentElement.style.display = 'flex'
                                     el.parentElement.style.alignItems = 'center'
                                     el.parentElement.style.justifyContent = 'center'
-                                    el.parentElement.innerHTML += '<span style="font-size:11px;color:#9C7B6E;padding:4px">No preview</span>'
+                                    el.parentElement.innerHTML += '<span style="font-size:11px;color:#8C665D;padding:4px">No preview</span>'
                                   }
                                 }}
                               />
@@ -736,7 +738,7 @@ export function CustomOrderPage() {
                                 style={{
                                   position: 'absolute', top: -6, right: -6,
                                   width: 20, height: 20, borderRadius: '50%',
-                                  backgroundColor: '#1C0F0A', color: 'white',
+                                  backgroundColor: '#241B20', color: 'white',
                                   border: 'none', cursor: 'pointer',
                                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 }}
@@ -752,12 +754,12 @@ export function CustomOrderPage() {
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16,
                   }}>
-                    <div style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,133,208,0.2)' }} />
+                    <div style={{ flex: 1, height: 1, backgroundColor: 'rgba(232,163,185,0.2)' }} />
                     <span style={{
                       fontFamily: 'DM Sans, sans-serif',
-                      fontSize: 12, color: '#9C7B6E', fontWeight: 500,
+                      fontSize: 12, color: '#8C665D', fontWeight: 500,
                     }}>or upload from your device</span>
-                    <div style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,133,208,0.2)' }} />
+                    <div style={{ flex: 1, height: 1, backgroundColor: 'rgba(232,163,185,0.2)' }} />
                   </div>
 
                   {/* File upload */}
@@ -768,28 +770,28 @@ export function CustomOrderPage() {
                   <div
                     onClick={() => fileRef.current?.click()}
                     style={{
-                      border: '2px dashed rgba(255,133,208,0.3)',
+                      border: '2px dashed rgba(232,163,185,0.3)',
                       borderRadius: 16, padding: '28px 24px',
                       textAlign: 'center', cursor: 'pointer',
                       background: 'rgba(255,255,255,0.5)',
                       transition: 'all 0.2s',
                     }}
                     onMouseEnter={e => {
-                      e.currentTarget.style.borderColor = '#FF85D0'
-                      e.currentTarget.style.background = 'rgba(255,133,208,0.05)'
+                      e.currentTarget.style.borderColor = '#E8A3B9'
+                      e.currentTarget.style.background = 'rgba(232,163,185,0.05)'
                     }}
                     onMouseLeave={e => {
-                      e.currentTarget.style.borderColor = 'rgba(255,133,208,0.3)'
+                      e.currentTarget.style.borderColor = 'rgba(232,163,185,0.3)'
                       e.currentTarget.style.background = 'rgba(255,255,255,0.5)'
                     }}
                   >
-                    <Upload size={22} color="#9C7B6E" style={{ margin: '0 auto 8px' }} />
+                    <Upload size={22} color="#8C665D" style={{ margin: '0 auto 8px' }} />
                     <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: '#5C4033' }}>
                       {uploading ? 'Uploading...' : (
-                        <>Drop files or <span style={{ color: '#E8609A', fontWeight: 600 }}>click to browse</span></>
+                        <>Drop files or <span style={{ color: '#9E5E73', fontWeight: 600 }}>click to browse</span></>
                       )}
                     </p>
-                    <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: '#9C7B6E', marginTop: 4 }}>
+                    <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: '#8C665D', marginTop: 4 }}>
                       PNG, JPG up to 5MB
                     </p>
                   </div>
@@ -809,7 +811,7 @@ export function CustomOrderPage() {
                             style={{
                               width: '100%', height: '100%',
                               objectFit: 'cover', borderRadius: 12,
-                              border: '2px solid rgba(255,133,208,0.35)',
+                              border: '2px solid rgba(232,163,185,0.35)',
                             }}
                           />
                           {!cloudUrls[i] && (
@@ -820,8 +822,8 @@ export function CustomOrderPage() {
                             }}>
                               <div style={{
                                 width: 18, height: 18, borderRadius: '50%',
-                                border: '2px solid rgba(255,133,208,0.3)',
-                                borderTopColor: '#FF85D0',
+                                border: '2px solid rgba(232,163,185,0.3)',
+                                borderTopColor: '#E8A3B9',
                                 animation: 'spin 0.7s linear infinite',
                               }} />
                             </div>
@@ -830,10 +832,10 @@ export function CustomOrderPage() {
                             <div style={{
                               position: 'absolute', bottom: 4, right: 4,
                               width: 18, height: 18, borderRadius: '50%',
-                              background: 'linear-gradient(135deg,#FF85D0,#FFC8A2)',
+                              background: 'linear-gradient(135deg,#E8A3B9,#F4C6A8)',
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
                             }}>
-                              <span style={{ fontSize: 10, color: '#1C0F0A' }}>✓</span>
+                              <span style={{ fontSize: 10, color: '#241B20' }}>✓</span>
                             </div>
                           )}
                           <button
@@ -841,7 +843,7 @@ export function CustomOrderPage() {
                             style={{
                               position: 'absolute', top: -6, right: -6,
                               width: 20, height: 20, borderRadius: '50%',
-                              backgroundColor: '#1C0F0A', color: 'white',
+                              backgroundColor: '#241B20', color: 'white',
                               border: 'none', cursor: 'pointer',
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
                             }}
@@ -853,12 +855,12 @@ export function CustomOrderPage() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+              <div className="custom-order-actions" style={{ display: 'flex', gap: 10, marginTop: 4 }}>
                 <button
                   onClick={() => setStep(0)}
                   style={{
                     padding: '13px 24px', borderRadius: 999,
-                    border: '1.5px solid rgba(255,133,208,0.25)',
+                    border: '1.5px solid rgba(232,163,185,0.25)',
                     background: 'transparent',
                     fontFamily: 'DM Sans, sans-serif',
                     fontSize: 13, fontWeight: 500, color: '#5C4033', cursor: 'pointer',
@@ -872,13 +874,13 @@ export function CustomOrderPage() {
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: 10,
                     padding: '13px 28px', borderRadius: 999,
-                    background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+                    background: 'linear-gradient(135deg,#E8A3B9,#F4C6A8,#F4DF9A)',
                     border: 'none', cursor: uploading ? 'not-allowed' : 'pointer',
                     fontFamily: 'DM Sans, sans-serif',
-                    fontSize: 13, fontWeight: 700, color: '#1C0F0A',
+                    fontSize: 13, fontWeight: 700, color: '#241B20',
                     letterSpacing: '0.06em', textTransform: 'uppercase',
                     opacity: uploading ? 0.6 : 1,
-                    boxShadow: '0 4px 18px rgba(255,133,208,0.3)',
+                    boxShadow: '0 4px 18px rgba(232,163,185,0.3)',
                   }}
                 >
                   {uploading ? 'Uploading...' : <>Review <ArrowRight size={14} /></>}
@@ -895,28 +897,29 @@ export function CustomOrderPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.22 }}
+              className="custom-order-card"
               style={{
                 background: 'rgba(255,255,255,0.82)',
-                border: '1px solid rgba(255,133,208,0.18)',
+                border: '1px solid rgba(232,163,185,0.18)',
                 borderRadius: 24, overflow: 'hidden',
-                boxShadow: '0 8px 40px rgba(255,133,208,0.1)',
+                boxShadow: '0 8px 40px rgba(232,163,185,0.1)',
               }}
             >
-              <div style={{ height: 4, background: 'linear-gradient(90deg,#FF85D0,#FFC8A2,#FFE680)' }} />
-              <div style={{ padding: '36px 40px' }}>
+              <div style={{ height: 4, background: 'linear-gradient(90deg,#E8A3B9,#F4C6A8,#F4DF9A)' }} />
+              <div className="custom-order-card__body" style={{ padding: '36px 40px' }}>
                 <h2 style={{
                   fontFamily: 'Playfair Display, serif',
-                  fontSize: 24, fontWeight: 600, color: '#1C0F0A',
+                  fontSize: 24, fontWeight: 600, color: '#241B20',
                   letterSpacing: '-0.02em', marginBottom: 6,
                 }}>Review & send</h2>
                 <p style={{
                   fontFamily: 'DM Sans, sans-serif',
-                  fontSize: 14, color: '#9C7B6E', marginBottom: 28,
+                  fontSize: 14, color: '#8C665D', marginBottom: 28,
                 }}>Everything look right? We'll reply within 24 hours.</p>
 
                 {/* Summary */}
                 <div style={{
-                  border: '1px solid rgba(255,133,208,0.15)',
+                  border: '1px solid rgba(232,163,185,0.15)',
                   borderRadius: 16, overflow: 'hidden', marginBottom: 24,
                 }}>
                   {[
@@ -935,18 +938,18 @@ export function CustomOrderPage() {
                   ].map((row, i) => (
                     <div key={row.label} style={{
                       display: 'flex', gap: 20, padding: '12px 20px',
-                      backgroundColor: i % 2 === 0 ? 'rgba(255,255,255,0.7)' : 'rgba(255,133,208,0.03)',
-                      borderBottom: '1px solid rgba(255,133,208,0.08)',
+                      backgroundColor: i % 2 === 0 ? 'rgba(255,255,255,0.7)' : 'rgba(232,163,185,0.03)',
+                      borderBottom: '1px solid rgba(232,163,185,0.08)',
                     }}>
                       <span style={{
                         fontFamily: 'DM Sans, sans-serif',
                         fontSize: 11, fontWeight: 700,
                         letterSpacing: '0.1em', textTransform: 'uppercase',
-                        color: '#9C7B6E', minWidth: 80, paddingTop: 2, flexShrink: 0,
+                        color: '#8C665D', minWidth: 80, paddingTop: 2, flexShrink: 0,
                       }}>{row.label}</span>
                       <span style={{
                         fontFamily: 'DM Sans, sans-serif',
-                        fontSize: 14, color: '#1C0F0A',
+                        fontSize: 14, color: '#241B20',
                       }}>{row.value}</span>
                     </div>
                   ))}
@@ -956,7 +959,7 @@ export function CustomOrderPage() {
                       display: 'block', fontFamily: 'DM Sans, sans-serif',
                       fontSize: 11, fontWeight: 700,
                       letterSpacing: '0.1em', textTransform: 'uppercase',
-                      color: '#9C7B6E', marginBottom: 8,
+                      color: '#8C665D', marginBottom: 8,
                     }}>Vision</span>
                     <p style={{
                       fontFamily: 'DM Sans, sans-serif',
@@ -965,12 +968,12 @@ export function CustomOrderPage() {
                   </div>
 
                   {allImages.length > 0 && (
-                    <div style={{ padding: '16px 20px', backgroundColor: 'rgba(255,133,208,0.03)' }}>
+                    <div style={{ padding: '16px 20px', backgroundColor: 'rgba(232,163,185,0.03)' }}>
                       <span style={{
                         display: 'block', fontFamily: 'DM Sans, sans-serif',
                         fontSize: 11, fontWeight: 700,
                         letterSpacing: '0.1em', textTransform: 'uppercase',
-                        color: '#9C7B6E', marginBottom: 10,
+                        color: '#8C665D', marginBottom: 10,
                       }}>Reference Images</span>
                       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                         {allImages.map((img, i) => (
@@ -984,7 +987,7 @@ export function CustomOrderPage() {
                             style={{
                               width: 56, height: 56,
                               objectFit: 'cover', borderRadius: 10,
-                              border: '1px solid rgba(255,133,208,0.3)',
+                              border: '1px solid rgba(232,163,185,0.3)',
                             }}
                             onError={e => (e.target as HTMLImageElement).style.display = 'none'}
                           />
@@ -998,16 +1001,16 @@ export function CustomOrderPage() {
                 <div style={{
                   display: 'flex', alignItems: 'flex-start', gap: 12,
                   padding: '14px 18px',
-                  background: 'linear-gradient(135deg,rgba(255,133,208,0.07),rgba(255,200,162,0.07))',
-                  border: '1px solid rgba(255,133,208,0.18)',
+                  background: 'linear-gradient(135deg,rgba(232,163,185,0.07),rgba(244,198,168,0.07))',
+                  border: '1px solid rgba(232,163,185,0.18)',
                   borderRadius: 12, marginBottom: 24,
                 }}>
-                  <Sparkles size={15} color="#E8609A" style={{ flexShrink: 0, marginTop: 2 }} />
+                  <Sparkles size={15} color="#9E5E73" style={{ flexShrink: 0, marginTop: 2 }} />
                   <p style={{
                     fontFamily: 'DM Sans, sans-serif',
                     fontSize: 13, color: '#5C4033', lineHeight: 1.6,
                   }}>
-                    <strong style={{ color: '#E8609A' }}>No payment required now.</strong>{' '}
+                    <strong style={{ color: '#9E5E73' }}>No payment required now.</strong>{' '}
                     We'll send a personalised quote — you approve before anything is made.
                     Cash on delivery only.
                   </p>
@@ -1022,12 +1025,12 @@ export function CustomOrderPage() {
                   }}>{submitError}</div>
                 )}
 
-                <div style={{ display: 'flex', gap: 10 }}>
+                <div className="custom-order-actions" style={{ display: 'flex', gap: 10 }}>
                   <button
                     onClick={() => setStep(1)}
                     style={{
                       padding: '13px 24px', borderRadius: 999,
-                      border: '1.5px solid rgba(255,133,208,0.25)',
+                      border: '1.5px solid rgba(232,163,185,0.25)',
                       background: 'transparent',
                       fontFamily: 'DM Sans, sans-serif',
                       fontSize: 13, fontWeight: 500, color: '#5C4033', cursor: 'pointer',
@@ -1041,13 +1044,13 @@ export function CustomOrderPage() {
                     style={{
                       display: 'inline-flex', alignItems: 'center', gap: 10,
                       padding: '13px 28px', borderRadius: 999,
-                      background: 'linear-gradient(135deg,#FF85D0,#FFC8A2,#FFE680)',
+                      background: 'linear-gradient(135deg,#E8A3B9,#F4C6A8,#F4DF9A)',
                       border: 'none', cursor: submitting ? 'not-allowed' : 'pointer',
                       fontFamily: 'DM Sans, sans-serif',
-                      fontSize: 13, fontWeight: 700, color: '#1C0F0A',
+                      fontSize: 13, fontWeight: 700, color: '#241B20',
                       letterSpacing: '0.06em', textTransform: 'uppercase',
                       opacity: submitting ? 0.7 : 1,
-                      boxShadow: '0 4px 18px rgba(255,133,208,0.35)',
+                      boxShadow: '0 4px 18px rgba(232,163,185,0.35)',
                     }}
                   >
                     {submitting ? (
@@ -1055,7 +1058,7 @@ export function CustomOrderPage() {
                         <div style={{
                           width: 14, height: 14, borderRadius: '50%',
                           border: '2px solid rgba(28,15,10,0.3)',
-                          borderTopColor: '#1C0F0A',
+                          borderTopColor: '#241B20',
                           animation: 'spin 0.7s linear infinite',
                         }} />
                         Sending...
