@@ -180,7 +180,7 @@ export function ProductModal({ product, onClose }: Props) {
                 fontSize: 11, fontWeight: 700, letterSpacing: '0.12em',
                 textTransform: 'uppercase', marginBottom: 12,
               }}>
-                {product.category?.name}
+                {product.subcategory?.name || product.category?.name}
               </p>
 
               <h2 style={{

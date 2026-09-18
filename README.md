@@ -26,7 +26,7 @@
 
 - Dashboard
 - Product Management
-- Category Management
+- Category and Subcategory Management
 - Order Management
 - Customer Management
 - Shipping charge and free-shipping threshold settings
@@ -34,6 +34,10 @@
 ### Shipping settings setup
 
 Shipping settings are stored in Supabase so an admin can update them from `/admin/settings`. Apply the SQL migration in `supabase/migrations/20260826000000_create_store_settings.sql` to the project before using the Save changes button. Anyone can read the settings for checkout, while only users with `role = 'admin'` in `user_profiles` can update them.
+
+### Subcategories setup
+
+Apply `supabase/migrations/20260917000000_add_subcategories.sql` to Supabase before using subcategories. It creates the nested collection table, adds the optional `products.subcategory_id` relationship, and allows public reads with admin-only create, update, and delete access. Products remain assigned to their top-level category when a subcategory is deleted.
 
 ### Product variants
 

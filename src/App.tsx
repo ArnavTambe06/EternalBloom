@@ -39,6 +39,7 @@ function AppRoutes() {
         {/* Public */}
         <Route path="/" element={<HomePage />} />
         <Route path="/categories/:slug" element={<CategoryPage />} />
+        <Route path="/categories/:slug/:subcategorySlug" element={<CategoryPage />} />
         <Route path="/custom-order" element={<CustomOrderPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />

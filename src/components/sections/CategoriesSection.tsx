@@ -133,6 +133,17 @@ export function CategoriesSection() {
                   </div>
                 </div>
               </Link>
+              {cat.subcategories && cat.subcategories.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, padding: '8px 2px 0' }} aria-label={`${cat.name} subcategories`}>
+                  {cat.subcategories.slice(0, 4).map(subcategory => (
+                    <Link key={subcategory.id} to={`/categories/${cat.slug}/${subcategory.slug}`} style={{
+                      padding: '4px 8px', borderRadius: 999,
+                      background: 'rgba(232,163,185,0.1)', color: 'var(--accent)',
+                      fontFamily: 'var(--font-body)', fontSize: 10, fontWeight: 600,
+                    }}>{subcategory.name}</Link>
+                  ))}
+                </div>
+              )}
             </motion.div>
           ))}
         </div>

@@ -6,7 +6,7 @@ import {
   Image as ImageIcon,
 } from 'lucide-react'
 import { supabase } from '@/services/supabase'
-import type { Product, Category, ProductVariant } from '@/types'
+import type { Product, Category, Subcategory, ProductVariant } from '@/types'
 
 /* ── Shared styles ── */
 const palette = {
@@ -49,7 +49,7 @@ const LBL: React.CSSProperties = {
 
 const emptyForm = {
   name: '', slug: '', description: '', price: '',
-  compare_price: '', category_id: '', materials: '',
+  compare_price: '', category_id: '', subcategory_id: '', materials: '',
   dimensions: '', care_instructions: '', stock_count: '0',
   is_available: true, is_featured: false,
   images: [] as string[],
@@ -62,6 +62,7 @@ type FormMode = 'closed' | 'create' | 'edit'
 export function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
@@ -79,11 +80,13 @@ export function AdminProducts() {
 
   async function load() {
     const [{ data: prods }, { data: cats }] = await Promise.all([
-      supabase.from('products').select('*, category:categories(*)').order('created_at', { ascending: false }),
+      supabase.from('products').select('*, category:categories(*), subcategory:subcategories(*)').order('created_at', { ascending: false }),
       supabase.from('categories').select('*').order('name'),
     ])
+    const { data: subs } = await supabase.from('subcategories').select('*').order('sort_order', { ascending: true }).order('name', { ascending: true })
     setProducts((prods as any) || [])
     setCategories((cats as any) || [])
+    setSubcategories((subs as any) || [])
     setLoading(false)
   }
 
@@ -113,7 +116,7 @@ export function AdminProducts() {
     setForm({
       name: p.name, slug: p.slug, description: p.description,
       price: String(p.price), compare_price: String(p.compare_price || ''),
-      category_id: p.category_id || '', materials: p.materials || '',
+      category_id: p.category_id || '', subcategory_id: p.subcategory_id || '', materials: p.materials || '',
       dimensions: p.dimensions || '', care_instructions: p.care_instructions || '',
       stock_count: String(p.stock_count), is_available: p.is_available,
       is_featured: p.is_featured, images: p.images || [],
@@ -136,6 +139,7 @@ export function AdminProducts() {
       price: parseFloat(form.price),
       compare_price: form.compare_price ? parseFloat(form.compare_price) : null,
       category_id: form.category_id || null,
+      subcategory_id: form.subcategory_id || null,
       materials: form.materials, dimensions: form.dimensions,
       care_instructions: form.care_instructions,
       stock_count: parseInt(form.stock_count),
@@ -152,12 +156,19 @@ export function AdminProducts() {
       const { error } = await supabase.from('products').update(payload).eq('id', editing.id)
       if (!error) {
         setProducts(prev => prev.map(p =>
-          p.id === editing.id ? { ...p, ...payload, category: p.category } as any : p
+          p.id === editing.id
+            ? {
+                ...p,
+                ...payload,
+                category: categories.find(category => category.id === form.category_id),
+                subcategory: subcategories.find(subcategory => subcategory.id === form.subcategory_id),
+              } as any
+            : p
         ))
       }
     } else {
       const { data, error } = await supabase.from('products')
-        .insert(payload).select('*, category:categories(*)').single()
+        .insert(payload).select('*, category:categories(*), subcategory:subcategories(*)').single()
       if (!error && data) setProducts(prev => [data as any, ...prev])
     }
     setSaving(false)
@@ -251,7 +262,8 @@ export function AdminProducts() {
 
   const filtered = products
     .filter(p => p.name.toLowerCase().includes(search.toLowerCase()) ||
-      (p.category as any)?.name?.toLowerCase().includes(search.toLowerCase()))
+      (p.category as any)?.name?.toLowerCase().includes(search.toLowerCase()) ||
+      (p.subcategory as any)?.name?.toLowerCase().includes(search.toLowerCase()))
     .filter(p => categoryFilter === 'all' || p.category_id === categoryFilter)
 
   /* ── Card toggle helpers ── */
@@ -407,7 +419,7 @@ export function AdminProducts() {
                   fontFamily: 'DM Sans, sans-serif', fontSize: 10,
                   fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
                   color: palette.rose, marginBottom: 5,
-                }}>{(p.category as any)?.name || 'No category'}</p>
+                }}>{(p.category as any)?.name || 'No category'}{(p.subcategory as any)?.name ? ` · ${(p.subcategory as any).name}` : ''}</p>
                 <p style={{
                   fontFamily: 'Playfair Display, serif',
                   fontSize: 16, fontWeight: 600, color: palette.ink,
@@ -707,7 +719,13 @@ export function AdminProducts() {
                       <select
                         style={{ ...F, cursor: 'pointer' }}
                         value={form.category_id}
-                        onChange={e => set('category_id', e.target.value)}
+                        onChange={e => {
+                          const categoryId = e.target.value
+                          set('category_id', categoryId)
+                          if (!subcategories.some(subcategory => subcategory.id === form.subcategory_id && subcategory.category_id === categoryId)) {
+                            set('subcategory_id', '')
+                          }
+                        }}
                         onFocus={focusF} onBlur={blurF}
                       >
                         <option value="">No category</option>
@@ -715,6 +733,25 @@ export function AdminProducts() {
                           <option key={c.id} value={c.id}>{c.name}</option>
                         ))}
                       </select>
+                    </div>
+
+                    <div>
+                      <label style={LBL}>Subcategory</label>
+                      <select
+                        style={{ ...F, cursor: form.category_id ? 'pointer' : 'not-allowed' }}
+                        value={form.subcategory_id}
+                        disabled={!form.category_id}
+                        onChange={e => set('subcategory_id', e.target.value)}
+                        onFocus={focusF} onBlur={blurF}
+                      >
+                        <option value="">No subcategory</option>
+                        {subcategories
+                          .filter(subcategory => subcategory.category_id === form.category_id)
+                          .map(subcategory => <option key={subcategory.id} value={subcategory.id}>{subcategory.name}</option>)}
+                      </select>
+                      {form.category_id && subcategories.filter(subcategory => subcategory.category_id === form.category_id).length === 0 && (
+                        <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, color: palette.muted, marginTop: 5 }}>Create one from Admin → Categories.</p>
+                      )}
                     </div>
 
                     <div>

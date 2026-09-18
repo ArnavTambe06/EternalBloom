@@ -4,7 +4,20 @@ export interface Category {
   slug: string
   description?: string
   image_url?: string
+  subcategories?: Subcategory[]
   created_at: string
+}
+
+export interface Subcategory {
+  id: string
+  category_id: string
+  name: string
+  slug: string
+  description?: string
+  image_url?: string
+  sort_order?: number
+  created_at: string
+  category?: Category
 }
 
 export interface Product {
@@ -16,6 +29,8 @@ export interface Product {
   compare_price?: number
   category_id: string
   category?: Category
+  subcategory_id?: string
+  subcategory?: Subcategory
   images: string[]
   materials?: string
   dimensions?: string
