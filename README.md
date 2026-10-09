@@ -43,6 +43,17 @@ Apply `supabase/migrations/20260917000000_add_subcategories.sql` to Supabase bef
 
 In Admin > Products, add each sellable form, style, size, or colour under Product Variants. Add the variant name, optionally paste image URLs, then upload additional images on the saved variant. Customers choose the variant in the product modal; its selected name and images are saved with the cart and order.
 
+### Application QR code
+
+The standalone `generate_qr.py` script creates a QR code for the deployed application. Install the dependency once, replace `APPLICATION_LINK` in the script with the application URL, and run:
+
+```bash
+pip install "qrcode[pil]"
+python generate_qr.py
+```
+
+The generated file is saved as `public/application-qr.png` and is served by the app at `/application-qr.png`.
+
 ---
 
 ## 🛠 Tech Stack
